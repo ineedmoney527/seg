@@ -1,0 +1,286 @@
+/* * {
+    margin: 0;
+    padding: 0;
+}
+
+body {
+    background: rgb(40,52,70);
+    background: linear-gradient(345deg, rgba(40,52,70,1) 36%,
+    rgba(50,73,107,1) 58%, rgba(69,124,204,1) 82%, rgba(180,205,253,1) 95%);
+    margin: 0;
+    padding: 0;
+    font-family: 'Alata', sans-serif;
+    height: 100%;
+    width: 100%;
+} */
+
+.inventory-system {
+  display: flex;
+  height: 100vh;
+  width: 100%;
+  margin: 0;
+}
+
+.sidebar {
+  margin: 0;
+  padding: 0;
+  width: 220px;
+  height: 100%;
+  flex-direction: column;
+  /*background-color: red;*/
+  /*overflow: auto;!*specifies that the browser should provide a scroll bar to view the overflowed content, only if necessary.*/
+  /*If the content doesn't overflow, no scroll bars will be shown.*/
+}
+.Logo {
+  margin-top: 20px;
+  margin-left: 20px;
+  width: 185px;
+  height: 55px;
+  margin-bottom: 30px;
+  filter: brightness(0) invert(1) contrast(5);
+}
+
+.footer {
+  background-color: transparent;
+  color: white;
+  width: 250px;
+  height: 50px;
+  padding: 20px;
+  margin-top: 280px;
+  margin-left: 30px;
+}
+
+.barbutton {
+  display: flex;
+  flex-direction: column;
+  color: white;
+  padding: 16px;
+}
+
+.Dashboard,
+.Inventory,
+.Book-Issues {
+  width: 30px;
+  height: 30px;
+  margin-right: 10px;
+}
+
+.Report {
+  width: 30px;
+  height: 30px;
+  margin-right: 25px;
+  margin-left: -14px;
+}
+
+.LogOut {
+  width: 35px;
+  height: 35px;
+  margin-right: 22px;
+  margin-left: -5px;
+}
+
+.baseButton {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 15px;
+  padding: 16px;
+  width: 200px; /* Adjust based on actual needs */
+  height: 40px;
+  cursor: pointer;
+  border: none;
+  border-radius: 18px;
+  margin-left: 5px;
+  margin-bottom: 10px; /* Ensure consistent spacing */
+  transition: background-color 0.3s, color 0.3s, filter 0.3s ease;
+}
+.baseButton.active {
+  background-color: white;
+  color: #183764;
+}
+
+.baseButton {
+  background-color: transparent;
+  color: white;
+}
+
+.baseButton:hover:not(.active) {
+  background-color: #32496b;
+  color: #b4cdfd;
+  border-radius: 15px;
+}
+
+.right-content2 {
+  flex: 1; /* Make the content area flex to fill up the remaining space */
+  /*padding: 20px; !* Add padding for better appearance *!*/
+  margin-left: 0;
+  margin-right: 10px;
+  /*overflow-y: auto; !* Add scroll if content overflows *!*/
+}
+
+header h1 {
+  font-family: "Alata";
+  color: white;
+  display: flex;
+  flex-direction: column;
+  align-content: center;
+  margin-top: 0.5em;
+  /*margin-left: 0.5em;*/
+  padding-top: 10px;
+  width: 100%;
+  height: 75px;
+  /*background-color: #325434;*/
+}
+
+.main-content2 {
+  padding-top: 10px;
+  background-color: #f3f3ff;
+  justify-content: space-around;
+  width: 100%;
+  height: 80vh;
+}
+
+.actions {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.inputBox {
+  margin-top: 25px;
+  margin-left: 10px;
+  width: 30em;
+  padding: 8px 12px; /* Adjust padding as needed */
+  font-size: 16px; /* Adjust font size as needed */
+  border: transparent; /* Border color */
+  border-radius: 10px; /* Border radius */
+  outline: none; /* Remove outline */
+  transition: border-color 0.3s ease; /* Transition effect for border color */
+}
+
+.inputBox:focus {
+  background-color: #282c34;
+  color: white;
+  border: 1px solid #ccc;
+  border-color: #007bff; /* Border color on focus */
+}
+
+.inputBox:hover {
+  background-color: #282c34;
+  color: white;
+}
+
+.actionButtonAdd,
+.actionButtonEdit,
+.actionButtonRemove {
+  margin-top: 10px;
+  margin-right: 10px;
+  font-size: 15px;
+  padding: 5px;
+  width: 6em;
+  color: #494949;
+  background-color: white;
+  border-radius: 15px;
+  cursor: pointer;
+  border: transparent;
+}
+
+.actionButtonAdd:hover {
+  color: white;
+  background-color: #32496b;
+  transition: background-color 0.3s, color 0.3s, filter 0.3s ease;
+}
+
+.actionButtonEdit:hover {
+  color: white;
+  background-color: #f3b95f;
+  transition: background-color 0.3s, color 0.3s, filter 0.3s ease;
+}
+
+.actionButtonRemove:hover {
+  background-color: #d04848;
+  color: white;
+  transition: background-color 0.3s, color 0.3s, filter 0.3s ease;
+}
+
+.actionButtonRemove .removeBook {
+  width: 30px;
+  height: 30px;
+}
+
+.actionButtonEdit .editBook {
+  width: 30px;
+  height: 30px;
+}
+
+.actionButtonAdd:hover .addBook {
+  width: 30px;
+  height: 30px;
+  filter: brightness(0) invert(1);
+}
+
+.actionButtonEdit:hover .editBook {
+  width: 30px;
+  height: 30px;
+  filter: brightness(0) invert(1);
+}
+
+.actionButtonRemove:hover .removeBook {
+  width: 30px;
+  height: 30px;
+  filter: brightness(0) invert(1);
+}
+
+.bookTable {
+  margin-top: 10px;
+  width: 100%;
+  border-collapse: collapse;
+  border-radius: 15px;
+}
+
+.bookTable th:nth-child(1),
+.bookTable th:nth-child(2) {
+  width: 5px;
+}
+
+.bookTable td:nth-child(3) {
+  width: 120px;
+}
+
+.bookTable td:nth-child(4) {
+  width: 230px;
+}
+
+.bookTable td {
+  font-size: 13px;
+  wrap-option: on;
+  padding: 8px;
+  text-align: left;
+  color: #aaaaaa;
+}
+
+.bookTable th,
+.bookTable td {
+  text-align: center;
+  border-bottom: 0.5px solid #aaaaaa;
+  width: 100px;
+  padding: 8px;
+}
+
+.bookTable th:last-child,
+.bookTable td:last-child {
+  border-right: none; /* Remove border on the last column */
+}
+
+.bookTable thead {
+  background-color: #242732;
+  color: white;
+  height: 40px;
+}
+
+.selected-row {
+  background-color: white; /* Light gray background color */
+  color: white;
+  font-weight: bold; /* Bold font for the selected row */
+  /* Add any other styles you want for the selected row */
+}

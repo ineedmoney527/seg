@@ -1,0 +1,284 @@
+/*.sidebar{*/
+/*    display: flex;*/
+/*    flex-direction: column;*/
+/*    background-color: #9EC6FF;*/
+/*    !*padding: 20px;*!*/
+/*    width: 250px;*/
+/*    height: 580px;*/
+/*}*/
+
+/*.Logo{*/
+/*    width:250px;*/
+/*    height:80px;*/
+/*    margin-bottom: 35px;*/
+/*}*/
+
+/*.barButton{*/
+/*    font-size: 15px;*/
+/*    padding: 20px;*/
+/*    width: 250px;*/
+/*    height: 50px;*/
+/*    cursor: pointer;*/
+/*    background-color: transparent;*/
+/*    border: none;*/
+/*    color: #656565;*/
+/*    transition: background-color 0.3s, color 0.3s;*/
+/*}*/
+
+/*.content{*/
+/*    flex-direction: row;*/
+/*    width: 600px;*/
+/*    height: 250px;*/
+/*}*/
+
+/*.titleContainer{*/
+/*    color: #282c34;*/
+/*    position: absolute;*/
+/*    top: 0;*/
+/*    left: 300px;*/
+/*    text-align: center;*/
+/*}*/
+
+/*.Sbutton{*/
+/*    display: flex;*/
+/*    align-items: center;*/
+/*    justify-content: center;*/
+/*    font-size: 15px;*/
+/*    padding: 20px;*/
+/*    width: 150px;*/
+/*    height: 40px;*/
+/*    cursor: pointer;*/
+/*    background-color: white;*/
+/*    margin-bottom: 5px;*/
+/*    border: none;*/
+/*    border-radius: 20px;*/
+/*    color: #183764;*/
+/*    margin-left: 25px;*/
+/*}*/
+
+/*.NSbutton:hover{*/
+/*    display: flex;*/
+/*    align-items: center;*/
+/*    justify-content: center;*/
+/*    font-size: 15px;*/
+/*    padding: 20px;*/
+/*    width: 150px;*/
+/*    height: 40px;*/
+/*    cursor: pointer;*/
+/*    background-color: white;*/
+/*    margin-bottom: 5px;*/
+/*    border: none;*/
+/*    border-radius: 20px;*/
+/*    color: #183764;*/
+/*    margin-left: 25px;*/
+/*}*/
+
+/*.Lecturer{*/
+/*    transition: filter 0.3s ease;*/
+/*}*/
+
+/*.NSbutton:hover .Lecturer{*/
+/*    filter: brightness(80) invert(1);*/
+/*}*/
+
+/*.Student{*/
+/*    transition: filter 0.3s ease;*/
+/*}*/
+
+/*.NSbutton:hover .Student{*/
+/*    filter: brightness(80) invert(1);*/
+/*}*/
+
+/*.Logout{*/
+/*    transition: filter 0.3s ease;*/
+/*}*/
+
+/*.NSbutton:hover .Logout{*/
+/*    filter: brightness(80) invert(1);*/
+/*}*/
+
+/*.NSbutton{*/
+/*    display: flex;*/
+/*    align-items: center;*/
+/*    justify-content: center;*/
+/*    font-size: 15px;*/
+/*    padding: 20px;*/
+/*    width: 200px;*/
+/*    height: 50px;*/
+/*    cursor: pointer;*/
+/*    background-color: transparent;*/
+/*    margin-bottom: 10px;*/
+/*    border: none;*/
+/*    color: white;*/
+/*    transition: background-color 0.3s, color 0.3s;*/
+/*}*/
+
+.fade-enter {
+  opacity: 0;
+}
+
+.fade-enter-active {
+  opacity: 1;
+  transition: opacity;
+}
+
+.main-content {
+  display: flex;
+  flex-direction: column;
+
+  justify-content: center;
+  flex-grow: 1;
+  gap: 15px;
+}
+.sidebar {
+  background: linear-gradient(to bottom, #457ccc 0%, #051a39 100%);
+  color: white;
+  width: 200px;
+  height: 100%;
+}
+
+.barButton {
+  display: flex;
+  flex-direction: column;
+}
+
+.Librarian {
+  width: 25px;
+  height: 25px;
+  margin-right: 10px;
+}
+.Lecturer {
+  width: 25px;
+  height: 25px;
+  margin-right: 10px;
+}
+.Student {
+  width: 25px;
+  height: 25px;
+  margin-right: 10px;
+}
+.Logout {
+  width: 25px;
+  height: 25px;
+  margin-right: 10px;
+}
+
+/* Base button style */
+.baseButton {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 15px;
+  padding: 20px;
+  width: 150px; /* Adjust based on actual needs */
+  height: 40px;
+  cursor: pointer;
+  border: none;
+  border-radius: 20px;
+  margin-left: 25px;
+  margin-bottom: 10px; /* Ensure consistent spacing */
+  transition: background-color 0.3s, color 0.3s, filter 0.3s ease;
+}
+
+/* Specific styles for different button types */
+.Sbutton {
+  background-color: white;
+  color: #183764;
+}
+
+.NSbutton {
+  background-color: transparent;
+  color: white;
+}
+
+/* Hover effects */
+.baseButton:hover {
+  /*filter: brightness(80%);*/
+  background-color: white;
+  color: #183764;
+}
+
+/* Icon specific transitions */
+.Lecturer,
+.Student,
+.Logout {
+  transition: filter 0.3s ease;
+}
+
+.NSbutton:hover .Lecturer,
+.NSbutton:hover .Student,
+.NSbutton:hover .Logout {
+  filter: brightness(80%) invert(1);
+}
+
+.Logo {
+  margin-top: 15px;
+  margin-left: 5px;
+  width: 185px;
+  height: 65px;
+  margin-bottom: 30px;
+  filter: brightness(0) invert(1) contrast(5);
+  /*box-shadow: inset 0px 4px 250px #FFFFFF;*/
+  /*filter: invert(100%) brightness(50) saturate(0%) hue-rotate(180deg); !* Attempt to make the logo white *!*/
+}
+
+/* input[type="text"] {
+  border-radius: 20px;
+  border: white;
+  filter: drop-shadow(3px 3px 3px rgba(0, 0, 0, 0.4)) brightness(120%);
+} */
+
+.actions {
+  display: flex;
+  justify-content: space-between;
+  /*Aligns the search bar to the left and button to the right*/
+  margin-bottom: 50px;
+  margin-left: 50px;
+  /*border-radius: 20px;*/
+}
+.actionButton > button {
+  width: 80px;
+  height: 25px;
+  margin-left: 10px; /*This will add space to the left of each button*/
+  border-radius: 10px;
+  border: white;
+  color: #183764;
+  filter: drop-shadow(3px 3px 3px rgba(0, 0, 0, 0.4)) brightness(120%);
+  transition: filter 0.3s ease;
+}
+
+/*Add this to remove the margin for the first button*/
+.actionButton > button:first-child {
+  margin-left: 0;
+  border-radius: 20px;
+}
+
+.actionButton > button:hover {
+  cursor: pointer;
+  background-color: #183764;
+  color: white;
+  /*filter: brightness(100) invert(1);*/
+}
+
+.tables {
+  border-collapse: collapse;
+  width: 100%;
+}
+
+.tables th,
+.tables td {
+  padding: 8px; /* Adjust padding as needed */
+  text-align: left;
+  border: black solid 4px;
+}
+
+.tables th {
+  background-color: #f2f2f2;
+}
+
+.textField {
+  font-size: 40px;
+}
+.header-center .MuiDataGrid-colCell {
+  text-align: center;
+}

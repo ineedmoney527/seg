@@ -1,0 +1,317 @@
+.modal-wrapper {
+  position: fixed;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.5); /* Semi-transparent background */
+  z-index: 999;
+}
+.modal-content {
+  background-color: #fff;
+  position: fixed;
+
+  border-radius: 7%;
+  border: lightskyblue solid 4px;
+  box-shadow: 0px 0px 15px rgba(0, 0, 0, 0.2);
+
+  float: left;
+  left: 50%;
+  top: 50%;
+  max-height: 90%;
+  transform: translate(-50%, -50%);
+  overflow-y: auto;
+}
+.close {
+  font-size: 25px;
+  color: black;
+}
+.close-wrapper {
+  position: absolute;
+  top: 5px;
+  right: 25px;
+  cursor: pointer;
+}
+.book-cover-section {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-top: 9px;
+  gap: 10px;
+}
+.book-status {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+.footer {
+  background-color: transparent;
+  color: white;
+  width: 250px;
+  height: 50px;
+  padding: 20px;
+  margin-top: 280px;
+  margin-left: 30px;
+}
+
+.barbutton {
+  display: flex;
+  flex-direction: column;
+  color: white;
+  padding: 16px;
+}
+
+.Dashboard,
+.Inventory,
+.Book-Issues {
+  width: 30px;
+  height: 30px;
+  margin-right: 10px;
+}
+
+.Report {
+  width: 30px;
+  height: 30px;
+  margin-right: 25px;
+  margin-left: -14px;
+}
+
+.LogOut {
+  width: 35px;
+  height: 35px;
+  margin-right: 22px;
+  margin-left: -5px;
+}
+
+.baseButton {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 15px;
+  padding: 16px;
+  width: 150px; /* Adjust based on actual needs */
+  height: 40px;
+  cursor: pointer;
+  border: none;
+  border-radius: 18px;
+  margin-left: 30px;
+  margin-bottom: 10px; /* Ensure consistent spacing */
+  transition: background-color 0.3s, color 0.3s, filter 0.3s ease;
+}
+.baseButton.active {
+  background-color: white;
+  color: #183764;
+}
+
+.baseButton {
+  background-color: transparent;
+  color: white;
+}
+
+.baseButton:hover:not(.active) {
+  background-color: #32496b;
+  color: #b4cdfd;
+  border-radius: 15px;
+}
+
+/* header {
+  color: white;
+  display: flex;
+  flex-direction: column;
+  align-content: center;
+  margin-top: 1.5em;
+  width: 100%;
+  height: 80px;
+} */
+
+/*.back-pane1{*/
+/*    display: flex;*/
+/*    background-color: #E4E4E9;*/
+/*    width: 100%;*/
+/*    z-index: -10; !* Ensure the grey pane is behind other content *!*/
+/*    !*margin-top: 150px;*!*/
+/*    !*margin-left: 10px;*!*/
+/*}*/
+
+.content2 {
+  flex: 1; /* Make the content area flex to fill up the remaining space */
+  padding: 20px; /* Add padding for better appearance */
+  overflow-y: auto; /* Add scroll if content overflows */
+  padding: 10px;
+}
+
+.content2 h2 {
+  /*position: relative;*/
+  margin-top: 10px;
+  font-family: "Alata";
+  color: #242732;
+}
+
+.cover {
+  width: 160px;
+  height: 200px;
+  margin-top: 13px;
+  font-size: 44px;
+  color: #494949;
+  background-color: #eeeeee;
+  border-radius: 10px;
+  border: transparent;
+  cursor: pointer;
+}
+.selected-image {
+  height: 100%;
+  width: 100%;
+  border: grey solid 1px;
+  border-radius: 10px;
+  object-fit: cover;
+}
+.addCoverBtn:hover {
+  color: white;
+  background-color: #32496b;
+}
+
+div.content {
+  /*margin-left: 10px;*/
+  padding: 1px 16px;
+  /*height: 550px;*/
+}
+
+.top-container {
+  display: flex;
+  gap: 50px;
+  width: 100%;
+}
+.middle-container {
+  display: flex;
+
+  gap: 72px;
+  width: 100%;
+}
+.short-input {
+  display: flex;
+  flex-direction: column;
+  gap: 25px;
+}
+.bottom-container {
+  display: flex;
+  justify-content: center;
+  width: 100%;
+}
+.book-info {
+  display: flex;
+  flex-direction: column;
+  /*background-color: rebeccapurple;*/
+}
+
+/*On screens that are less than 700px wide, make the sidebar into a topbar*/
+@media screen and (max-width: 700px) {
+  .sidebar {
+    width: 100%;
+    height: auto;
+    position: relative;
+  }
+  .sidebar a {
+    float: left;
+  }
+  div.content {
+    margin-left: 0;
+  }
+  .back-pane1 {
+    float: none;
+  }
+}
+
+/*On screens that are less than 400px, display the bar vertically, instead of horizontally*/
+@media screen and (max-width: 400px) {
+  .sidebar a {
+    text-align: center;
+    float: none;
+  }
+}
+.status {
+  width: 160px; /* Example width */
+  padding: 10px; /* Example padding */
+  font-size: 16px; /* Example font size */
+  border-radius: 5px; /* Example border radius */
+  border: transparent;
+  cursor: pointer; /* Show pointer cursor */
+  margin-top: 20px;
+  margin-left: 2.8em;
+}
+
+/* Style for the options */
+.status option {
+  padding: 10px; /* Example padding */
+  font-size: 16px; /* Example font size */
+  background-color: #282c34;
+}
+
+/* Style for when the dropdown is focused */
+.status:focus {
+  border-color: #242732; /* Example border color */
+}
+
+.details-left,
+.details-right {
+  display: flex;
+  flex-direction: column;
+  margin-top: 10px;
+  gap: 20px;
+  /*margin-left: 20em;*/
+  /*color: #727376;*/
+}
+.row-form {
+  display: grid;
+  color: #727376;
+}
+.details-right {
+  /*position: absolute;*/
+  margin-top: 10px;
+  /*margin-left: 40em;*/
+  color: #727376;
+}
+
+/* Style input fields */
+
+#descriptions {
+  width: 300px;
+  height: 80px;
+  padding: 8px;
+  margin-top: 2px;
+  margin-bottom: 15px;
+  border: transparent;
+  border-radius: 10px;
+  box-sizing: border-box;
+  resize: none;
+}
+
+.main-content {
+  background-color: #f3f3ff;
+  justify-content: space-around;
+  width: 100%;
+  height: 100vh;
+  padding-top: 5px;
+  padding-left: 10px;
+  border-radius: 10px;
+}
+
+.addBtn {
+  font-size: 15px;
+  padding: 8px;
+  width: 10em;
+  color: #494949;
+  background-color: #eeeeee;
+  border-radius: 10px;
+  border: transparent;
+  cursor: pointer;
+  margin-top: 30px;
+  margin-left: 100px;
+}
+
+.addBtn:hover {
+  color: white;
+  background-color: #32496b;
+}

@@ -1,0 +1,180 @@
+.edit_librarian-system{
+    display: flex;
+    height: 100vh;
+    width: 100%;
+    font-family: Arial, sans-serif;
+}
+.EL_sidebar{
+    background:linear-gradient(to bottom, #457CCC 0%, #051A39 100%);
+    color: white;
+    width: 200px;
+    height: 100%;
+}
+
+.EL_barButton{
+    display: flex;
+    flex-direction: column;
+}
+
+.Logo{
+    margin-top: 15px;
+    margin-left: 5px;
+    width: 185px;
+    height: 65px;
+    margin-bottom: 30px;
+    filter: brightness(0) invert(1) contrast(5);;
+}
+
+.EL_baseButton{
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 15px;
+    padding: 20px;
+    width: 150px; /* Adjust based on actual needs */
+    height: 40px;
+    cursor: pointer;
+    border: none;
+    border-radius: 20px;
+    margin-left: 25px;
+    margin-bottom: 10px; /* Ensure consistent spacing */
+    transition: background-color 0.3s, color 0.3s, filter 0.3s ease;
+}
+
+.EL_Sbutton{
+    background-color: white;
+    color: #183764;
+}
+
+.EL_NSbutton{
+    background-color: transparent;
+    color: white;
+}
+
+.EL_baseButton:hover{
+    background-color: white;
+    color:#183764 ;
+}
+
+.Lecturer, .Student, .Logout {
+    transition: filter 0.3s ease;
+}
+
+.EL_NSbutton:hover .Lecturer,
+.EL_NSbutton:hover .Student,
+.EL_NSbutton:hover .Logout {
+    filter: brightness(80%) invert(1);
+}
+
+.EL_footer{
+    margin-top: 250px;
+    display: flex;
+    justify-content: center;
+}
+
+.EL_main-content{
+    flex: 1;
+    padding: 0px;
+    align-items: center;
+}
+
+.EL_information{
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+}
+
+.header{
+    color: white;
+    display: flex;
+    flex-direction: column;
+    /*align-content: center;*/
+    align-items: center;
+    margin-bottom: 35px;
+    /*width: 100%;*/
+    height: 80px;
+    background: linear-gradient(to right, #457CCC 0%, #BCD7FC 100%);
+}
+
+/*.small_header{*/
+/*    color: #051A39;*/
+/*    display: flex;*/
+/*    flex-direction: column;*/
+/*    align-items: center;*/
+/*    margin-bottom: 20px;*/
+
+/*}*/
+
+.EL_detail{
+    display: flex;
+    align-items: center;
+    /*flex-wrap: wrap;*/
+    flex-direction: column;
+    width: 100%;
+    /*margin-top: 100px;*/
+
+    /*display: flex;*/
+    /*align-items: flex-start;*/
+    /*justify-content: space-between;*/
+
+}
+
+.EL_librarian_column{
+    display: flex;
+    align-content: center;
+    justify-content: center;
+}
+
+.EL_detail_group{
+    /*margin-bottom: 10px;*/
+    /*align-items: center;*/
+    /*text-align: center;*/
+
+    /*okay version*/
+    margin-bottom: 15px;
+    display: flex;
+    justify-content: center;
+    width: 100%;
+    text-align: left;
+}
+
+.EL_detail label {
+    display: inline-block;
+    width: 100px;
+    font-size: 15px;
+    color:#183764 ;
+}
+
+.EL_detail label[for="birthdate"] {
+    display: inline-block;
+    width: 167px;
+    font-size: 15px;
+    color:#183764 ;
+}
+
+.EL_detail input[type="text"],
+.EL_detail input[type="password"],
+.EL_detail input[type="date"] {
+    display: inline-block;
+    margin-left: 20px;
+    background-color: whitesmoke;
+    border-radius: 0px;
+    color:#183764;
+}
+
+.EL_librarian_container {
+    width: 135px; /* Adjust width as needed */
+    height: 135px; /* Adjust height as needed */
+    border: 2px solid #051A39; /* Set border properties */
+    border-radius: 5px; /* Optional: Add border radius for rounded corners */
+    justify-content: center;
+    align-items: center;
+    margin-bottom: 10px;
+    /*margin-top: 20px;*/
+}
+
+.EL_Librarian{
+    width: 100%; /* Adjust image size as needed */
+    height: 100%; /* Adjust image size as needed */
+}
+

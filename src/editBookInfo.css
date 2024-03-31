@@ -1,0 +1,302 @@
+/* * {
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  background: rgb(40, 52, 70);
+  background: linear-gradient(
+    345deg,
+    rgba(40, 52, 70, 1) 36%,
+    rgba(50, 73, 107, 1) 58%,
+    rgba(69, 124, 204, 1) 82%,
+    rgba(180, 205, 253, 1) 95%
+  );
+  margin: 0;
+  padding: 0;
+  font-family: "Alata", sans-serif;
+  height: 100%;
+  width: 100%; */
+
+.edit-book-page {
+  display: flex;
+  height: 100vh;
+  width: 100%;
+  margin: 0;
+  /*flex-direction: row;*/
+}
+
+.sidebar-editBook {
+  margin: 0;
+  padding: 0;
+  width: 200px;
+  height: 100%;
+  flex-direction: column;
+  /*overflow: auto;!*specifies that the browser should provide a scroll bar to view the overflowed content, only if necessary.*/
+  /*If the content doesn't overflow, no scroll bars will be shown.*/
+  /*position: absolute;*/
+}
+.Logo {
+  margin-top: 15px;
+  margin-left: 5px;
+  width: 185px;
+  height: 55px;
+  margin-bottom: 30px;
+  filter: brightness(0) invert(1) contrast(5);
+  /*/box-shadow: inset 0px 4px 250px #FFFFFF;/*/
+  /*/filter: invert(100%) brightness(50) saturate(0%) hue-rotate(180deg); ! Attempt to make the logo white !/*/
+}
+
+.footer {
+  background-color: transparent;
+  color: white;
+  width: 250px;
+  height: 50px;
+  padding: 20px;
+  margin-top: 45vh;
+  margin-left: 55px;
+}
+
+.barbutton {
+  display: flex;
+  flex-direction: column;
+  color: white;
+  padding: 16px;
+}
+
+.Dashboard,
+.Inventory,
+.Book-Issues {
+  width: 30px;
+  height: 30px;
+  margin-right: 10px;
+}
+
+.Report {
+  width: 30px;
+  height: 30px;
+  margin-right: 25px;
+  margin-left: -14px;
+}
+
+.LogOut {
+  width: 35px;
+  height: 35px;
+  margin-right: 22px;
+  margin-left: -5px;
+}
+
+.baseButton {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 15px;
+  padding: 16px;
+  width: 150px; /* Adjust based on actual needs */
+  height: 40px;
+  cursor: pointer;
+  border: none;
+  border-radius: 18px;
+  margin-left: 30px;
+  margin-bottom: 10px; /* Ensure consistent spacing */
+  transition: background-color 0.3s, color 0.3s, filter 0.3s ease;
+}
+.baseButton.active {
+  background-color: white;
+  color: #183764;
+}
+
+.baseButton {
+  background-color: transparent;
+  color: white;
+}
+
+.baseButton:hover:not(.active) {
+  background-color: #32496b;
+  color: #b4cdfd;
+  border-radius: 15px;
+}
+
+.right-content-edit {
+  flex: 1; /* Make the content area flex to fill up the remaining space */
+  padding: 20px; /* Add padding for better appearance */
+  overflow-y: auto; /* Add scroll if content overflows */
+}
+
+.right-content-edit h2 {
+  padding: 10px;
+  font-family: "Alata";
+  color: #242732;
+}
+
+.book-cover-btn {
+  /*width: 10px;*/
+  height: 150px;
+  margin-top: 15px;
+  margin-left: 45px;
+  font-size: 30px;
+  text-align: center;
+  color: #494949;
+  background-color: #eeeeee;
+  border-radius: 10px;
+  border: transparent;
+  cursor: pointer;
+}
+
+.book-cover-img {
+  border-radius: 10px;
+  height: 280px;
+  width: 200px;
+}
+
+.main-content-edit {
+  background-color: #f3f3ff;
+  justify-content: space-around;
+  width: 100%;
+  height: 100vh;
+}
+
+div.content {
+  /*margin-left: 10px;*/
+  padding: 1px 16px;
+  /*height: 550px;*/
+}
+
+.book-info {
+  display: flex;
+  justify-content: space-around;
+  width: 100%;
+  /*background-color: rebeccapurple;*/
+}
+
+/*On screens that are less than 700px wide, make the sidebar into a topbar*/
+@media screen and (max-width: 700px) {
+  .sidebar {
+    width: 100%;
+    height: auto;
+    position: relative;
+  }
+  .sidebar a {
+    float: left;
+  }
+  div.content {
+    margin-left: 0;
+  }
+  .back-pane1 {
+    float: none;
+  }
+}
+
+/*On screens that are less than 400px, display the bar vertically, instead of horizontally*/
+@media screen and (max-width: 400px) {
+  .sidebar a {
+    text-align: center;
+    float: none;
+  }
+}
+.status {
+  width: 160px; /* Example width */
+  padding: 10px; /* Example padding */
+  font-size: 16px; /* Example font size */
+  border-radius: 5px; /* Example border radius */
+  border: transparent;
+  cursor: pointer; /* Show pointer cursor */
+  margin-top: 20px;
+  margin-left: 2.8em;
+}
+
+/* Style for the options */
+.status option {
+  padding: 10px; /* Example padding */
+  font-size: 16px; /* Example font size */
+  background-color: #282c34;
+}
+
+/* Style for when the dropdown is focused */
+.status:focus {
+  border-color: #242732; /* Example border color */
+}
+
+.details-left {
+  margin-top: 10px;
+  /*margin-left: 20em;*/
+  /*color: #727376;*/
+}
+.row-form {
+  display: grid;
+  color: #727376;
+}
+.details-right {
+  /*position: absolute;*/
+  margin-top: 10px;
+  /*margin-left: 40em;*/
+  color: #727376;
+}
+
+input [name="descriptions"] {
+  width: 250px;
+  height: 50px;
+}
+
+/* Additional styles for focused input fields */
+
+/* 
+input[type="text"]:hover{
+    transition: background-color 0.3s, color 0.3s, filter 0.3s ease;
+} */
+
+#descriptions {
+  width: 300px;
+  height: 80px;
+  padding: 8px;
+  margin-top: 2px;
+  margin-bottom: 15px;
+  border: transparent;
+  border-radius: 10px;
+  box-sizing: border-box;
+  resize: none;
+}
+
+.editBtn {
+  font-size: 15px;
+  padding: 8px;
+  width: 10em;
+  color: #494949;
+  background-color: #eeeeee;
+  border-radius: 10px;
+  border: transparent;
+  cursor: pointer;
+  margin-top: 30px;
+  margin-left: 100px;
+}
+
+.editBtn:hover,
+.status:hover {
+  color: white;
+  background-color: #32496b;
+}
+
+.title-input {
+  /*padding: 0px;*/
+  height: 40px;
+  /*word-wrap: break-word;*/
+  /*overflow-wrap: break-word;*/
+}
+
+.book-cover {
+  padding: 10px;
+  /*background-color: red;*/
+}
+
+.dropDownStatus-edit {
+  /*background-color: #325434;*/
+  padding: 0;
+  margin-top: -10px;
+}
+
+.status {
+  border-radius: 5px;
+  border: transparent;
+  background-color: white;
+  width: 200px;
+}
