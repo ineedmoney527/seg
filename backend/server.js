@@ -5,7 +5,7 @@ import bookInfoRoute from "./route/bookInfo.js";
 import bookRoute from "./route/book.js";
 import adminRoute from "./route/admin.js";
 import bodyParser from "body-parser";
-
+import authMiddleware from "./middleware/authentication.js";
 const app = express();
 
 // Enable CORS for all routes
@@ -18,7 +18,7 @@ app.use(bodyParser.urlencoded({ extended: true, limit: "10mb" }));
 // app.use(express.json({ limit: "10mb" }));
 
 // Register routes
-app.use("/api/user", userRoute);
+app.use("/api/user", authMiddleware, userRoute);
 app.use("/api/bookinfo", bookInfoRoute);
 app.use("/api/book", bookRoute);
 app.use("/admin", adminRoute);

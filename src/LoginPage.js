@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import axios from "axios";
 import "./LoginPage.css";
 import { useNavigate } from "react-router-dom";
-import { useSignIn } from "react-auth-kit";
+import { useSignIn, useAuthUser } from "react-auth-kit";
 // import background from "./UoSM Background.jpg";
 
 const LoginPage = () => {
@@ -11,6 +11,7 @@ const LoginPage = () => {
   const [error, setError] = useState("");
   const navigate = useNavigate();
   const signIn = useSignIn();
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     console.log("Form submitted", { username, password });
@@ -19,19 +20,31 @@ const LoginPage = () => {
         "http://localhost:5000/api/user/login",
         { username, password }
       );
-      console.log("ss" + response);
 
       if (response.data.success) {
         const token = response.data.token;
+        const user = response.data.user; // Assuming your API returns the user's information in the response
 
         signIn({
           token: token,
-          expiresIn: 3600,
+          expiresIn: 10,
           tokenType: "Bearer",
-          authState: { email: username },
+          authState: user,
+          // Set the token in the cookie
+          cookie: {
+            name: "_auth",
+            domain: window.location.hostname,
+            secure: window.location.protocol === "https:",
+            path: "/",
+          },
         });
 
-        navigate("/admin");
+        // Access the user's information from the authState
+        if (user.role_id == 1) {
+          navigate("/admin");
+        } else {
+          navigate("/UserMainPage");
+        }
       } else {
         console.log(response.data.message);
         setError(response.data.message || "Login failed.");

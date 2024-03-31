@@ -229,13 +229,14 @@ const addBook = async (req, res) => {
     res.status(500).json({ error: "An error occurred while adding the book" });
   }
 };
-
+//router.get("/", readAllBook);
 const readAllBook = (req, res) => {
   const query =
     "SELECT book.*, isbn.title, isbn.image, isbn.description,isbn.pages,author.name AS author_name, isbn.edition,isbn.price,isbn.pages,publisher.name AS publisher_name, isbn.publish_year, country.name AS country_name  FROM book JOIN isbn ON book.isbn = isbn.isbn JOIN author ON isbn.author_id = author.id JOIN publisher ON isbn.publisher_id = publisher.id JOIN country ON publisher.country_id = country.id  ";
   connection.query(query, (err, data) => res.json(err ? err : data));
 };
 
+//router.get("/:id", readSpecificBook);
 const readSpecificBook = (req, res) => {
   const query =
     "SELECT book.*, isbn.title, isbn.image, author.name AS author_name, isbn.edition, publisher.name AS publisher_name, isbn.publish_year  FROM book JOIN isbn ON book.isbn = isbn.isbn JOIN author ON isbn.author_id = author.id JOIN publisher ON isbn.publisher_id = publisher.id where book.book_code =" +

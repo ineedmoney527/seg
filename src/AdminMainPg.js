@@ -25,6 +25,15 @@ import EditIcon from "@mui/icons-material/Edit";
 import { Buffer } from "buffer";
 import AddCircleIcon from "@mui/icons-material/AddCircle";
 import Avatar from "@mui/material/Avatar";
+import useLoggedInUser from "./checkLoggedIn";
+import {
+  useSignIn,
+  useAuthUser,
+  useAuthHeader,
+  useIsAuthenticated,
+  useSignOut,
+} from "react-auth-kit";
+
 import {
   Tab,
   Tabs,
@@ -42,14 +51,25 @@ import {
 import { withStyles } from "@material-ui/core/styles";
 import { DataGrid, GridToolbar } from "@mui/x-data-grid";
 import axios from "axios"; // Import Axios for API requests
+import { Alert } from "@mui/material";
+
 function AdminMainPg() {
   const [currentTab, setCurrentTab] = useState(1);
+
   const [data, setData] = useState([]);
   const [selectedRow, setSelectedRow] = useState(null);
   const [selectedRows, setSelectedRows] = useState([]);
   const [addLibrarian, setAddLibrarian] = useState(false);
   const [editLibrarian, setEditLibrarian] = useState(false);
+  const authUser = useAuthUser();
+  const authHeader = useAuthHeader();
+  const userEmail = authUser().name;
+  const token = authHeader().token;
+  const token2 = authUser().token;
+  const isAuthenticated = useIsAuthenticated();
+  const signOut = useSignOut();
   // const [showWarning, setShowWarning] = useState(false);
+  // const user = useLoggedInUser();
 
   const handleAddClick = () => {
     setAddLibrarian(true);
@@ -74,7 +94,7 @@ function AdminMainPg() {
         const response = await axios.delete(
           `http://localhost:5000/api/user/${id}`
         );
-        alert(response.data.message);
+
         fetchUsers();
       } catch (error) {
         console.error("Error deleting user:", error);
@@ -186,6 +206,10 @@ function AdminMainPg() {
       </Toolbar>
     );
   }
+  const handleSignOut = () => {
+    signOut();
+    // Redirect or perform other actions after sign-out
+  };
 
   const [rowsPerPage, setRowsPerPage] = React.useState(5);
 

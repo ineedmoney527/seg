@@ -184,20 +184,14 @@ const login = (req, res) => {
         if (await compare(password, user.password)) {
           // Passwords match, generate JWT token
           const token = jwt.sign({ id: user.id }, "seg-project", {
-            expiresIn: "1h",
+            expiresIn: "0.001h",
           });
-
-          // Store token in cookies
-          res.cookie("token", token, { httpOnly: true, maxAge: 3600000 }); // 1 hour expiration
-
-          //check role
-          const role = user.role_id;
 
           return res.status(200).json({
             message: "Token has been sent",
             success: true,
             token: token,
-            role: role,
+            user: user,
           });
         } else {
           // Passwords don't match
@@ -212,6 +206,22 @@ const login = (req, res) => {
   );
 };
 
+function authenticateToken(req, res, next) {
+  const authHeader = req.headers["authorization"];
+  const token = authHeader && authHeader.split(" ")[1];
+
+  if (!token) {
+    return res.sendStatus(401); // Unauthorized
+  }
+
+  jwt.verify(token, "seg-project", (err, user) => {
+    if (err) {
+      return res.sendStatus(403); // Forbidden
+    }
+    req.user = user;
+    next();
+  });
+}
 export {
   createUser,
   readUser,
@@ -220,4 +230,5 @@ export {
   deleteContacts,
   updateContact,
   login,
+  authenticateToken,
 };

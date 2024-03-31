@@ -23,6 +23,12 @@ import AddCircleIcon from "@mui/icons-material/AddCircle";
 import { Buffer } from "buffer";
 import axios from "axios";
 import {
+  useSignIn,
+  useAuthUser,
+  useIsAuthenticated,
+  useSignOut,
+} from "react-auth-kit";
+import {
   Tab,
   Tabs,
   TabContainer,
@@ -38,12 +44,14 @@ import {
 } from "@material-ui/core";
 import { withStyles } from "@material-ui/core/styles";
 import { DataGrid, GridToolbar } from "@mui/x-data-grid";
+import { useAuth } from "./AuthContext";
 
 function BookInventory() {
   const [addBook, setAddBook] = useState(false);
   const [editBook, setEditBook] = useState(false);
   const [selectedRow, setSelectedRow] = useState(null);
   const [selectedRows, setSelectedRows] = useState([]);
+  const authUser = useAuthUser();
 
   const [data, setData] = useState([]);
   const handleAddClick = () => {
@@ -178,6 +186,7 @@ function BookInventory() {
   const [rowsPerPage, setRowsPerPage] = React.useState(5);
   return (
     <Box sx={{ width: "100%", overflowX: "auto" }}>
+      <div>{authUser().name}ss</div>
       <MenuBar></MenuBar>
 
       <Paper sx={{ width: "100%", mb: 2 }}>
@@ -369,6 +378,7 @@ function BookInventory() {
           </div>
         </TableContainer>
       </Paper>
+
       {addBook && (
         <AddNewBookPage
           open={addBook}
