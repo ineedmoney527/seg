@@ -1,0 +1,113 @@
+.IssuesPageContainer{
+    background: rgb(40,52,70);
+    background: linear-gradient(320deg, rgba(40,52,70,1) 36%,
+    rgba(50,73,107,1) 58%, rgba(69,124,204,1) 82%, rgba(180,205,253,1) 95%);
+    height: 100%;
+    width: 100%;
+    padding: 10px;
+}
+
+.haederIssues{
+    padding: 10px 0px 0px 20px;
+}
+
+.headerTitle-Issues{
+    color: white;
+    font-size: 50px;
+    font-family: "Times New Roman";
+    position: sticky;
+    top: 0; /* Stick the header to the top of the container */
+}
+
+.MainContent-Issues{
+    background-color: #F7F8F9;
+    border-radius: 10px;
+    margin: 10px;
+    padding: 10px 20px 10px 10px;
+}
+
+.searchbox-issues{
+    width: 300px;
+    padding: 10px;
+}
+
+.cartInfo-issues{
+    color: #32496B;
+}
+
+.fadeIn {
+    opacity: 0.5;
+    transition: opacity 10s ease-in-out; /* Define opacity transition for fade-in */
+}
+
+.fadeOut {
+    opacity: 0;
+    transition: opacity 10s ease-in-out; /* Define opacity transition for fade-out */
+}
+
+.cartBorrowerInfo{
+    /*padding-right: 50px;*/
+    padding: 5px;
+    border-radius: 5px;
+    opacity: 80%;
+}
+
+.cartInfoText-issues{
+    color: white;
+}
+
+.alertBox-Issues{
+    padding-right: 250px;
+    margin-top: 10px;
+}
+
+.butttonsCart-Issues{
+    padding-right: 10px;
+}
+
+.smallerheaderCart{
+    padding-left: 10px;
+}
+
+.bookcartHeaderBar{
+    margin-bottom: 5px;
+}
+
+.carttableContainer-Issues{
+    /*margin-top: 10px;*/
+    border-radius: 10px;
+    margin: 10px;
+}
+.boxStudent{
+    background-color: transparent;
+}
+
+.paperStudent{
+    padding: 5px;
+}
+
+.paperBook{
+    width: 750px;
+    padding: 5px;
+}
+
+.studentHeader{
+    margin:5px;
+}
+
+
+.searchbox-issues{
+    margin-bottom: 10px;
+}
+
+.buttons-bookTable{
+    margin: 5px;
+}
+
+.alertBox-bookTable{
+    margin-bottom: 5px;
+}
+
+.datagridContainer{
+    border-radius: 10px;
+}
