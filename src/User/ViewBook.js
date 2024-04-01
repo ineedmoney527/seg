@@ -6,11 +6,38 @@ import Layout from "./Layout";
 import Rating from "@mui/material/Rating";
 import icon from "../Image/review-icon.png";
 import { Buffer } from "buffer";
+import axios from "axios";
+import {
+  useSignIn,
+  useAuthUser,
+  useAuthHeader,
+  useIsAuthenticated,
+  useSignOut,
+} from "react-auth-kit";
 const ViewBook = () => {
   const [open, setOpen] = useState(false);
   const [showSearchBar, setShowSearchBar] = useState(false);
   const [reserved, setReserved] = useState(false);
+  const [availability, setAvailability] = useState(null);
   const [countdown, setCountdown] = useState(259200);
+  const user_id = useAuthUser().id;
+
+  useEffect(() => {
+    alert(user_id);
+    checkAvailability(); // Call the checkAvailability function when component mounts
+  }, []); // Empty dependency array ensures the effect runs only o
+  const checkAvailability = async () => {
+    try {
+      const response = await axios.get(
+        "http://localhost:5000/api/book/checkAvailable/" + book.isbn
+      );
+      console.log(response.data);
+      setAvailability(response.data); // Set the availability response in state
+    } catch (error) {
+      console.error("Error fetching availability:", error);
+    }
+  };
+
   const toggleDrawer = (newOpen) => () => {
     setOpen(newOpen);
   };
@@ -176,12 +203,13 @@ const ViewBook = () => {
           />
           {!reserved && (
             <button
+              disabled={!availability}
               onClick={handleClickReserved}
               style={{
                 width: "120px",
                 height: "25px",
                 borderRadius: "5px",
-                backgroundColor: "#5DBD72",
+                backgroundColor: availability ? "#5DBD72" : "#CCCCCC",
                 color: "white",
                 border: "none",
                 cursor: "pointer",
@@ -189,7 +217,7 @@ const ViewBook = () => {
                 boxShadow: "0 2px 4px rgba(0, 0, 0, 0.5)",
               }}
             >
-              Reserve
+              {availability ? "Available" : "Unavailable"}
             </button>
           )}
           {reserved && (

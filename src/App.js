@@ -4,7 +4,7 @@ import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import LoginPage from "./LoginPage"; // Simplified component without axios or navigate
 import AdminMainPg from "./AdminMainPg";
 import AddLibrarian from "./AddLibrarian";
-import Reservation from "./librarian/Reservation";
+
 import AddNewBookPage from "./addBook";
 import WithNavigate from "./bookInventory";
 
@@ -14,6 +14,11 @@ import MyLibrary from "./User/UserMyLibrary";
 import UserBookRequest from "./User/UserBookRequest";
 import BookList from "./User/BookList";
 import UserRateBook from "./User/UserRateBook";
+
+import IssueBook from "./librarian/IssuesBook";
+import LoanBook from "./librarian/LoanBook";
+import RequestBook from "./librarian/RequestBook";
+import Reservation from "./librarian/Reservation";
 import AuthContext from "./AuthContext";
 import { PrivateRoute } from "react-auth-kit";
 import { AuthProvider, RequireAuth } from "react-auth-kit";
@@ -29,7 +34,9 @@ function App() {
       <Router>
         <Routes>
           <Route path="/" element={<LoginPage />} />
-
+          <Route path="/IssuesBook" element={<IssueBook />} />
+          <Route path="/LoanBook" element={<LoanBook />} />
+          <Route path="/RequestBook" element={<RequestBook />} />
           <Route
             path="/admin"
             element={
@@ -64,11 +71,11 @@ function App() {
             }
           />
           <Route
-            path="/Reserve"
+            path="/Reservation"
             element={
-              <RequireAuth loginPath="/">
-                <Reservation />
-              </RequireAuth>
+              // <RequireAuth loginPath="/">
+              <Reservation />
+              // </RequireAuth>
             }
           />
           <Route

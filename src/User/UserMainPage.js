@@ -247,7 +247,7 @@ export default function UserMainPage() {
   };
 
   const handleBookListClick = () => {
-    navigate("./BookList");
+    navigate("/BookList");
     setShowBookList(true);
   };
 

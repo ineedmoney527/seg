@@ -41,12 +41,12 @@ const Layout = ({ children, showSearchBar, toggleDrawer, open }) => {
               <Link
                 to={
                   text === "Book Database"
-                    ? "/booklist"
+                    ? "/BookList"
                     : text === "My Library"
                     ? "/UserMyLibrary"
                     : text === "Request"
                     ? "/UserBookRequest"
-                    : "/"
+                    : "/UserMainPage"
                 }
                 style={{
                   textDecoration: "none",

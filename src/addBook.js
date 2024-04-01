@@ -30,7 +30,7 @@ function AddNewBookPage({ open, onClose, edit, selectedRowData }) {
   const [selectedImage, setSelectedImage] = useState();
   const [debouncing, setDebouncing] = useState(false);
   const isbnList = async () => {
-    return await axios.get(`http://localhost:5000/api/book`);
+    return await axios.get(`http://localhost:5000/api/book/isbn`);
   };
   const defaultValues = selectedRowData || {};
   const mappedDefaultValues = {
@@ -183,6 +183,7 @@ function AddNewBookPage({ open, onClose, edit, selectedRowData }) {
       );
 
       if (response.data) {
+        setValue("isbn", response.data.isbn);
         // Set the fields that you want to autofill
         titleController.field.onChange(response.data.title);
         authorController.field.onChange(response.data.author_name);

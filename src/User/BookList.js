@@ -63,7 +63,7 @@ const BookList = () => {
 
   const fetchBooks = async () => {
     try {
-      const response = await axios.get("http://localhost:5000/api/book");
+      const response = await axios.get("http://localhost:5000/api/book/list");
       console.log(response);
       setBooks(response.data);
     } catch (error) {

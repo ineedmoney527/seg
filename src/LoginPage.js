@@ -27,7 +27,7 @@ const LoginPage = () => {
 
         signIn({
           token: token,
-          expiresIn: 10,
+          expiresIn: 1000,
           tokenType: "Bearer",
           authState: user,
           // Set the token in the cookie
