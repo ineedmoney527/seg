@@ -14,92 +14,212 @@ import {
   useIsAuthenticated,
   useSignOut,
 } from "react-auth-kit";
+import { set } from "date-fns";
 const ViewBook = () => {
   const [open, setOpen] = useState(false);
+  const [review, setReview] = useState([]);
   const [showSearchBar, setShowSearchBar] = useState(false);
   const [reserved, setReserved] = useState(false);
   const [availability, setAvailability] = useState(null);
-  const [countdown, setCountdown] = useState(259200);
-  const user_id = useAuthUser().id;
+  const [timer, setTimer] = useState(null);
+  const [pending, setPending] = useState(false);
+  const [countdown, setCountdown] = useState(0);
 
+  const location = useLocation();
+  const { book } = location.state || {};
+
+  // Add this function to format the time
+  const formatTime = (time) => {
+    const days = Math.floor(time / (24 * 60 * 60 * 1000));
+    const hours = Math.floor((time % (24 * 60 * 60 * 1000)) / (60 * 60 * 1000));
+    const minutes = Math.floor((time % (60 * 60 * 1000)) / (60 * 1000));
+    const seconds = Math.floor((time % (60 * 1000)) / 1000);
+
+    return `${days}d ${hours}h ${minutes}m ${seconds}s`;
+  };
+
+  // useEffect(() => {
+  //   let timer = null;
+  //   if (reserved && countdown > 0) {
+  //     timer = setInterval(() => {
+  //       setCountdown((prevCountdown) => prevCountdown - 1);
+  //     }, 1000);
+  //   }
+
+  //   return () => clearInterval(timer);
+  // }, [reserved, countdown]);
+  const fetchReviews = async () => {
+    const response = await axios.get(
+      "http://localhost:5000/api/history/reviewByBook/" + book.isbn
+    );
+
+    setReview(response.data.data);
+    console.log(review);
+  };
   useEffect(() => {
-    alert(user_id);
-    checkAvailability(); // Call the checkAvailability function when component mounts
-  }, []); // Empty dependency array ensures the effect runs only o
+    // Start the timer if reserved and countdown is greater than 0
+    if (reserved && countdown > 0) {
+      const timer = setTimeout(() => {
+        setCountdown((prevCountdown) => prevCountdown - 1000);
+      }, 1000);
+
+      return () => clearTimeout(timer);
+    } else {
+      setReserved(false);
+    }
+  }, [countdown]);
+  useEffect(() => {
+    checkAvailabilityAndReservation();
+    fetchReviews();
+
+    return () => null;
+  }, []);
   const checkAvailability = async () => {
     try {
       const response = await axios.get(
         "http://localhost:5000/api/book/checkAvailable/" + book.isbn
       );
-      console.log(response.data);
+
       setAvailability(response.data); // Set the availability response in state
     } catch (error) {
       console.error("Error fetching availability:", error);
     }
   };
 
+  const user_id = useAuthUser()().id;
+  const bookingLimit = useAuthUser()().id;
+  const checkAvailabilityAndReservation = async () => {
+    checkAvailability();
+    checkReservation();
+    checkPending();
+  };
+
+  const checkReservation = async () => {
+    try {
+      console.log(book.isbn);
+      console.log(user_id);
+      const response = await axios.get(
+        `http://localhost:5000/api/reserve/checkReservation/${book.isbn}/${user_id}`
+      );
+      console.log(response.data);
+      if (
+        response.data?.valid_book_codes &&
+        response.data.valid_book_codes.length > 0
+      ) {
+        console.log(response.data?.valid_book_codes);
+        setReserved(true);
+        console.log("haha");
+        // Start the countdown timer if there's remaining time
+        const endTime = new Date(response.data.end_datetime).getTime();
+        const currentTime = new Date().getTime();
+        const remainingTime = Math.max(0, endTime - currentTime);
+
+        setCountdown(remainingTime); // Set the countdown directly
+      } else {
+        setReserved(false);
+        setCountdown(0); // Reset countdown if there's no reservation
+      }
+    } catch (error) {
+      console.error("Error fetching reservation status:", error);
+    }
+  };
+
+  const checkPending = async () => {
+    try {
+      const response = await axios.get(
+        `http://localhost:5000/api/reserve/checkPending/${book.isbn}/${user_id}`
+      );
+
+      if (response.data.message === "true") {
+        console.log("haha");
+        setPending(true);
+      }
+    } catch (e) {
+      console.log("Error" + e);
+    }
+  };
+
+  useEffect(() => {
+    console.log("is reserved: ", reserved);
+    // ...
+  }, [reserved]);
+  const handleClickReserved = async () => {
+    const currentTimestamp = new Date();
+    const oneDayLater = new Date();
+    oneDayLater.setDate(oneDayLater.getDate() + 1);
+    //get a book of this isbn
+    try {
+      const firstBook = await axios.get(
+        "http://localhost:5000/api/book/" + book.isbn
+      );
+      const limitResponse = await axios.get(
+        "http://localhost:5000/api/user/limit/" + user_id
+      );
+
+      const currentLimit = limitResponse.data.borrow_limit;
+      const updatedLimit = currentLimit - 1;
+      if (updatedLimit < 0) {
+        alert("Exceeded Borrow Limit!");
+        return;
+      }
+      //deduct limit
+      await axios.put("http://localhost:5000/api/user/limit", {
+        id: user_id,
+        limit: updatedLimit,
+      });
+      //update state to pending
+      const response = await axios.post("http://localhost:5000/api/reserve", {
+        status: "Pending",
+        book_code: firstBook.data.book_code,
+        requested_at: currentTimestamp,
+        user_id: user_id,
+      });
+      alert(response.data.message);
+
+      setPending(true);
+    } catch (e) {
+      alert(e.message);
+    }
+  };
   const toggleDrawer = (newOpen) => () => {
     setOpen(newOpen);
   };
-  const location = useLocation();
-  const { book } = location.state || {};
+  const cancelReservation = async () => {
+    try {
+      const deleteResponse = await axios.delete(
+        `http://localhost:5000/api/reserve/${book.isbn}/${user_id}`
+      );
 
-  useEffect(() => {
-    let timer;
-    if (reserved) {
-      timer = setInterval(() => {
-        setCountdown((prevCountdown) => {
-          if (prevCountdown > 0) {
-            return prevCountdown - 1;
-          } else {
-            clearInterval(timer);
-            return 0;
-          }
-        });
-      }, 1000);
+      const limitResponse = await axios.get(
+        "http://localhost:5000/api/user/limit/" + user_id
+      );
+
+      const currentLimit = limitResponse.data.borrow_limit;
+
+      const updatedLimit = currentLimit + 1;
+
+      axios.put("http://localhost:5000/api/user/limit", {
+        id: user_id,
+        limit: updatedLimit,
+      });
+
+      if (deleteResponse.data) {
+        alert(deleteResponse.data.message);
+      } else {
+        console.error("Error in deleteResponse: invalid response format");
+      }
+      //add back borrow limit
+
+      setPending(false);
+      setReserved(false);
+    } catch (e) {
+      console.error("Error in cancelReservation:", e.message);
     }
-
-    return () => clearInterval(timer);
-  }, [reserved]);
-
-  const handleClickReserved = () => {
-    setReserved(true);
-    setCountdown(259200);
   };
-
-  const cancelReservation = () => {
-    setReserved(false);
-  };
-
-  const days = Math.floor(countdown / (24 * 60 * 60));
-  const hours = Math.floor((countdown % (24 * 60 * 60)) / (60 * 60));
-  const minutes = Math.floor((countdown % (60 * 60)) / 60);
-  const seconds = countdown % 60;
 
   if (!book) {
     return <div>No book data available</div>;
   }
-
-  const sampleReview = [
-    {
-      user: "John",
-      image: icon,
-      rating: 5,
-      review: "This book is amazing! Highly recommended.",
-    },
-    {
-      user: "YiKiat",
-      image: icon,
-      rating: 4,
-      review: "One of the best books I've ever read!",
-    },
-    {
-      user: "Xin Win",
-      image: icon,
-      rating: 3,
-      review: "ok.",
-    },
-  ];
 
   return (
     <Layout
@@ -161,11 +281,11 @@ const ViewBook = () => {
                 variant="body2"
                 gutterBottom
               >
-                Rating: {book.rating}
+                Rating: {book.rating ? book.rating : "Not yet rated"}
               </Typography>
             </Box>
 
-            <Box>
+            {/* <Box>
               <Typography
                 sx={{ fontWeight: "bold" }}
                 variant="body2"
@@ -181,7 +301,7 @@ const ViewBook = () => {
               >
                 Location:{book.location}
               </Typography>
-            </Box>
+            </Box> */}
           </Box>
           {/*Add more details as needed */}
         </Box>
@@ -201,7 +321,7 @@ const ViewBook = () => {
             alt={"book-cover"}
             style={{ width: "120px", height: "200px" }}
           />
-          {!reserved && (
+          {!reserved && !pending && (
             <button
               disabled={!availability}
               onClick={handleClickReserved}
@@ -220,7 +340,7 @@ const ViewBook = () => {
               {availability ? "Available" : "Unavailable"}
             </button>
           )}
-          {reserved && (
+          {pending && (
             <div style={{ marginTop: "10px" }}>
               <button
                 onClick={cancelReservation}
@@ -228,7 +348,8 @@ const ViewBook = () => {
                   width: "120px",
                   height: "25px",
                   borderRadius: "5px",
-                  backgroundColor: "#FF5733",
+
+                  backgroundColor: "grey",
                   color: "white",
                   border: "none",
                   cursor: "pointer",
@@ -237,9 +358,31 @@ const ViewBook = () => {
                   fontSize: "12px",
                 }}
               >
-                Cancel Reservation
+                Pending to be approved
               </button>
-              <div>{`Reserved (${days}d ${hours}h ${minutes}m ${seconds}s left)`}</div>
+            </div>
+          )}
+          {reserved && (
+            <div style={{ marginTop: "10px" }}>
+              <button
+                onClick={cancelReservation}
+                style={{
+                  width: "120px",
+                  height: "25px",
+                  borderRadius: "5px",
+
+                  backgroundColor: "grey",
+                  color: "white",
+                  border: "none",
+                  cursor: "pointer",
+                  marginTop: "10px",
+                  boxShadow: "0 2px 4px rgba(0, 0, 0, 0.5)",
+                  fontSize: "12px",
+                }}
+              >
+                Reserved
+              </button>
+              <div>{`(${formatTime(countdown)})`}</div>
             </div>
           )}
         </Box>
@@ -275,14 +418,14 @@ const ViewBook = () => {
             overflowY: "auto",
           }}
         >
-          {sampleReview.map((review, index) => (
+          {review?.length === 0 ? (
             <Box
               sx={{
                 display: "flex",
-                flexDirection: "column",
+                justifyContent: "center",
+                alignItems: "center",
                 width: "90%",
-                height: "auto",
-                minHeight: "80px",
+                height: "80px",
                 marginLeft: "auto",
                 marginRight: "auto",
                 marginTop: "25px",
@@ -292,50 +435,73 @@ const ViewBook = () => {
                 boxShadow: "0 2px 4px rgba(0, 0, 0, 0.3)",
               }}
             >
-              <Box sx={{ marginLeft: "10px" }}>
-                <Box sx={{ display: "flex", flexDirection: "row" }}>
-                  <img
-                    src={review.image}
-                    alt={"review-icon"}
-                    style={{ width: "25px", height: "25px" }}
-                  />
-                  <label
-                    style={{
-                      wordWrap: "break-word",
-                      overflowWrap: "break-word",
-                      overflow: "hidden",
-                      width: "100%",
-                      fontWeight: "bold",
-                      fontSize: "14px",
-                      marginLeft: "10px",
-                      marginTop: "auto",
-                      marginBottom: "auto",
-                    }}
-                  >
-                    {review.user}
-                  </label>
-                </Box>
-                <Box sx={{ display: "flex", alignItems: "center" }}>
-                  <Typography variant="body2" sx={{ marginRight: "5px" }}>
-                    Rating:
-                  </Typography>
-                  <Rating
-                    name="read-only"
-                    value={parseFloat(review.rating)}
-                    readOnly
-                    precision={0.5}
-                  />
-                </Box>
-                <Typography
-                  sx={{ fontSize: "14px" }}
-                  variant="body1"
-                  gutterBottom
-                >
-                  {review.review}
-                </Typography>
-              </Box>
+              <Typography variant="body1">No review</Typography>
             </Box>
-          ))}
+          ) : (
+            review?.map((review, index) => (
+              <Box
+                sx={{
+                  display: "flex",
+                  flexDirection: "column",
+                  width: "90%",
+                  height: "auto",
+                  minHeight: "80px",
+                  marginLeft: "auto",
+                  marginRight: "auto",
+                  marginTop: "25px",
+                  marginBottom: "8px",
+                  backgroundColor: "#ECECEC",
+                  borderRadius: "10px",
+                  boxShadow: "0 2px 4px rgba(0, 0, 0, 0.3)",
+                }}
+              >
+                <Box sx={{ marginLeft: "10px" }}>
+                  <Box sx={{ display: "flex", flexDirection: "row" }}>
+                    <img
+                      src={`data:image/png;base64,${Buffer.from(
+                        review.image_file
+                      ).toString("base64")}`}
+                      alt={"review-icon"}
+                      style={{ width: "25px", height: "25px" }}
+                    />
+                    <label
+                      style={{
+                        wordWrap: "break-word",
+                        overflowWrap: "break-word",
+                        overflow: "hidden",
+                        width: "100%",
+                        fontWeight: "bold",
+                        fontSize: "14px",
+                        marginLeft: "10px",
+                        marginTop: "auto",
+                        marginBottom: "auto",
+                      }}
+                    >
+                      {review.name}
+                    </label>
+                  </Box>
+                  <Box sx={{ display: "flex", alignItems: "center" }}>
+                    <Typography variant="body2" sx={{ marginRight: "5px" }}>
+                      Rating:
+                    </Typography>
+                    <Rating
+                      name="read-only"
+                      value={parseFloat(review.rating)}
+                      readOnly
+                      precision={0.5}
+                    />
+                  </Box>
+                  <Typography
+                    sx={{ fontSize: "14px" }}
+                    variant="body1"
+                    gutterBottom
+                  >
+                    {review.comments}
+                  </Typography>
+                </Box>
+              </Box>
+            ))
+          )}
         </Box>
       </Box>
     </Layout>

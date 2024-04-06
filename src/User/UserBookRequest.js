@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import Box from "@mui/material/Box";
 import Button from "@mui/material/Button";
 import Dialog from "@mui/material/Dialog";
@@ -7,38 +7,223 @@ import DialogContent from "@mui/material/DialogContent";
 import DialogContentText from "@mui/material/DialogContentText";
 import { useForm } from "react-hook-form";
 import Layout from "./Layout";
-import bg from "../Image/BookPostCard.png";
 
-const sampleWishList = [
-  {
-    code: "001",
-    title: "Moby Dick",
-    author: "Herman Melville",
-    publicationYear: 1851,
-    reason: "Interesting, assignment needed",
-  },
-  {
-    code: "002",
-    title: "Moby Dick",
-    author: "Herman Melville",
-    publicationYear: 1851,
-    reason: "Interesting, assignment needed",
-  },
-  {
-    code: "003",
-    title: "Moby Dick",
-    author: "Herman Melville",
-    publicationYear: 1851,
-    reason: "Interesting, assignment needed",
-  },
-];
+import MobileStepper from "@mui/material/MobileStepper";
+import KeyboardArrowLeft from "@mui/icons-material/KeyboardArrowLeft";
+import KeyboardArrowRight from "@mui/icons-material/KeyboardArrowRight";
+import SwipeableViews from "react-swipeable-views";
+import { autoPlay } from "react-swipeable-views-utils";
+import { useAuthUser } from "react-auth-kit";
+import { useTheme } from "@mui/material/styles";
+import Divider from "@mui/material/Divider";
+
+import axios from "axios";
+const AutoPlaySwipeableViews = autoPlay(SwipeableViews);
+
+function SlideShow({ requests }) {
+  const theme = useTheme();
+  const [activeStep, setActiveStep] = React.useState(0);
+
+  const maxSteps = requests.length;
+
+  // Check if requests array is undefined or empty
+  if (!requests || requests.length === 0) {
+    return (
+      <Box sx={{ textAlign: "center", marginTop: "20px" }}>
+        <p>No requests available.</p>
+      </Box>
+    );
+  }
+
+  const handleNext = () => {
+    setActiveStep((prevActiveStep) => prevActiveStep + 1);
+  };
+
+  const handleBack = () => {
+    setActiveStep((prevActiveStep) => prevActiveStep - 1);
+  };
+
+  const handleStepChange = (step) => {
+    setActiveStep(step);
+  };
+
+  return (
+    <Box
+      sx={{
+        display: "flex",
+        flexDirection: "column",
+        alignItems: "center",
+        justifyContent: "center",
+        height: "100vh",
+      }}
+    >
+      <Box
+        sx={{
+          backgroundSize: "cover",
+          width: "60%",
+          height: "90vh",
+          maxWidth: "none",
+          maxHeight: "none",
+          marginBottom: "20px",
+        }}
+      >
+        <AutoPlaySwipeableViews
+          axis={theme.direction === "rtl" ? "x-reverse" : "x"}
+          index={activeStep}
+          onChangeIndex={handleStepChange}
+          enableMouseEvents
+        >
+          {requests.map((item, index) => (
+            <Box key={index}>
+              <Box
+                sx={{
+                  width: "80%",
+                  height: "80%",
+                  paddingTop: "80px",
+                  marginLeft: "auto",
+                  marginRight: "auto",
+                }}
+              >
+                <Box
+                  sx={{
+                    display: "flex",
+                    flexDirection: "column",
+                    marginTop: "20px",
+                  }}
+                >
+                  <Box
+                    sx={{
+                      display: "flex",
+                      flexDirection: "column",
+                      marginBottom: "10px",
+                    }}
+                  >
+                    <label>Title:</label>
+                    <label
+                      style={{
+                        width: "100%",
+                        height: "5vh",
+                        backgroundColor: "#EFEFEF",
+                        color: "#525252",
+                        borderRadius: "5px",
+                        boxShadow: "0 2px 4px rgba(0, 0, 0, 0.3)",
+                        paddingLeft: "10px",
+                        paddingTop: "5px",
+                      }}
+                    >
+                      {item.title}
+                    </label>
+                  </Box>
+                  <Box
+                    sx={{
+                      display: "flex",
+                      flexDirection: "column",
+                      marginBottom: "10px",
+                    }}
+                  >
+                    <label>Author:</label>
+                    <label
+                      style={{
+                        width: "100%",
+                        height: "5vh",
+                        backgroundColor: "#EFEFEF",
+                        color: "#525252",
+                        borderRadius: "5px",
+                        boxShadow: "0 2px 4px rgba(0, 0, 0, 0.3)",
+                        paddingLeft: "10px",
+                        paddingTop: "5px",
+                      }}
+                    >
+                      {item.author}
+                    </label>
+                  </Box>
+                  <Box
+                    sx={{
+                      display: "flex",
+                      flexDirection: "column",
+                      marginBottom: "10px",
+                    }}
+                  >
+                    <label>Edition:</label>
+                    <label
+                      style={{
+                        width: "100%",
+                        height: "5vh",
+                        backgroundColor: "#EFEFEF",
+                        color: "#525252",
+                        borderRadius: "5px",
+                        boxShadow: "0 2px 4px rgba(0, 0, 0, 0.3)",
+                        paddingLeft: "10px",
+                        paddingTop: "5px",
+                      }}
+                    >
+                      {item.edition}
+                    </label>
+                  </Box>
+                  <Box sx={{ display: "flex", flexDirection: "column" }}>
+                    <label>Reason:</label>
+                    <label
+                      style={{
+                        width: "100%",
+                        height: "22vh",
+                        backgroundColor: "#EFEFEF",
+                        color: "#525252",
+                        borderRadius: "5px",
+                        boxShadow: "0 2px 4px rgba(0, 0, 0, 0.3)",
+                        paddingLeft: "10px",
+                        paddingTop: "5px",
+                      }}
+                    >
+                      {item.reason}
+                    </label>
+                  </Box>
+                </Box>
+              </Box>
+            </Box>
+          ))}
+        </AutoPlaySwipeableViews>
+      </Box>
+      <MobileStepper
+        sx={{ backgroundColor: "transparent" }}
+        steps={maxSteps}
+        position="static"
+        activeStep={activeStep}
+        nextButton={
+          <Button
+            size="small"
+            onClick={handleNext}
+            disabled={activeStep === maxSteps - 1}
+          >
+            Next
+            {theme.direction === "rtl" ? (
+              <KeyboardArrowLeft />
+            ) : (
+              <KeyboardArrowRight />
+            )}
+          </Button>
+        }
+        backButton={
+          <Button size="small" onClick={handleBack} disabled={activeStep === 0}>
+            {theme.direction === "rtl" ? (
+              <KeyboardArrowRight />
+            ) : (
+              <KeyboardArrowLeft />
+            )}
+            Back
+          </Button>
+        }
+      />
+    </Box>
+  );
+}
 const UserBookRequest = () => {
+  const [requests, setRequests] = useState([]);
   const [open, setOpen] = useState(false);
   const [addOpen, setAddOpen] = useState(false);
   const [showSearchBar, setShowSearchBar] = useState(false);
-  const { register, handleSubmit, setValue } = useForm();
-  // const { register, handleSubmit, setValue } = useForm();
-
+  const { register, handleSubmit, setValue, reset } = useForm();
+  const [loading, setLoading] = useState(true);
+  const user_id = useAuthUser()().id;
   const toggleDrawer = (newOpen) => () => {
     setOpen(newOpen);
   };
@@ -49,10 +234,6 @@ const UserBookRequest = () => {
 
   const handleAddRequest = () => {
     setAddOpen(true);
-    setValue("title", sampleWishList.title);
-    setValue("author", sampleWishList.author);
-    setValue("publicationYear", sampleWishList.publicationYear);
-    setValue("reason", sampleWishList.reason);
   };
 
   const handleClose = () => {
@@ -60,9 +241,48 @@ const UserBookRequest = () => {
   };
 
   const onSubmit = (data) => {
-    console.log(data);
-    setAddOpen(false);
+    axios
+      .post("http://localhost:5000/api/request/add", {
+        ...data,
+        user_id: user_id,
+      })
+      .then((response) => {
+        console.log("Book request added successfully:", response.data);
+        alert("Book request added successfully");
+        setAddOpen(false);
+        reset();
+      })
+      .catch((error) => {
+        console.error("Error adding book request:", error);
+        // Check if the error is due to request already existing
+        if (
+          error.response &&
+          error.response.status === 400 &&
+          error.response.data &&
+          error.response.data.message === "Request already exists"
+        ) {
+          alert("Request already exists");
+        }
+      });
   };
+
+  useEffect(() => {
+    axios
+      .get("http://localhost:5000/api/request")
+      .then((response) => {
+        console.log("Response from backend:", response.data);
+        setRequests(response.data.requests);
+        setLoading(false);
+      })
+      .catch((error) => {
+        console.error("Error fetching book data:", error);
+        setLoading(false);
+      });
+  }, []);
+
+  if (loading) {
+    return <p>Loading...</p>;
+  }
 
   return (
     <Layout
@@ -71,7 +291,7 @@ const UserBookRequest = () => {
       toggleDrawer={toggleDrawer}
       open={open}
     >
-      <Box>
+      <Box sx={{ backgroundColor: "#F6F4F1" }}>
         <Box
           sx={{
             display: "flex",
@@ -79,138 +299,61 @@ const UserBookRequest = () => {
             width: "90%",
             marginLeft: "auto",
             marginRight: "auto",
-            marginTop: "20px",
+            justifyContent: "center",
+            alignItems: "center",
+            fontFamily: "timesnewroman",
+            height: "100px",
           }}
         >
           <label
             style={{
               display: "flex",
-              fontSize: "30px",
+              fontSize: "45px",
               fontWeight: "bold",
-              color: "#183764",
-              justifyContent: "center",
-              alignItems: "center",
+              color: "#2868C6",
             }}
           >
-            Wish List
+            Monthly Wish List
           </label>
+        </Box>
+        <Divider
+          sx={{
+            width: "50%",
+            marginBottom: "20px",
+            borderBottom: "1px solid black",
+            marginLeft: "auto",
+            marginRight: "auto",
+          }}
+        />
+        {!loading && requests.length > 0 && <SlideShow requests={requests} />}
+        {/*<SlideShow requests={requests}/>*/}
+
+        <Box
+          sx={{
+            display: "flex",
+            marginTop: "10px",
+            justifyContent: "center",
+            alignItems: "center",
+            height: "100px",
+            marginLeft: "auto",
+            marginRight: "auto",
+          }}
+        >
           <Button
             onClick={handleAddRequest}
             sx={{
               backgroundColor: "#183764",
               color: "white",
-              width: "100px",
-              height: "25px",
-              marginLeft: "auto",
-              marginTop: "10px",
+              width: "200px",
+              height: "30px",
               "&:hover": {
                 backgroundColor: "#2468CD",
-                color: "white", // Change the hover background color here
+                color: "white",
               },
             }}
           >
-            Add
+            Add My Wish
           </Button>
-        </Box>
-        <Box
-          sx={{
-            display: "flex",
-            flexDirection: "row",
-            justifyContent: "center",
-            alignItems: "center",
-            marginTop: "20px",
-            width: "90%",
-            marginRight: "auto",
-            marginLeft: "auto",
-          }}
-        >
-          {sampleWishList.map((item, index) => (
-            <Box sx={{ width: "80%", marginLeft: "auto", marginRight: "auto" }}>
-              <Box
-                sx={{
-                  display: "flex",
-                  flexDirection: "row",
-                  justifyContent: "center",
-                  marginBottom: "15px",
-                  alignItems: "center",
-                  textAlign: "center",
-                }}
-              >
-                <label style={{ fontWeight: "bold", fontSize: "20px" }}>
-                  code#
-                </label>
-                <label style={{ fontWeight: "bold", fontSize: "20px" }}>
-                  {item.code}
-                </label>
-              </Box>
-              <Box
-                key={index}
-                sx={{
-                  width: "350px",
-                  height: "150px",
-                  background: "#E4E2D9",
-                  borderRadius: "10px",
-                  boxShadow: "0 2px 4px rgba(0, 0, 0, 0.7)",
-                  // marginBottom: '10px',
-                }}
-              >
-                <Box
-                  sx={{
-                    display: "flex",
-                    flexDirection: "row",
-                    marginBottom: "10px",
-                    justifyContent: "center",
-                  }}
-                >
-                  <label style={{ fontWeight: "bold", color: "#183764" }}>
-                    Book Title:
-                  </label>
-                  <label style={{ color: "#183764" }}>{item.title}</label>
-                </Box>
-                <Box
-                  sx={{
-                    display: "flex",
-                    flexDirection: "row",
-                    marginBottom: "10px",
-                    justifyContent: "center",
-                  }}
-                >
-                  <label style={{ fontWeight: "bold", color: "#183764" }}>
-                    Author:{" "}
-                  </label>
-                  <label style={{ color: "#183764" }}>{item.author}</label>
-                </Box>
-                <Box
-                  sx={{
-                    display: "flex",
-                    flexDirection: "row",
-                    marginBottom: "10px",
-                    justifyContent: "center",
-                  }}
-                >
-                  <label style={{ fontWeight: "bold", color: "#183764" }}>
-                    Publish Year:{" "}
-                  </label>
-                  <label style={{ color: "#183764" }}>
-                    {item.publicationYear}
-                  </label>
-                </Box>
-                <Box
-                  sx={{
-                    display: "flex",
-                    flexDirection: "row",
-                    marginBottom: "10px",
-                    justifyContent: "center",
-                  }}
-                >
-                  <label style={{ fontWeight: "bold", color: "#183764" }}>
-                    Reason:{" "}
-                  </label>
-                  <label style={{ color: "#183764" }}>{item.reason}</label>
-                </Box>
-              </Box>
-            </Box>
-          ))}
         </Box>
       </Box>
       <Dialog
@@ -218,7 +361,6 @@ const UserBookRequest = () => {
         onClose={handleClose}
         PaperProps={{
           sx: {
-            backgroundImage: `url(${bg})`,
             backgroundSize: "cover",
             width: "60%",
             height: "90%",
@@ -229,8 +371,9 @@ const UserBookRequest = () => {
       >
         <DialogContent
           sx={{
-            width: "70%",
-            marginTop: "70px",
+            width: "80%",
+            height: "80%",
+            marginTop: "80px",
             marginLeft: "auto",
             marginRight: "auto",
           }}
@@ -244,31 +387,46 @@ const UserBookRequest = () => {
                 display: "flex",
                 flexDirection: "column",
                 marginTop: "20px",
+                width: "100%",
+                height: "100%",
               }}
             >
               <label>Title:</label>
               <input
                 {...register("title")}
                 type="text"
-                style={{ width: "90%", height: "30px" }}
+                style={{ width: "100%", minHeight: "5vh" }}
               />
               <label>Author:</label>
               <input
                 {...register("author")}
                 type="text"
-                style={{ width: "90%", height: "30px" }}
+                style={{ width: "100%", height: "5vh" }}
               />
-              <label>Publication Year:</label>
+              <label>Edition:</label>
               <input
-                {...register("publicationYear")}
+                {...register("edition")}
                 type="number"
-                style={{ width: "90%", height: "20px" }}
+                min={0}
+                style={{
+                  width: "100%",
+                  height: "5vh",
+                }}
+              />
+              <label>Publisher:</label>
+              <input
+                {...register("publisher")}
+                type="text"
+                style={{
+                  width: "100%",
+                  height: "5vh",
+                }}
               />
               <label>Reason:</label>
               <input
                 {...register("reason")}
                 type="text"
-                style={{ width: "90%", height: "90px", borderRadius: "10px" }}
+                style={{ width: "100%", height: "17vh", borderRadius: "10px" }}
               />
             </Box>
           </form>

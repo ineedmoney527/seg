@@ -1,61 +1,88 @@
-.ReservePageContainer{
-    background: rgb(40,52,70);
-    background: linear-gradient(320deg, rgba(40,52,70,1) 36%,
-    rgba(50,73,107,1) 58%, rgba(69,124,204,1) 82%, rgba(180,205,253,1) 95%);
-    height: 100%;
-    width: 100%;
+.ReservePageContainer {
+  background: rgb(40, 52, 70);
+  background: linear-gradient(
+    320deg,
+    rgba(40, 52, 70, 1) 36%,
+    rgba(50, 73, 107, 1) 58%,
+    rgba(69, 124, 204, 1) 82%,
+    rgba(180, 205, 253, 1) 95%
+  );
+  height: 100%;
+  width: 100%;
 }
 
-.haederReserve{
-    padding: 20px 0px 0px 20px;
+.haederReserve {
+  padding: 20px 0px 0px 20px;
 }
 
-.headerTitle-reservation{
-    color: white;
-    font-size: 50px;
-    font-family: "Times New Roman";
+.headerTitle-reservation {
+  color: white;
+  font-size: 50px;
+  font-family: "Times New Roman";
 }
 
-.MainContent-Reserve{
-    background-color: #F7F8F9;
-    border-radius: 10px;
-    margin: 10px;
-    padding: 5px 10px 10px 10px;
+.MainContent-Reserve {
+  background-color: #f7f8f9;
+  border-radius: 10px;
+  margin: 10px;
+  padding: 5px 10px 10px 10px;
 }
 
-.tableContainer-Reserve{
-    margin-top: 10px;
+.tableContainer-Reserve {
+  margin-top: 10px;
 }
 
-
-.form-containerReserve{
-    width: 100%;
-    transition: border-color 0.3s ease-in-out, box-shadow 0.3s ease-in-out; /* Transition for border and box-shadow */
-    font-size: 16px;
-    outline: none; /* Remove outline */
+.form-containerReserve {
+  width: 100%;
+  transition: border-color 0.3s ease-in-out, box-shadow 0.3s ease-in-out; /* Transition for border and box-shadow */
+  font-size: 16px;
+  outline: none; /* Remove outline */
 }
 
 /* Hover effect */
 .form-containerReserve:hover {
-    border-color: #8BA766; /* Border color on hover */
+  border-color: #8ba766; /* Border color on hover */
 }
 
 /* Click effect */
 .form-inputReserve:focus-within {
-    border-color: #32496B; /* Border color when input is clicked or focused */
-    box-shadow: 0px 0px 5px #61dafb; /* Box shadow for focus effect */
+  border-color: #32496b; /* Border color when input is clicked or focused */
+  box-shadow: 0px 0px 5px #61dafb; /* Box shadow for focus effect */
 }
 
 /* Style for the form input */
 .form-inputReserve {
-    width: 100%;
-    background-color: white;
-    border: none; /* Remove default input border */
-    outline: none; /* Remove input outline */
-    padding: 0px; /* Add padding to the input */
-    /*border-radius: 20px; !* Rounded corners *!*/
+  width: 100%;
+  background-color: white;
+  border: none; /* Remove default input border */
+  outline: none; /* Remove input outline */
+  padding: 0px; /* Add padding to the input */
+  /*border-radius: 20px; !* Rounded corners *!*/
 }
 
-.alertBox-reserve{
-    margin-bottom: 5px;
+.alertBox-reserve {
+  margin-bottom: 5px;
+}
+
+.custom-data-grid {
+  /* Add your custom styles here */
+}
+
+/* Example styles */
+.custom-data-grid .MuiDataGrid-columnsContainer,
+.custom-data-grid .MuiDataGrid-cell {
+  border: 1px solid #e0e0e0; /* Add border to columns and cells */
+}
+
+.custom-data-grid .MuiDataGrid-columnHeader,
+.custom-data-grid .MuiDataGrid-columnHeaderTitle {
+  background-color: #f0f0f0; /* Change header background color */
+  color: #333; /* Change header text color */
+}
+
+.custom-data-grid .MuiCheckbox-root svg {
+  fill: #1976d2; /* Change checkbox color */
+}
+
+.custom-data-grid {
 }

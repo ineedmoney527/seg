@@ -130,7 +130,7 @@ const addBook = async (req, res) => {
         if (isbnResults.length > 0) {
           // ISBN exists, update the record
           connection.query(
-            "UPDATE isbn SET image=?, title=?, description=?, pages=?, publish_year=?, edition=?, price=?, author_id=?, publisher_id=?, average_rating=? WHERE isbn = ?",
+            "UPDATE isbn SET image=?, title=?, description=?, pages=?, publish_year=?, edition=?, country_id=?, price=?, author_id=?, publisher_id=?, average_rating=? WHERE isbn = ?",
             [
               imageData,
               title,
@@ -138,6 +138,7 @@ const addBook = async (req, res) => {
               pages,
               publishedYear,
               edition,
+              countryId,
               price,
               authorId,
               publisherId,
@@ -231,9 +232,9 @@ const addBook = async (req, res) => {
   }
 };
 //router.get("/", readAllBook);
-const readAllBook = (req, res) => {
+const readAllBooks = (req, res) => {
   const query =
-    "SELECT book.*, isbn.title, isbn.image, isbn.description,isbn.pages,author.name AS author_name, isbn.edition,isbn.price,isbn.pages,publisher.name AS publisher_name, isbn.publish_year, country.name AS country_name  FROM book JOIN isbn ON book.isbn = isbn.isbn JOIN author ON isbn.author_id = author.id JOIN publisher ON isbn.publisher_id = publisher.id JOIN country ON publisher.country_id = country.id  ";
+    "SELECT book.*,isbn.isbn, isbn.title, isbn.image, isbn.description,isbn.pages,author.name AS author_name, isbn.edition,isbn.price,isbn.pages,publisher.name AS publisher_name, isbn.publish_year, country.name AS country_name  FROM book JOIN isbn ON book.isbn = isbn.isbn JOIN author ON isbn.author_id = author.id JOIN publisher ON isbn.publisher_id = publisher.id JOIN country ON publisher.country_id = country.id  ";
   connection.query(query, (err, data) => res.json(err ? err : data));
 };
 
@@ -242,11 +243,14 @@ const readAllISBN = (req, res) => {
   connection.query(query, (err, data) => res.json(err ? err : data));
 };
 const readUniqueBook = (req, res) => {
-  const query =
-    "SELECT DISTINCT isbn.isbn, isbn.title, isbn.image, isbn.description, isbn.pages, author.name AS author_name, isbn.edition, isbn.price, isbn.pages, publisher.name AS publisher_name, isbn.publish_year, country.name AS country_name FROM book JOIN isbn ON book.isbn = isbn.isbn JOIN author ON isbn.author_id = author.id JOIN publisher ON isbn.publisher_id = publisher.id JOIN country ON publisher.country_id = country.id";
+  const query = `SELECT DISTINCT isbn.isbn, isbn.title, isbn.image, isbn.description, isbn.pages, author.name AS author_name, isbn.edition, isbn.price, isbn.pages, publisher.name AS publisher_name, isbn.publish_year, country.name AS country_name, AVG(bookrating.rating) as rating FROM book JOIN isbn ON book.isbn = isbn.isbn JOIN author ON isbn.author_id = author.id LEFT JOIN bookrating on isbn.isbn= bookrating.isbn JOIN publisher ON isbn.publisher_id = publisher.id JOIN country ON publisher.country_id = country.id GROUP by isbn;`;
   connection.query(query, (err, data) => res.json(err ? err : data));
 };
 
+const readAvailableBooks = (req, res) => {
+  const query = `SELECT book.*, isbn.title, isbn.image, isbn.description,isbn.pages,author.name AS author_name, isbn.edition,isbn.price,isbn.pages,publisher.name AS publisher_name, isbn.publish_year, country.name AS country_name  FROM book JOIN isbn ON book.isbn = isbn.isbn JOIN author ON isbn.author_id = author.id JOIN publisher ON isbn.publisher_id = publisher.id JOIN country ON publisher.country_id = country.id WHERE status="Available"`;
+  connection.query(query, (err, data) => res.json(err ? err : data));
+};
 //router.get("/:id", readSpecificBook);
 const readSpecificBook = (req, res) => {
   const query =
@@ -257,7 +261,7 @@ const readSpecificBook = (req, res) => {
 
 const checkAvailable = (req, res) => {
   const isbn = req.params.isbn;
-  console.log(isbn);
+
   const query =
     "SELECT b.isbn, i.title, COUNT(b.book_code) AS num_books_available FROM book b JOIN isbn i ON b.isbn = i.isbn WHERE b.isbn = ? AND b.status = 'Available' GROUP BY b.isbn, i.title HAVING COUNT(b.book_code) > 0;";
 
@@ -271,6 +275,34 @@ const checkAvailable = (req, res) => {
       res.json(true); // Send true if there are available books
     } else {
       res.json(false); // Send false if there are no available books
+    }
+  });
+};
+const selectBook = (req, res) => {
+  const queryString =
+    "SELECT * FROM book WHERE status='Available' AND `isbn`=" + req.params.isbn;
+  connection.query(queryString, (err, data) =>
+    res.json(err ? { message: err.message } : data[0])
+  );
+};
+
+const readAllBookCode = (req, res) => {
+  const { isbn } = req.params;
+  const getBookCodeQuery = `SELECT book_code FROM book WHERE isbn = ?`;
+
+  connection.query(getBookCodeQuery, [isbn], (err, results) => {
+    if (err) {
+      return res.status(500).json({ error: "Internal server error" });
+    }
+
+    if (results.length > 0) {
+      // If a book with the specified ISBN is found, return the book code
+      res.status(200).json(results);
+    } else {
+      // If no book is found with the specified ISBN, return a message indicating so
+      res
+        .status(404)
+        .json({ message: "Book not found with the specified ISBN" });
     }
   });
 };
@@ -302,6 +334,11 @@ const deleteBooks = (req, res) => {
     }
   });
 };
+
+const currentTimestamp = new Date();
+const oneDayLater = new Date();
+oneDayLater.setDate(oneDayLater.getDate() + 1);
+
 const getISBN = (req, res) => {
   const isbn = req.params.id;
 
@@ -333,7 +370,6 @@ const getISBN = (req, res) => {
     }
 
     if (results.length > 0) {
-      console.log(results);
       const bookDetails = {
         isbn: results[0].isbn,
         author_name: results[0].author_name,
@@ -346,22 +382,74 @@ const getISBN = (req, res) => {
         price: results[0].price,
         description: results[0].description, // Include description in response
       };
-      console.log(bookDetails);
       return res.status(200).json(bookDetails);
     }
 
     // If the ISBN exists, you can send the book details as a response
   });
 };
+const updateStatus = (req, res) => {
+  const { bookCodes, status } = req.body;
+  const updateQuery = `UPDATE book SET status = ? WHERE book_code IN (?)`;
+  connection.query(updateQuery, [status, bookCodes], (err, results) => {
+    if (err) {
+      return res.json({ message: " Error occurs when updating book status" });
+    } else {
+      res.json({ message: " Rows updated:" + results.affectedRows });
+    }
+  });
+};
+
+const rateBook = (req, res) => {
+  const sqlQuery = `INSERT INTO bookrating (rating, comments,isbn,user_id) VALUES (?, ?, ?,?)`;
+  const { userId, rating, isbn, comments } = req.body;
+  // Execute the SQL query with parameters
+  connection.query(
+    sqlQuery,
+    [rating, comments, isbn, userId],
+    (err, result) => {
+      if (err) {
+        console.error("Error executing SQL query:", err);
+        return;
+      }
+      res.json("Data inserted successfully into bookrating table");
+    }
+  );
+};
+
+const calculateAverageRating = async (req, res) => {
+  try {
+    const query =
+      "SELECT AVG(rating) AS averageRating FROM bookrating WHERE isbn = ?";
+    const isbn = req.params.isbn;
+    connection.query(query, [isbn], (err, result) => {
+      if (err) {
+        console.error("Error executing SQL query:", err);
+        return;
+      }
+      const { averageRating } = result[0];
+      return res.json(averageRating);
+    });
+  } catch (error) {
+    console.error("Error calculating average rating:", error);
+    throw error;
+  }
+};
 
 export {
   addBook,
   getISBN,
   readUniqueBook,
-  readAllBook,
+  readAllBooks,
+  readAvailableBooks,
   deleteBook,
   deleteBooks,
   readSpecificBook,
   checkAvailable,
   readAllISBN,
+  readAllBookCode,
+  selectBook,
+  updateStatus,
+  rateBook,
+  calculateAverageRating,
 };

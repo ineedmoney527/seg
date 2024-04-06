@@ -29,16 +29,47 @@ import { PiPersonArmsSpreadFill } from "react-icons/pi";
 
 import { SiDarkreader } from "react-icons/si";
 import { DataGrid, GridToolbar } from "@mui/x-data-grid"; // Import Data Grid components
-
+import axios from "axios";
 function IssuesBook() {
   // const [selectedBooks, setSelectedBooks] = useState([]);
-  const [cartItems, setCartItems] = useState([]);
+  const [cartArray, setCartArray] = useState([]);
+  const [studentData, setStudentData] = useState([]);
+  const [bookData, setBookData] = useState([]);
+  const [resetBookTable, setResetBookTable] = useState(false);
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [selectedStudentId, setSelectedStudentId] = useState(null);
   const [selectedStudentName, setSelectedStudentName] = useState(null);
+  const [selectedStudentBorrowLimit, setSelectedStudentBorrowLimit] =
+    useState(null);
+
   const [open, setOpen] = useState(true);
   const [canBorrowBooks, setCanBorrowBooks] = useState(true);
   const [selectedCartItem, setSelectedCartItem] = useState(null);
+
+  const fetchUsers = async () => {
+    try {
+      const response = await axios.post("http://localhost:5000/api/user/(3,4)");
+      setStudentData(response.data);
+      console.log(response.data);
+    } catch (error) {
+      console.error("Error fetching users:", error);
+    }
+  };
+  const fetchBooks = async () => {
+    try {
+      const response = await axios.get(
+        "http://localhost:5000/api/book/available"
+      );
+      setBookData(response.data);
+    } catch (error) {
+      console.error("Error fetching books:", error);
+    }
+  };
+
+  useEffect(() => {
+    fetchUsers();
+    fetchBooks();
+  }, []);
 
   function customCheckbox(theme) {
     return {
@@ -145,12 +176,6 @@ function IssuesBook() {
     ...customCheckbox(theme),
   }));
 
-  const [cartArray, setCartArray] = useState([
-    // { id: 1, bookCode: 'B0001', title: 'Book 1', author: 'Author 1', edition: '1st', status: 'available' },
-    // { id: 2, bookCode: 'B0002', title: 'Book 2', author: 'Author 2', edition: '2nd', status: 'borrowed' },
-    // Add more initial cart items as needed
-  ]);
-
   const handleAlertWithTimeout = (alertState, setAlertState) => {
     setAlertState({ ...alertState, open: true });
     setTimeout(() => {
@@ -161,7 +186,7 @@ function IssuesBook() {
   // Columns configuration for Data Grid
   const columns = [
     {
-      field: "bookCode",
+      field: "book_code",
       headerName: "Book Code",
       width: 250,
       headerClassName: "cartTblHeader",
@@ -175,7 +200,7 @@ function IssuesBook() {
       headerAlign: "center",
     },
     {
-      field: "author",
+      field: "author_name",
       headerName: "Author",
       width: 400,
       headerClassName: "cartTblHeader",
@@ -218,240 +243,56 @@ function IssuesBook() {
     setOpen(false);
   };
 
-  // Dummy data for demonstration
-  const [studentData, setStudentDate] = useState([
-    {
-      id: 1,
-      name: "John Doe",
-      studentId: "12345",
-      limitLeft: 1,
-      email: "johndoe@example.com",
-    },
-    {
-      id: 2,
-      name: "Jane Smith",
-      studentId: "67890",
-      limitLeft: 3,
-      email: "janesmith@example.com",
-    },
-    {
-      id: 3,
-      name: "Beh Shu Ao",
-      studentId: "23857",
-      limitLeft: 3,
-      email: "behshuao@example.com",
-    },
-    {
-      id: 4,
-      name: "Tong Ke Xin",
-      studentId: "38576",
-      limitLeft: 0,
-      email: "tongkexin@example.com",
-    },
-    {
-      id: 5,
-      name: "Hana Oh",
-      studentId: "99832",
-      limitLeft: 2,
-      email: "hanaoh@example.com",
-    },
-    {
-      id: 6,
-      name: "Alexander Benjamin Christopher Davidson Edward",
-      studentId: "11111",
-      limitLeft: 1,
-      email: "newstudent1@example.com",
-    },
-    {
-      id: 7,
-      name: "Johnson",
-      studentId: "22222",
-      limitLeft: 3,
-      email: "newstudent2@example.com",
-    },
-    {
-      id: 8,
-      name: "Harry Style",
-      studentId: "33333",
-      limitLeft: 3,
-      email: "newstudent3@example.com",
-    },
-    {
-      id: 9,
-      name: "Bruno Mars",
-      studentId: "44444",
-      limitLeft: 0,
-      email: "newstudent4@example.com",
-    },
-    {
-      id: 10,
-      name: "Coldplay",
-      studentId: "55555",
-      limitLeft: 2,
-      email: "newstudent5@example.com",
-    },
-    {
-      id: 11,
-      name: "Taylor Swift",
-      studentId: "66666",
-      limitLeft: 1,
-      email: "newstudent6@example.com",
-    },
-    {
-      id: 12,
-      name: "Anson Seabra",
-      studentId: "77777",
-      limitLeft: 3,
-      email: "newstudent7@example.com",
-    },
-    {
-      id: 13,
-      name: "Sabrina Carpenter",
-      studentId: "88888",
-      limitLeft: 3,
-      email: "newstudent8@example.com",
-    },
-    {
-      id: 14,
-      name: "Niki",
-      studentId: "99999",
-      limitLeft: 0,
-      email: "newstudent9@example.com",
-    },
-    {
-      id: 15,
-      name: "Runy",
-      studentId: "101010",
-      limitLeft: 2,
-      email: "newstudent10@example.com",
-    },
-  ]);
-
-  const [bookData, setBookData] = useState([
-    {
-      id: 1,
-      bookCode: "B0001",
-      title: "Book 1",
-      author: "Author 1",
-      edition: "1st",
-      status: "available",
-    },
-    {
-      id: 2,
-      bookCode: "B0002",
-      title: "Book 2",
-      author: "Author 2",
-      edition: "2nd",
-      status: "borrowed",
-    },
-    {
-      id: 3,
-      bookCode: "B0003",
-      title: "Book 3",
-      author: "Author 3",
-      edition: "3rd",
-      status: "available",
-    },
-    {
-      id: 4,
-      bookCode: "B0004",
-      title: "Book 4",
-      author: "Author 4",
-      edition: "4th",
-      status: "available",
-    },
-    {
-      id: 5,
-      bookCode: "B0005",
-      title: "Book 5",
-      author: "Author 5",
-      edition: "5th",
-      status: "borrowed",
-    },
-    {
-      id: 6,
-      bookCode: "B0006",
-      title: "Book 6",
-      author: "Author 6",
-      edition: "6th",
-      status: "available",
-    },
-    {
-      id: 7,
-      bookCode: "B0007",
-      title: "Book 7",
-      author: "Author 7",
-      edition: "7th",
-      status: "available",
-    },
-    {
-      id: 8,
-      bookCode: "B0008",
-      title: "Book 8",
-      author: "Author 8",
-      edition: "8th",
-      status: "borrowed",
-    },
-    {
-      id: 9,
-      bookCode: "B0009",
-      title: "Book 9",
-      author: "Author 9",
-      edition: "9th",
-      status: "available",
-    },
-    {
-      id: 10,
-      bookCode: "B0010",
-      title: "Book 10",
-      author: "Author 10",
-      edition: "10th",
-      status: "available",
-    },
-    // Add more books as needed
-  ]);
-
   // Dummy row data for demonstration (replace with actual data from cartArray)
-  const rows = cartArray.map((item) => ({
-    id: item.id,
-    ...item,
-    isSelected: false,
-  }));
 
-  const handleSelectStudent = (id, name, limitLeft) => {
-    if (limitLeft > 0) {
-      setSelectedStudentId(id);
-      setSelectedStudentName(name);
-      setCanBorrowBooks(true);
-      setOpen(false); // Set open to true when the limit is greater than 0
-    } else {
-      setSelectedStudentId(null);
-      setSelectedStudentName(null);
-      setCanBorrowBooks(false);
-      setOpen(true); // Set open to false when the limit is 0
-    }
+  const handleSelectStudent = (id, name, borrow_limit) => {
+    setSelectedStudentId(id);
+    setSelectedStudentBorrowLimit(borrow_limit);
+    setSelectedRows([]);
+    handleClearCart();
+    fetchBooks();
+    fetchUsers();
+    setResetBookTable(!resetBookTable);
+    setSelectedStudentName(name);
+    setCanBorrowBooks(true);
+    setOpen(false); // Set open to true when the limit is greater than 0
   };
 
   const handleAddToCart = (selectedBook) => {
-    const isBookInCart = cartArray.some((item) => item.id === selectedBook.id);
-    if (!isBookInCart) {
-      setCartArray([...cartArray, selectedBook]); // Add book to cart
+    if (!selectedStudentId) {
+      setSubmitAlert("Please select a borrower");
     } else {
-      alert("This book is already in the cart.");
+      const updatedCart = (prev) => [...prev, selectedBook];
+      setCartArray(updatedCart);
     }
   };
-
   const [bookDelAlert, setDelAlert] = useState(false);
   const [bookClearAlert, setClearAlert] = useState(false);
   const [bookSubmitAlert, setSubmitAlert] = useState(false);
 
   const handleDeleteFromCart = () => {
+    const deleteLength = selectedRows.length;
     if (selectedRows.length > 0) {
-      const updatedCart = cartArray.filter(
-        (item) => !selectedRows.some((row) => row.id === item.id)
-      );
-      setCartArray(updatedCart);
+      selectedRows.forEach((item) => {
+        setCartArray((prev) =>
+          prev.filter((row) => row.book_code !== item.book_code)
+        );
+
+        setBookData((prev) => [...prev, item]);
+        setStudentData((prevStudents) =>
+          prevStudents.map((student) =>
+            student.id === selectedStudentId
+              ? {
+                  ...student,
+                  borrow_limit: student.borrow_limit + deleteLength,
+                }
+              : student
+          )
+        );
+        // Your add item logic here
+      });
       setSelectedRows([]); // Clear selected rows after deletion
+
       handleAlertWithTimeout(bookDelAlert, setDelAlert);
       setClearAlert({ open: false });
       setSubmitAlert({ open: false });
@@ -469,7 +310,9 @@ function IssuesBook() {
     setCartArray([]); // Clear the cart by setting an empty array
   };
 
-  const handleSubmitCart = () => {
+  const handleSubmitCart = async () => {
+    const bookCodes = cartArray.map((row) => row.book_code);
+    console.log(JSON.stringify(bookCodes));
     setDelAlert({ open: false });
     setClearAlert({ open: false });
     handleAlertWithTimeout(bookSubmitAlert, setSubmitAlert);
@@ -477,6 +320,42 @@ function IssuesBook() {
       open: true,
       message: "The borrowing process is sucessful.",
     });
+
+    try {
+      //update book status = borrowed
+      const response = await axios.put(
+        "http://localhost:5000/api/book/status",
+        {
+          bookCodes: bookCodes,
+          status: "Borrowed",
+        }
+      );
+
+      //reduce user borrow limit
+      const responseLimit = await axios.put(
+        "http://localhost:5000/api/user/limit",
+        {
+          id: selectedStudentId,
+          limit: selectedStudentBorrowLimit - cartArray.length,
+        }
+      );
+
+      const postRequests = bookCodes.map(async (bookCode) => {
+        try {
+          const insertBorrow = await axios.post(
+            "http://localhost:5000/api/history/borrow",
+            { bookCode: bookCode, user_id: selectedStudentId }
+          );
+          return insertBorrow.data; // Return the response data if the request is successful
+        } catch (error) {
+          console.error("Error sending POST request:", error);
+          throw error; // Throw an error if the request fails
+        }
+      });
+    } catch (e) {
+      console.log("Error: " + e.message);
+    }
+
     setCartArray([]); // Clear the cart by setting an empty array
   };
 
@@ -488,7 +367,6 @@ function IssuesBook() {
       color: "#fff", // Adjust hover text color
     },
   };
-
   return (
     <Stack
       direction="column"
@@ -496,11 +374,12 @@ function IssuesBook() {
       className={"IssuesPageContainer"}
       sx={{ height: "100%", width: "100vw", overflow: "auto" }} // Set full height and width
     >
+      {" "}
+      <div>{selectedStudentId}</div>
       <Stack direction="row" spacing={3} className={"haederIssues"}>
         <TemporaryDrawer open={drawerOpen} onClose={toggleDrawer} />
         <h1 className={"headerTitle-Issues"}>Issues Book Page</h1>
       </Stack>
-
       <Stack
         direction="column"
         className={"MainContent-Issues"}
@@ -512,9 +391,13 @@ function IssuesBook() {
             onSelectStudent={handleSelectStudent}
           />
           <BookTable
-            booksData={bookData}
+            bookData={bookData}
+            setBookData={setBookData}
             cartArray={cartArray}
             onAddToCart={handleAddToCart}
+            studentId={selectedStudentId}
+            setStudentData={setStudentData}
+            borrowLimit={selectedStudentBorrowLimit}
           />
         </Stack>
 
@@ -564,9 +447,7 @@ function IssuesBook() {
                     variant="subtitle1"
                     fontWeight="bold"
                     className="cartInfoText-issues"
-                  >
-                    {selectedStudentName ? `Name: ${selectedStudentName}` : ""}
-                  </Typography>
+                  ></Typography>
                 </Button>
               </Stack>
             ) : (
@@ -610,14 +491,14 @@ function IssuesBook() {
                 <MdDeleteForever size={25} style={{ marginRight: "8px" }} />{" "}
                 Delete
               </Button>
-              <Button
+              {/* <Button
                 sx={subButtonStyle}
                 disabled={cartArray.length === 0}
                 onClick={handleClearCart}
               >
                 <MdCleaningServices size={20} style={{ marginRight: "8px" }} />{" "}
                 Clear All
-              </Button>
+              </Button> */}
               <Button
                 sx={subButtonStyle}
                 disabled={cartArray.length === 0}
@@ -664,21 +545,20 @@ function IssuesBook() {
 
           <Box className={"datagridContainer"}>
             <div style={{ height: "350px", width: "100%" }}>
-              <StyledDataGrid
-                rows={rows}
+              <DataGrid
+                getRowId={(row) => row.book_code}
+                rows={cartArray}
                 columns={columns}
                 pageSize={5}
                 rowsPerPageOptions={[5, 10, 20]}
                 checkboxSelection
-                disableSelectionOnClick
                 slots={{ toolbar: GridToolbar }}
-                onSelectionModelChange={(selection) => {
-                  // Handle selected rows here
-                  const selectedIds = selection.selectionModel;
-                  const selectedRows = cartArray.filter((row) =>
-                    selectedIds.includes(row.id)
+                onRowSelectionModelChange={(selection) => {
+                  setSelectedRows(
+                    selection.map((id) =>
+                      cartArray.find((row) => row.book_code === id)
+                    )
                   );
-                  console.log(selectedRows); // Example: Log selected rows
                 }}
               />
             </div>

@@ -1,4 +1,5 @@
-import React, { useState, useRef } from "react";
+import React, { useState, useRef, useEffect } from "react";
+import axios from "axios";
 import Box from "@mui/material/Box";
 import BookCover1 from "../Image/BookCover1.png";
 import BookCover2 from "../Image/BookCover2.png";
@@ -13,20 +14,122 @@ import { Link } from "react-router-dom";
 import profile from "../Image/ProfileBanner.png";
 import UserRateBook from "./UserRateBook";
 import Rating from "@mui/material/Rating";
-
+import { useAuthUser } from "react-auth-kit";
+import { Buffer } from "buffer";
+import { format } from "date-fns";
+import { useNavigate } from "react-router-dom";
 const MyLibrary = () => {
   const [open, setOpen] = useState(false);
+  const [books, setBooks] = useState([]);
+  const [wishList, setWishList] = useState([]);
+  const [review, setReview] = useState([]);
+  const [ratingCount, setRatingCount] = useState([]);
+  const [wishListCount, setWishListCount] = useState(null);
   const [showSearchBar, setShowSearchBar] = useState(false);
   const [ratingRange, setRatingRange] = useState([1, 5]);
   const [filterAnchorEl, setFilterAnchorEl] = useState(null);
   const [yearRange, setYearRange] = useState([2000, 2022]);
   const [selectedBook, setSelectedBook] = useState(null);
   const [value, setValue] = useState(0);
+  const [currentLoan, setCurrentLoan] = useState(null);
+  const [borrowCount, setBorrowCount] = useState(null);
+  const [userRatings, setUserRatings] = useState({}); // State to store user ratings
+  const navigate = useNavigate();
   const historyContainerRef = useRef(null); // Define historyContainerRef
-
+  const user_id = useAuthUser()().id;
+  const today_date = new Date();
   const handleFilterClose = () => {
     setFilterAnchorEl(null);
   };
+
+  const fetchRequests = async () => {
+    const response = await axios.get(
+      "http://localhost:5000/api/request/" + user_id
+    );
+    setWishList(response.data.requests);
+    setWishListCount(response.data.requests.length);
+    console.log(response.data.requests);
+  };
+  const fetchRatingCount = async () => {
+    const response = await axios.get(
+      "http://localhost:5000/api/history/rating/" + user_id
+    );
+    setRatingCount(response.data.data);
+  };
+  const fetchLoanCount = async () => {
+    const response = await axios.get(
+      "http://localhost:5000/api/history/loan/" + user_id
+    );
+    setCurrentLoan(response.data.data);
+  };
+  const fetchReviews = async () => {
+    const response = await axios.get(
+      "http://localhost:5000/api/history/review/" + user_id
+    );
+
+    setReview(response.data.data);
+    console.log(review);
+  };
+  const fetchBorrowed = async () => {
+    try {
+      const borrowHistory = await axios.get(
+        "http://localhost:5000/api/history/borrow/" + user_id
+      );
+
+      const borrowCount = await axios.get(
+        "http://localhost:5000/api/history/borrowcount/" + user_id
+      );
+
+      setBooks(borrowHistory.data);
+      setBorrowCount(borrowCount.data[0].borrow_count);
+    } catch (error) {
+      console.error("Error fetching books:", error);
+    }
+  };
+  // const fetchUserRatings = async (isbn) => {
+  //   try {
+  //     const response = await axios.get(
+  //       `http://localhost:5000/api/history/hasRated/${user_id}/${isbn}`
+  //     );
+
+  //     console.log(response.data.rated);
+  //     return response.data.rated;
+  //   } catch (error) {
+  //     console.error("Error fetching user ratings:", error);
+  //   }
+  // };
+  const hasRatedBook = (isbn) => {
+    const ratedBook = userRatings.find((rating) => rating.isbn === isbn);
+    return ratedBook && ratedBook.rated;
+  };
+
+  useEffect(() => {
+    fetchRequests();
+    fetchBorrowed();
+    fetchLoanCount();
+    fetchRatingCount();
+    fetchReviews();
+  }, []);
+  useEffect(() => {
+    const fetchUserRatings = async () => {
+      try {
+        const ratings = await Promise.all(
+          books.map(async (book) => {
+            const response = await axios.get(
+              `http://localhost:5000/api/history/hasRated/${user_id}/${book.isbn}`
+            );
+            return { isbn: book.isbn, rated: response.data.rated };
+          })
+        );
+        setUserRatings(ratings);
+        console.log(ratings);
+      } catch (error) {
+        console.error("Error fetching user ratings:", error);
+      }
+    };
+
+    fetchUserRatings();
+  }, [user_id, books]); // Add user_id and books as dependencies
 
   const openFilter = Boolean(filterAnchorEl);
 
@@ -51,7 +154,10 @@ const MyLibrary = () => {
   const toggleSearchBar = () => {
     setShowSearchBar((prevShowSearchBar) => !prevShowSearchBar); // Toggle the visibility of the search bar
   };
-
+  const formatDate = (dateString) => {
+    const date = new Date(dateString);
+    return date.getTime(); // Returns the time in milliseconds
+  };
   const SCROLL_AMOUNT = 100;
 
   const scrollNext = () => {
@@ -78,97 +184,15 @@ const MyLibrary = () => {
     setSelectedBook(book);
   };
 
-  const books = [
-    {
-      title: "Madness: Race and Insanity in a Jim Crow Asylum",
-      rating: "5",
-      description:
-        "In the riveting narrative 'Madness', " +
-        "journalist Antonia Hylton delves into the 93-year history of Crownsville Hospital, " +
-        "exploring race, insanity, and neglect. This poignant tale sheds light on the struggles of " +
-        "marginalized communities in accessing mental healthcare." +
-        "In the riveting narrative 'Madness', " +
-        "journalist Antonia Hylton delves into the 93-year history of Crownsville Hospital, " +
-        "exploring race, insanity, and neglect. This poignant tale sheds light on the struggles of " +
-        "marginalized communities in accessing mental healthcare.",
-      imgPath: BookCover1,
-    },
-    {
-      title: "Book 2",
-      rating: "5",
-      description: "Description of Book 2",
-      imgPath: BookCover2,
-    },
-    {
-      title: "Book 3",
-      rating: "4",
-      description: "Description of Book 3",
-      imgPath: BookCover3,
-    },
-    {
-      title: "Book 4",
-      rating: "4",
-      description: "Description of Book 1",
-      imgPath: BookCover1,
-    },
-    {
-      title: "Book 5",
-      rating: "4",
-      description: "Description of Book 2",
-      imgPath: BookCover2,
-    },
-    {
-      title: "Book 6",
-      rating: "3",
-      description: "Description of Book 3",
-      imgPath: BookCover3,
-    },
-  ];
+  const [hoveredIndex, setHoveredIndex] = useState(null);
 
-  const sampleWishList = [
-    {
-      code: "001",
-      title: "Moby Dick",
-      author: "Herman Melville",
-      publicationYear: 1851,
-      reason: "Interesting, assignment needed",
-    },
-    {
-      code: "002",
-      title: "Nice To Meet You",
-      author: "Miss Nice",
-      publicationYear: 1851,
-      reason: "very nice",
-    },
-    {
-      code: "003",
-      title: "Happy",
-      author: "Mr Happy",
-      publicationYear: 2005,
-      reason: "Make me happy",
-    },
-  ];
+  const handleMouseEnter = (index) => {
+    setHoveredIndex(index);
+  };
 
-  const sampleReview = [
-    {
-      title: "Madness: Race and Insanity in a Jim Crow Asylum",
-      imgPath: BookCover1,
-      reviewRating: 5,
-      review: "This book is amazing! Highly recommended.",
-    },
-    {
-      title: "book2",
-      imgPath: BookCover2,
-      reviewRating: 5,
-      review: "This book is amazing! Highly recommended.",
-    },
-    {
-      title: "book3",
-      imgPath: BookCover3,
-      reviewRating: 5,
-      review: "This book is amazing! Highly recommended.",
-    },
-  ];
+  const handleMouseLeave = () => {
+    setHoveredIndex(null);
+  };
 
   return (
     <Box>
@@ -240,7 +264,9 @@ const MyLibrary = () => {
             }}
           >
             <label style={{}}>Total Borrowed Book</label>
-            <label style={{ fontSize: "22px", fontWeight: "bold" }}>10</label>
+            <label style={{ fontSize: "22px", fontWeight: "bold" }}>
+              {borrowCount}
+            </label>
           </Box>
 
           <Box
@@ -259,7 +285,9 @@ const MyLibrary = () => {
             }}
           >
             <label style={{}}>Current Loan</label>
-            <label style={{ fontWeight: "bold", fontSize: "22px" }}>3</label>
+            <label style={{ fontWeight: "bold", fontSize: "22px" }}>
+              {currentLoan}
+            </label>
           </Box>
 
           <Box
@@ -278,7 +306,9 @@ const MyLibrary = () => {
             }}
           >
             <label style={{}}>Wishlist</label>
-            <label style={{ fontWeight: "bold", fontSize: "22px" }}>5</label>
+            <label style={{ fontWeight: "bold", fontSize: "22px" }}>
+              {wishListCount}
+            </label>
           </Box>
 
           <Box
@@ -297,7 +327,9 @@ const MyLibrary = () => {
             }}
           >
             <label style={{}}>Rated Books</label>
-            <label style={{ fontWeight: "bold", fontSize: "22px" }}>2</label>
+            <label style={{ fontWeight: "bold", fontSize: "22px" }}>
+              {ratingCount}
+            </label>
           </Box>
         </Box>
       </Layout>
@@ -361,128 +393,167 @@ const MyLibrary = () => {
         </Tabs>
         <Box role="tabpanel" hidden={value !== 0}>
           {/* Render borrowed books here */}
-          {books
-            .filter((_, index) => index % 5 === 0) // Filter books to display every 5th book
-            .map((book, index) => (
+          <Box
+            sx={{
+              display: "flex",
+              flexDirection: "row",
+              flexWrap: "wrap",
+              justifyContent: "flex-start",
+            }}
+          >
+            {books.map((book, index) => (
               <Box
                 key={index}
                 sx={{
-                  display: "flex",
-                  flexDirection: "row",
-                  marginLeft: "60px",
+                  width: "180px",
+                  height: "250px",
+                  margin: "10px",
+                  borderRadius: "1spx",
+                  overflow: "hidden",
+                  justifyContent: "center",
+                  ":hover": {
+                    backgroundColor:
+                      hoveredIndex === index ? "lightgrey" : "transparent",
+                  },
                 }}
+                onMouseEnter={() => handleMouseEnter(index)}
+                onMouseLeave={handleMouseLeave}
               >
-                {books.slice(index, index + 5).map((book, idx) => (
-                  <Box
-                    key={idx}
-                    sx={{
-                      width: "200px",
-                      height: "250px",
-                      margin: "10px",
-                      borderRadius: "1spx",
-                      overflow: "hidden",
+                <Box
+                  sx={{
+                    width: "200px",
+                    height: "200px",
+                    display: "flex",
+                    justifyContent: "center",
+                    alignContent: "center",
+                    alignItems: "center",
+                  }}
+                >
+                  <img
+                    src={`data:image/png;base64,${Buffer.from(
+                      book.image
+                    ).toString("base64")}`}
+                    alt={book.title}
+                    style={{ width: "130px", height: "180px" }}
+                  />
+                </Box>
+                <Box
+                  sx={{
+                    display: "flex",
+                    justifyContent: "center",
+                    flexDirection: "row",
+                  }}
+                >
+                  <Typography style={{ fontSize: "15px", fontWeight: "bold" }}>
+                    Due Date:{" "}
+                  </Typography>
+                  <Typography style={{ fontSize: "15px", fontWeight: "bold" }}>
+                    {book.end_date}
+                  </Typography>
+                </Box>
+                <Box
+                  sx={{
+                    display: "flex",
+                    justifyContent: "center",
+                    flexDirection: "row",
+                  }}
+                >
+                  <Typography
+                    style={{
+                      fontSize: "14px",
+                      marginRight: "10px",
+                      color: "grey",
+                    }}
+                  ></Typography>
+                  <Typography
+                    style={{
+                      fontSize: "14px",
+                      color: "red",
+                      marginRight: "10px",
                     }}
                   >
-                    <Box
-                      sx={{
-                        width: "200px",
-                        height: "200px",
-                        backgroundColor: "#F4F4F4",
-                        display: "flex",
-                        justifyContent: "center",
-                        alignContent: "center",
-                        alignItems: "center",
-                      }}
-                    >
-                      <img
-                        src={book.imgPath}
-                        alt={book.title}
-                        style={{ width: "130px", height: "180px" }}
-                      />
-                    </Box>
-                    <Box>
-                      <Typography style={{ fontSize: "14px" }}>
-                        Due Date: 30/03/24
-                      </Typography>
-                      <Typography style={{ fontSize: "14px" }}>
-                        Left 3 days
-                      </Typography>
-                    </Box>
-                  </Box>
-                ))}
+                    {book.end_date && today_date
+                      ? Math.ceil(
+                          (formatDate(book.end_date) - formatDate(today_date)) /
+                            (1000 * 60 * 60 * 24)
+                        ) >= 0
+                        ? `Left ${Math.ceil(
+                            (formatDate(book.end_date) -
+                              formatDate(today_date)) /
+                              (1000 * 60 * 60 * 24)
+                          )} days`
+                        : `Overdue ${Math.ceil(
+                            (formatDate(today_date) -
+                              formatDate(book.end_date)) /
+                              (1000 * 60 * 60 * 24)
+                          )} days`
+                      : ""}
+                  </Typography>
+                  <Typography
+                    style={{ fontSize: "14px", color: "grey" }}
+                  ></Typography>
+                </Box>
               </Box>
             ))}
+          </Box>
         </Box>
 
         <Box role="tabpanel" hidden={value !== 1}>
-          {sampleWishList
-            .filter((_, index) => index % 5 === 0)
-            .map((book, index) => (
+          {wishList &&
+            Array.isArray(wishList) &&
+            wishList.map((book) => (
               <Box
-                key={index}
                 sx={{
                   display: "flex",
                   flexDirection: "column",
                   marginLeft: "60px",
                 }}
               >
-                {sampleWishList.slice(index, index + 5).map((book, idx) => (
-                  <Box
-                    key={idx}
-                    sx={{
-                      width: "80%",
-                      height: "100px",
-                      margin: "10px",
-                      borderRadius: "10px",
-                      overflow: "hidden",
-                      backgroundColor: "#F4F4F4",
-                      boxShadow: "0 2px 4px rgba(0, 0, 0, 0.5)",
-                    }}
-                  >
-                    <Box>
-                      <Box sx={{ display: "flex", flexDirection: "row" }}>
-                        <Typography
-                          style={{ fontSize: "14px", fontWeight: "bold" }}
-                        >
-                          Book Title:
-                        </Typography>
-                        <Typography style={{ fontSize: "14px" }}>
-                          {book.title}
-                        </Typography>
-                      </Box>
-                      <Box sx={{ display: "flex", flexDirection: "row" }}>
-                        <Typography
-                          style={{ fontSize: "14px", fontWeight: "bold" }}
-                        >
-                          Author:
-                        </Typography>
-                        <Typography style={{ fontSize: "14px" }}>
-                          {book.author}
-                        </Typography>
-                      </Box>
-                      <Box sx={{ display: "flex", flexDirection: "row" }}>
-                        <Typography
-                          style={{ fontSize: "14px", fontWeight: "bold" }}
-                        >
-                          Publication year:
-                        </Typography>
-                        <Typography style={{ fontSize: "14px" }}>
-                          {book.publicationYear}
-                        </Typography>
-                      </Box>
-                      <Box sx={{ display: "flex", flexDirection: "row" }}>
-                        <Typography
-                          style={{ fontSize: "14px", fontWeight: "bold" }}
-                        >
-                          Reason:
-                        </Typography>
-                        <Typography style={{ fontSize: "14px" }}>
-                          {book.reason}
-                        </Typography>
-                      </Box>
-                    </Box>
+                <Box
+                  sx={{
+                    width: "90%",
+                    height: "auto",
+                    margin: "10px",
+                    borderRadius: "10px",
+                    overflow: "hidden",
+                    backgroundColor: "#F4F4F4",
+                    boxShadow: "0 2px 4px rgba(0, 0, 0, 0.5)",
+                    paddingLeft: "20px",
+                    paddingTop: "10px",
+                    paddingBottom: "10px",
+                    paddingRight: "10px",
+                  }}
+                >
+                  <Box>
+                    <Typography style={{ fontSize: "12px" }}>
+                      {book.title}
+                    </Typography>
+                    <Typography
+                      style={{
+                        fontSize: "14px",
+                        display: "flex",
+                        marginBottom: "5px",
+                      }}
+                    >
+                      <span style={{ width: "200px" }}>Author:</span>
+                      <span>{book.author}</span>
+                    </Typography>
+                    {/* <Typography
+                      style={{
+                        fontSize: "14px",
+                        display: "flex",
+                        marginBottom: "5px",
+                      }}
+                    >
+                      <span style={{ width: "200px" }}>Publication year:</span>
+                      <span>{book.publicationYear}</span>
+                    </Typography> */}
+                    <Typography style={{ fontSize: "14px", display: "flex" }}>
+                      <span style={{ width: "200px" }}>Reason:</span>
+                      <span>{book.reason}</span>
+                    </Typography>
                   </Box>
-                ))}
+                </Box>
               </Box>
             ))}
         </Box>
@@ -534,6 +605,7 @@ const MyLibrary = () => {
             >
               {books.map((book, index) => (
                 <Box
+                  key={index}
                   sx={{
                     minWidth: "220px",
                     height: "300px",
@@ -541,7 +613,6 @@ const MyLibrary = () => {
                   }}
                 >
                   <Box
-                    key={index}
                     sx={{
                       minWidth: "220px",
                       height: "230px",
@@ -554,18 +625,25 @@ const MyLibrary = () => {
                     }}
                   >
                     <img
-                      src={book.imgPath}
+                      src={`data:image/png;base64,${Buffer.from(
+                        book.image
+                      ).toString("base64")}`}
                       alt={book.title}
                       style={{ width: "150px", height: "200px" }}
                     />
                   </Box>
-                  <Box sx={{ display: "flex", justifyContent: "center" }}>
-                    <Link
-                      to="/UserMyLibrary/UserRateBook"
-                      state={{ book: book }}
-                    >
+                  <Box
+                    sx={{ display: "flex", justifyContent: "center" }}
+                    key={index}
+                  >
+                    <Link to="/UserRateBook" state={{ book: book }}>
                       <button
-                        onClick={() => handleViewBookClick(book)}
+                        onClick={() =>
+                          hasRatedBook(book.isbn)
+                            ? alert("You have already rated this book.")
+                            : navigate("/UserRateBook", { state: { book } })
+                        }
+                        disabled={hasRatedBook(book.isbn)}
                         style={{
                           width: "70px",
                           height: "25px",
@@ -574,7 +652,9 @@ const MyLibrary = () => {
                           fontSize: "13px",
                           borderRadius: "20px",
                           border: "none",
-                          cursor: "pointer",
+                          cursor: hasRatedBook(book.isbn)
+                            ? "not-allowed"
+                            : "pointer",
                           marginLeft: "20px",
                         }}
                       >
@@ -605,90 +685,98 @@ const MyLibrary = () => {
         </Box>
 
         <Box role="tabpanel" hidden={value !== 3}>
-          {sampleReview
-            .filter((_, index) => index % 5 === 0)
-            .map((book, index) => (
+          {review.map((book, index) => (
+            <Box
+              key={index}
+              sx={{
+                display: "flex",
+                flexDirection: "column",
+                marginLeft: "60px",
+              }}
+            >
               <Box
                 key={index}
                 sx={{
-                  display: "flex",
-                  flexDirection: "column",
-                  marginLeft: "60px",
+                  width: "90%",
+                  height: "150px",
+                  margin: "10px",
+                  borderRadius: "10px",
+                  overflow: "hidden",
+                  backgroundColor: "#F4F4F4",
+                  boxShadow: "0 2px 4px rgba(0, 0, 0, 0.5)",
+                  paddingTop: "20px",
                 }}
               >
-                {sampleReview.slice(index, index + 5).map((book, idx) => (
+                <Box sx={{ display: "flex", flexDirection: "row" }}>
                   <Box
-                    key={idx}
                     sx={{
-                      width: "80%",
-                      height: "150px",
-                      margin: "10px",
-                      borderRadius: "10px",
-                      overflow: "hidden",
-                      backgroundColor: "#F4F4F4",
-                      boxShadow: "0 2px 4px rgba(0, 0, 0, 0.5)",
+                      width: "150px",
+                      height: "130px",
+                      display: "flex",
+                      marginRight: "20px",
+                      justifyContent: "center",
+                      alignItems: "center",
                     }}
                   >
+                    <img
+                      src={`data:image/png;base64,${Buffer.from(
+                        book.image
+                      ).toString("base64")}`}
+                      alt={"review-book-cover"}
+                      style={{ width: "90px", height: "120px" }}
+                    />
+                  </Box>
+                  <Box sx={{ display: "flex", flexDirection: "column" }}>
+                    <Box
+                      sx={{
+                        display: "flex",
+                        flexDirection: "row",
+                        marginBottom: "10px",
+                      }}
+                    >
+                      <Typography
+                        style={{ fontSize: "14px", fontWeight: "bold" }}
+                      >
+                        Book Title:
+                      </Typography>
+                      <Typography style={{ fontSize: "14px" }}>
+                        {book.title}
+                      </Typography>
+                    </Box>
+                    <Box
+                      sx={{
+                        display: "flex",
+                        flexDirection: "row",
+                        marginBottom: "10px",
+                      }}
+                    >
+                      <Typography
+                        style={{ fontSize: "14px", fontWeight: "bold" }}
+                      >
+                        Rating:
+                      </Typography>
+                      <Rating
+                        name="read-only"
+                        value={parseFloat(book.rating)}
+                        readOnly
+                        precision={0.5}
+                      />
+                    </Box>
                     <Box sx={{ display: "flex", flexDirection: "row" }}>
-                      <Box sx={{ display: "flex", marginRight: "20px" }}>
-                        <img
-                          src={book.imgPath}
-                          alt={"review-book-cover"}
-                          style={{ width: "100px", height: "150px" }}
-                        />
-                      </Box>
-                      <Box sx={{ display: "flex", flexDirection: "column" }}>
-                        <Box
-                          sx={{
-                            display: "flex",
-                            flexDirection: "row",
-                            marginBottom: "10px",
-                          }}
-                        >
-                          <Typography
-                            style={{ fontSize: "14px", fontWeight: "bold" }}
-                          >
-                            Book Title:
-                          </Typography>
-                          <Typography style={{ fontSize: "14px" }}>
-                            {book.title}
-                          </Typography>
-                        </Box>
-                        <Box
-                          sx={{
-                            display: "flex",
-                            flexDirection: "row",
-                            marginBottom: "10px",
-                          }}
-                        >
-                          <Typography
-                            style={{ fontSize: "14px", fontWeight: "bold" }}
-                          >
-                            Rating:
-                          </Typography>
-                          <Rating
-                            name="read-only"
-                            value={parseFloat(book.reviewRating)}
-                            readOnly
-                            precision={0.5}
-                          />
-                        </Box>
-                        <Box sx={{ display: "flex", flexDirection: "row" }}>
-                          <Typography
-                            style={{ fontSize: "14px", fontWeight: "bold" }}
-                          >
-                            Comment:
-                          </Typography>
-                          <Typography style={{ fontSize: "14px" }}>
-                            {book.review}
-                          </Typography>
-                        </Box>
-                      </Box>
+                      <Typography
+                        style={{ fontSize: "14px", fontWeight: "bold" }}
+                      >
+                        Comment:
+                      </Typography>
+                      <Typography style={{ fontSize: "14px" }}>
+                        {book.comments}
+                      </Typography>
                     </Box>
                   </Box>
-                ))}
+                </Box>
               </Box>
-            ))}
+            </Box>
+          ))}
         </Box>
       </Box>
       {selectedBook && <UserRateBook book={selectedBook} />}

@@ -72,7 +72,7 @@ const createUser = async (req, res) => {
 //@access public
 const readUser = (req, res) => {
   const query =
-    "SELECT image_file, id, name, email, DATE_FORMAT(join_date, '%Y-%m-%d') AS join_date, DATE_FORMAT(birth_date, '%Y-%m-%d') AS birth_date FROM user WHERE role_id =" +
+    "SELECT image_file, id, name, email, DATE_FORMAT(join_date, '%Y-%m-%d') AS join_date, DATE_FORMAT(birth_date, '%Y-%m-%d') AS birth_date,role_id, borrow_limit FROM user WHERE role_id IN" +
     req.params.role_id;
   connection.query(query, (err, data) => {
     if (err) {
@@ -159,6 +159,18 @@ const deleteContacts = (req, res) => {
     }
   });
 };
+const updateLimit = (req, res) => {
+  const { id, limit } = req.body;
+  const updateQuery = `UPDATE user SET borrow_limit = ? WHERE id = ?`;
+  connection.query(updateQuery, [limit, id], (err, results) => {
+    if (err) {
+      return res.json({ message: " Error occurs when updating book status" });
+    } else {
+      res.json({ message: " Rows updated:" + results.affectedRows });
+    }
+  });
+};
+
 const login = (req, res) => {
   console.log("hihi");
   const { username, password } = req.body;
@@ -223,6 +235,14 @@ function authenticateToken(req, res, next) {
     next();
   });
 }
+
+const getLimit = asyncHandler(async (req, res) => {
+  console.log("id" + req.params.id);
+  const query = "SELECT borrow_limit FROM user where `id`=" + req.params.id;
+  connection.query(query, (err, data) =>
+    res.json(err ? { message: "User not found" } : data[0])
+  );
+});
 export {
   createUser,
   readUser,
@@ -232,4 +252,6 @@ export {
   updateContact,
   login,
   authenticateToken,
+  updateLimit,
+  getLimit,
 };

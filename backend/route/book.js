@@ -4,23 +4,33 @@ import multer from "multer";
 import {
   addBook,
   getISBN,
-  readAllBook,
+  readAllBooks,
+  readAvailableBooks,
   deleteBook,
   deleteBooks,
   readUniqueBook,
   readSpecificBook,
   checkAvailable,
   readAllISBN,
+  selectBook,
+  readAllBookCode,
+  updateStatus,
+  rateBook,
+  calculateAverageRating,
 } from "../controller/bookController.js";
+
 router.get("/isbn", readAllISBN);
 router.get("/checkAvailable/:isbn", checkAvailable);
 router.get("/isbn/:id", getISBN);
-
+router.get("/bookCodes/:isbn", readAllBookCode);
+router.get("/rating/:isbn", calculateAverageRating);
 router.get("/list", readUniqueBook);
-router.get("/:id", readSpecificBook);
-router.get("/", readAllBook);
 
+router.get("/", readAllBooks);
+router.get("/available", readAvailableBooks);
 router.post("/", addBook);
+router.post("/rating", rateBook);
+
 router.post("/:isbn", checkAvailable);
 // // Route for updating a book by its ID
 // router.put("/:id", updateBook);
@@ -29,4 +39,7 @@ router.post("/:isbn", checkAvailable);
 router.delete("/rows/:ids", deleteBooks);
 router.delete("/:id", deleteBook);
 
+router.put("/status", updateStatus);
+router.get("/:isbn", selectBook);
+router.get("/:id", readSpecificBook);
 export default router;

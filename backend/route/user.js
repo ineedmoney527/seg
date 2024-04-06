@@ -8,8 +8,10 @@ import {
   deleteContact,
   deleteContacts,
   updateContact,
+  updateLimit,
   authenticateToken,
   login,
+  getLimit,
 } from "../controller/contactController.js";
 
 //create
@@ -30,10 +32,13 @@ router.get("/currentUser", authenticateToken, (req, res) => {
   res.json(currentUser);
 });
 //readbyId
+router.get("/limit/:id", getLimit);
 router.get("/:id", readContactById);
 
 //update
+router.put("/limit", updateLimit);
 router.put("/:id", updateContact);
+
 //delete
 router.delete("/rows/:ids", deleteContacts);
 //delete

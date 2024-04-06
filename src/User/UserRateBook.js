@@ -1,30 +1,62 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import Typography from "@mui/material/Typography";
 import Box from "@mui/material/Box";
 import { useLocation } from "react-router-dom";
 import Layout from "./Layout";
-import { useForm } from "react-hook-form";
+import { useForm, Controller } from "react-hook-form";
+import { useAuthUser } from "react-auth-kit";
 import Rating from "@mui/material/Rating";
-
+import axios from "axios";
+import { useNavigate } from "react-router-dom";
+import { Buffer } from "buffer";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { z } from "zod";
 const UserRateBook = () => {
   const [open, setOpen] = useState(false);
   const [showSearchBar, setShowSearchBar] = useState(false);
 
+  const user_id = useAuthUser()().id;
   const toggleDrawer = (newOpen) => () => {
     setOpen(newOpen);
   };
   const location = useLocation();
   const { book } = location.state || {};
+  const navigate = useNavigate();
+  const ratingSchema = z.object({
+    rating: z.number().min(0).max(5),
+    comments: z
+      .string()
+      .nonempty({ message: "Comments field cannot be empty" })
+      .max(255),
+  });
+  const {
+    register,
+    handleSubmit,
+    control,
 
-  const { register, handleSubmit } = useForm();
+    formState: { errors, isSubmitting },
+  } = useForm({
+    resolver: zodResolver(ratingSchema),
+  });
 
-  const onSubmit = (data) => {
-    console.log(data);
+  const onSubmit = async (data) => {
+    try {
+      const response = await axios.post(
+        "http://localhost:5000/api/book/rating",
+        {
+          rating: data.rating,
+          comments: data.comments,
+          userId: user_id,
+          isbn: book.isbn,
+        }
+      );
+      alert("Added Successfully");
+      navigate("/UserMyLibrary");
+      console.log(response);
+    } catch (error) {
+      console.error("Error fetching users:", error);
+    }
   };
-
-  if (!book) {
-    return <div>No book data available</div>;
-  }
 
   return (
     <Layout
@@ -72,14 +104,14 @@ const UserRateBook = () => {
                 variant="body2"
                 gutterBottom
               >
-                Publication Year: {book.publicationYear}
+                Publication Year: {book.publish_year}
               </Typography>
               <Typography
                 sx={{ fontWeight: "bold" }}
                 variant="body2"
                 gutterBottom
               >
-                Total Page: {book.totalPages}
+                Total Page: {book.pages}
               </Typography>
               <Typography
                 sx={{ fontWeight: "bold" }}
@@ -105,13 +137,6 @@ const UserRateBook = () => {
               >
                 Courses: {book.courses}
               </Typography>
-              <Typography
-                sx={{ fontWeight: "bold" }}
-                variant="body2"
-                gutterBottom
-              >
-                Location:{book.location}
-              </Typography>
             </Box>
           </Box>
         </Box>
@@ -125,7 +150,9 @@ const UserRateBook = () => {
           }}
         >
           <img
-            src={book.imgPath}
+            src={`data:image/png;base64,${Buffer.from(book.image).toString(
+              "base64"
+            )}`}
             alt={"book-cover"}
             style={{ width: "120px", height: "200px" }}
           />
@@ -175,7 +202,18 @@ const UserRateBook = () => {
                 Rating:
               </label>
               {/* Register input field with React Hook Form */}
-              <Rating {...register("rating")} name={"rating"} />
+              <Controller
+                name="rating"
+                control={control}
+                defaultValue={0}
+                render={({ field }) => (
+                  <Rating
+                    {...field}
+                    precision={0.5}
+                    onChange={(event, newValue) => field.onChange(newValue)}
+                  />
+                )}
+              />{" "}
             </Box>
             <Box sx={{ display: "flex", flexDirection: "column" }}>
               <label
@@ -202,6 +240,11 @@ const UserRateBook = () => {
                   textAlign: "left",
                 }}
               />
+              {errors.comments && (
+                <span style={{ color: "red", marginLeft: "20px" }}>
+                  {errors.comments.message}
+                </span>
+              )}
             </Box>
             <Box
               style={{

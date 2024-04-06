@@ -132,7 +132,7 @@ function AdminMainPg() {
   const fetchUsers = async () => {
     try {
       const response = await axios.post(
-        "http://localhost:5000/api/user/" + currentTab
+        "http://localhost:5000/api/user/(" + currentTab + ")"
       );
       setData(response.data);
       console.log(response);
@@ -186,7 +186,13 @@ function AdminMainPg() {
             id="tableTitle"
             component="div"
           >
-            Librarians
+            {currentTab === 4
+              ? "Student"
+              : currentTab === 3
+              ? "Lecturer"
+              : currentTab === 2
+              ? "Librarian"
+              : "Librarians"}
           </Typography>
         )}
 
@@ -231,15 +237,15 @@ function AdminMainPg() {
         >
           <Tab
             label="Librarian"
-            onClick={() => setCurrentTab(1)}
+            onClick={() => setCurrentTab(2)}
             value={1}
             selected={currentTab === 1}
           />
           <Tab
             label="Student"
-            onClick={() => setCurrentTab(2)}
+            onClick={() => setCurrentTab(4)}
             value={2}
-            selected={currentTab === 2}
+            selected={currentTab === 4}
           />
           <Tab
             label="Lecturer"

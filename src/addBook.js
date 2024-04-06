@@ -176,6 +176,7 @@ function AddNewBookPage({ open, onClose, edit, selectedRowData }) {
   });
   const handleIsbnChange = _.debounce(async (event) => {
     const inputIsbn = event.target.value;
+    setValue("isbn", inputIsbn);
 
     try {
       const response = await axios.get(
@@ -309,7 +310,9 @@ function AddNewBookPage({ open, onClose, edit, selectedRowData }) {
             </span>{" "}
           </div>
           <div>
-            <h2>Add New Book Information</h2>
+            <h2>
+              {!edit ? "Add New Book Information" : "Edit Book Information"}
+            </h2>
           </div>
           <form onSubmit={handleSubmit(onSubmit)}>
             <div className="book-info">
@@ -449,7 +452,7 @@ function AddNewBookPage({ open, onClose, edit, selectedRowData }) {
                                 size="small"
                                 error={!!errors.isbn}
                                 helperText={errors.isbn?.message}
-                                onChange={handleIsbnChange}
+                                onBlur={handleIsbnChange} // Add this line
                               />
                             )}
                           />
@@ -662,7 +665,7 @@ function AddNewBookPage({ open, onClose, edit, selectedRowData }) {
                 </div>{" "}
               </div>{" "}
               <div className="bottom-container">
-                <button className={"addBtn"}>Add</button>
+                <button className={"addBtn"}>{!edit ? "Add" : "Edit"}</button>
               </div>
               {/*<div className="comments">*/}
               {/*    <!--comments sections-->*/}
