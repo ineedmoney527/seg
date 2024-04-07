@@ -9,10 +9,10 @@ import {
   getBookRequestbyId,
 } from "../controller/requestController.js";
 router.get("/", getBookRequest);
-router.get("/:id", getBookRequestbyId);
 
 router.get("/pending", pendingRequest);
 router.get("/history", requestHistory);
+router.get("/:id", getBookRequestbyId);
 router.post("/add", addBookRequest);
 router.put("/:ids", manageRequest);
 
