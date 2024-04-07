@@ -1,4 +1,5 @@
 import connection from "../config/dbConnection.js";
+import nodemailer from "nodemailer";
 const reserve = (req, res) => {
   const { requested_at, status, book_code, user_id } = req.body;
 
@@ -30,9 +31,22 @@ const reserveHistory = (req, res) => {
   connection.query(selectQuery, (err, data) => res.json(err ? err : data));
 };
 
+// const queryString = `UPDATE bookreservation SET status = ?, start_datetime = ?, end_datetime = ? WHERE id IN  (?)`;
+// const params = [newStatus, now, tomorrow, ids];
+// connection.query(queryString, params, (err, data) => {
+//   if (err) {
+//     console.error("Error managing reserve requests:", err);
+//     res.status(500).json({
+//       message: "An error occurred while managing reservation requests.",
+//     });
+//   } else {
+//     res.json({ message: "Reservation approved/rejected successfully." });
+//   }
+// });
+
 const manageReserves = (req, res) => {
   const ids = req.params.ids.split(",").map((id) => parseInt(id, 10));
-  const { type } = req.body;
+  const { type, student_id, book_code } = req.body;
   const newStatus = type === "Approve" ? "Approved" : "Rejected";
   const now = new Date(); // Get current date and time
   const tomorrow = new Date(now); // Create a new date object with current date and time
@@ -43,16 +57,110 @@ const manageReserves = (req, res) => {
       .json({ message: "You must provide an array of ids." });
   }
 
-  const queryString = `UPDATE bookreservation SET status = ?, start_datetime = ?, end_datetime = ? WHERE id IN  (?)`;
-  const params = [newStatus, now, tomorrow, ids];
-  connection.query(queryString, params, (err, data) => {
-    if (err) {
-      console.error("Error managing reserve requests:", err);
-      res.status(500).json({
-        message: "An error occurred while managing reservation requests.",
+  // Step 1: Retrieve the ISBN from the bookreservation table using the book_code
+  const isbnQuery = `SELECT isbn FROM book WHERE book_code = ?`;
+
+  // Execute the query to retrieve the ISBN associated with the book_code
+  connection.query(isbnQuery, book_code, (isbnErr, isbnResult) => {
+    if (isbnErr) {
+      console.error("Error retrieving ISBN:", isbnErr);
+      return res.status(500).json({
+        message: "An error occurred while retrieving ISBN.",
       });
+    }
+    const isbn =
+      isbnResult && isbnResult.length > 0 ? isbnResult[0].isbn : null;
+
+    if (!isbn) {
+      return res.status(404).json({
+        message: "ISBN not found for the provided book code.",
+      });
+    }
+
+    // Step 2: Retrieve the title from the book table using the ISBN
+    const titleQuery = `SELECT title FROM isbn WHERE isbn = ?`;
+
+    // Execute the query to retrieve the title associated with the ISBN
+    connection.query(titleQuery, isbn, (titleErr, titleResult) => {
+      if (titleErr) {
+        console.error("Error retrieving title:", titleErr);
+        return res.status(500).json({
+          message: "An error occurred while retrieving title.",
+        });
+      }
+      const title =
+        titleResult && titleResult.length > 0 ? titleResult[0].title : null; // Query to retrieve email from user table
+      const emailQuery = `SELECT email FROM user WHERE id = ?`;
+
+      // Execute the query to retrieve the email associated with the student_id
+      connection.query(emailQuery, student_id, (emailErr, emailResult) => {
+        if (emailErr) {
+          console.error("Error retrieving email:", emailErr);
+          return res.status(500).json({
+            message: "An error occurred while retrieving email.",
+          });
+        }
+        const email =
+          emailResult && emailResult.length > 0 ? emailResult[0].email : null;
+
+        if (email) {
+          const queryString = `UPDATE bookreservation SET status = ?, start_datetime = ?, end_datetime = ? WHERE id IN (?)`;
+          const params = [newStatus, now, tomorrow, ids];
+          connection.query(queryString, params, (err, data) => {
+            if (err) {
+              console.error("Error managing reserve requests:", err);
+              res.status(500).json({
+                message:
+                  "An error occurred while managing reservation requests.",
+              });
+            } else {
+              sendReservationStatus(email, newStatus, title, ids); // Send email to retrieved email address
+              res.json({
+                message: "Reservation approved/rejected successfully.",
+              });
+            }
+          });
+        } else {
+          res
+            .status(404)
+            .json({ message: "Email not found for the provided student ID." });
+        }
+      });
+    });
+  });
+};
+
+const sendReservationStatus = (userEmail, status, title, reserve_id) => {
+  console.log("userEmail: ", userEmail);
+  console.log("status: ", status);
+  console.log("title: ", title);
+  console.log("reserve_id: ", reserve_id);
+  if (!reserve_id) {
+    reserve_id = "N/A";
+  }
+
+  // Send email to user
+  const transporter = nodemailer.createTransport({
+    service: "gmail",
+    auth: {
+      user: "library.soton.uk@gmail.com",
+      pass: "mfcw pqpf ljsn cyya", //App password
+    },
+  });
+  //Mail Data
+  const mailOptions = {
+    from: "library.soton.uk@gmail.com",
+    to: userEmail,
+    subject: "Library Reservation Status",
+    text: `Dear user,\n\nThis is a status update for reservation ${reserve_id}. Your reservation has been ${status} for the book ${title}. Please check your account for more details.\n\nRegards,\nLibrary Team`,
+  };
+
+  //Send Mail
+  transporter.sendMail(mailOptions, (err, info) => {
+    if (err) {
+      console.error("Error sending reserve email: ", err);
     } else {
-      res.json({ message: "Reservation approved/rejected successfully." });
+      console.log("Email sent: " + info.response);
     }
   });
 };

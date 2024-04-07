@@ -285,18 +285,60 @@ function Reservation() {
           setSelectAlert({ open: false, message: "" });
           setRejectAlert({ open: true });
 
-          // Approve the request and update the status
-          const response = await axios.put(
-            `http://localhost:5000/api/reserve/${ids}`,
-            { type: "Approve" }
-          );
+          // // Get the email associated with the student_id
+          // const emails = await Promise.all(
+          //   selectedRows.map(async (row) => {
+          //     const response = await axios.get(
+          //       `http://localhost:5000/api/user/email/${row.user_id}`
+          //     );
+          //     return response.data.email;
+          //   })
+          // );
+          console.log("TESTING");
+          console.log(selectedRows);
+          console.log(selectedRows[0].user_id);
+
+          // Approve the request and update the status for each selected row
+          const approvalRequests = selectedRows.map(async (row) => {
+            try {
+              const response = await axios.put(
+                `http://localhost:5000/api/reserve/${row.id}`,
+                {
+                  type: "Approve",
+                  student_id: row.user_id,
+                  book_code: row.book_code,
+                  reserve_id: row.id,
+                }
+              );
+              return response.data; // Return response data for each row
+            } catch (error) {
+              console.error("Error approving request:", error);
+              throw error;
+            }
+          });
+
+          // Wait for all approval requests to finish
+          await Promise.all(approvalRequests);
 
           // Update the status of the selected books to "Reserved"
           const bookCodes = selectedRows.map((row) => row.book_code).join(", ");
-          const updateResponse = await axios.put(
-            "http://localhost:5000/api/book/status",
-            { bookCodes, status: "Reserved" }
-          );
+          await axios.put("http://localhost:5000/api/book/status", {
+            bookCodes,
+            status: "Reserved",
+          });
+
+          // // Approve the request and update the status
+          // const response = await axios.put(
+          //   `http://localhost:5000/api/reserve/${ids}`,
+          //   { type: "Approve", student_id: selectedRows[0].user_id }
+          // );
+
+          // // Update the status of the selected books to "Reserved"
+          // const bookCodes = selectedRows.map((row) => row.book_code).join(", ");
+          // const updateResponse = await axios.put(
+          //   "http://localhost:5000/api/book/status",
+          //   { bookCodes, status: "Reserved" }
+          // );
 
           handleAlertWithTimeout(
             approveAlert,
@@ -330,22 +372,34 @@ function Reservation() {
         if (confirmed) {
           setSelectAlert({ open: false, message: "" });
           setRejectAlert({ open: true });
-          const response = await axios.put(
-            `http://localhost:5000/api/reserve/${ids}`,
-            { type: "Reject" }
-          );
-          handleAlertWithTimeout(
-            rejectAlert,
-            setRejectAlert,
-            "The request is rejected."
-          );
 
+          const rejectionRequests = selectedRows.map(async (row) => {
+            try {
+              // Send reject request for each row
+              const response = await axios.put(
+                `http://localhost:5000/api/reserve/${row.id}`,
+                {
+                  type: "Reject",
+                  student_id: row.user_id,
+                  book_code: row.book_code,
+                }
+              );
+              return response.data; // Return response data for each row
+            } catch (error) {
+              console.error("Error rejecting request:", error);
+              throw error;
+            }
+          });
+
+          // Wait for all rejection requests to finish
+          await Promise.all(rejectionRequests);
+
+          // Increase borrow limit for each user
           const userIDs = selectedRows.map((row) => row.user_id);
-          //increase borrow limit
           const limitRequests = userIDs.map(async (user_id) => {
             try {
               const limitResponse = await axios.get(
-                "http://localhost:5000/api/user/limit/" + user_id
+                `http://localhost:5000/api/user/limit/${user_id}`
               );
 
               const currentLimit = limitResponse.data.borrow_limit;
@@ -354,15 +408,54 @@ function Reservation() {
               );
               const updatedLimit = currentLimit + selectedRowsUser.length;
               console.log("length" + selectedRowsUser.length);
+
+              // Update borrow limit for the user
               return axios.put("http://localhost:5000/api/user/limit", {
                 id: user_id,
                 limit: updatedLimit,
               });
-            } catch (e) {
-              console.log(e);
-              throw e;
+            } catch (error) {
+              console.error("Error increasing borrow limit:", error);
+              throw error;
             }
           });
+
+          // Wait for all limitRequests to finish
+          await Promise.all(limitRequests);
+
+          // const response = await axios.put(
+          //   `http://localhost:5000/api/reserve/${ids}`,
+          //   { type: "Reject" }
+          // );
+          handleAlertWithTimeout(
+            rejectAlert,
+            setRejectAlert,
+            "The request is rejected."
+          );
+
+          // const userIDs = selectedRows.map((row) => row.user_id);
+          // //increase borrow limit
+          // const limitRequests = userIDs.map(async (user_id) => {
+          //   try {
+          //     const limitResponse = await axios.get(
+          //       "http://localhost:5000/api/user/limit/" + user_id
+          //     );
+
+          //     const currentLimit = limitResponse.data.borrow_limit;
+          //     const selectedRowsUser = selectedRows.filter(
+          //       (r) => r.user_id === user_id
+          //     );
+          //     const updatedLimit = currentLimit + selectedRowsUser.length;
+          //     console.log("length" + selectedRowsUser.length);
+          //     return axios.put("http://localhost:5000/api/user/limit", {
+          //       id: user_id,
+          //       limit: updatedLimit,
+          //     });
+          //   } catch (e) {
+          //     console.log(e);
+          //     throw e;
+          //   }
+          // });
 
           fetchRequests();
         }

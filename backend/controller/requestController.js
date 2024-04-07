@@ -1,4 +1,6 @@
 import connection from "../config/dbConnection.js";
+import nodemailer from "nodemailer";
+
 const getBookRequest = (req, res) => {
   const sql = "SELECT id,title,author,edition , reason FROM bookrequest ";
   // Execute the query
@@ -16,22 +18,22 @@ const getBookRequest = (req, res) => {
   });
 };
 
-const getBookRequestbyId = (req, res) => {
-  const sql = "SELECT * FROM bookrequest WHERE user_id=" + req.params.id;
-  // Execute the query
-  connection.query(sql, (err, result) => {
-    if (err) {
-      console.error("Error executing MySQL query:", err);
-      res
-        .status(500)
-        .json({ success: false, message: "Internal server error" });
-      return;
-    }
+// const getBookRequestbyId = (req, res) => {
+//   const sql = "SELECT * FROM bookrequest WHERE user_id=" + req.params.id;
+//   // Execute the query
+//   connection.query(sql, (err, result) => {
+//     if (err) {
+//       console.error("Error executing MySQL query:", err);
+//       res
+//         .status(500)
+//         .json({ success: false, message: "Internal server error" });
+//       return;
+//     }
 
-    // If the query is successful, return the result with correct field names
-    res.json({ success: true, requests: result });
-  });
-};
+//     // If the query is successful, return the result with correct field names
+//     res.json({ success: true, requests: result });
+//   });
+// };
 
 const addBookRequest = (req, res) => {
   const { title, author, edition, publisher, reason, user_id } = req.body;
@@ -103,9 +105,13 @@ const requestHistory = (req, res) => {
 const manageRequest = (req, res) => {
   console.log("imin");
   const ids = req.params.ids.split(",").map((id) => parseInt(id, 10));
+  const { type, title, student_id } = req.body;
 
   console.log(ids);
-  const { type } = req.body;
+  console.log(type);
+  console.log(title);
+  console.log(student_id);
+
   const newStatus = type === "Approve" ? "Approved" : "Rejected";
   const now = new Date(); // Get current date and time
 
@@ -115,16 +121,75 @@ const manageRequest = (req, res) => {
       .json({ message: "You must provide an array of ids." });
   }
 
-  const queryString = `UPDATE bookrequest SET status = ?, request_date=? WHERE id IN  (?)`;
-  const params = [newStatus, now, ids];
-  connection.query(queryString, params, (err, data) => {
-    if (err) {
-      console.error("Error managing reserve requests:", err);
-      res.status(500).json({
-        message: "An error occurred while managing reservation requests.",
+  const emailQuery = `SELECT email FROM user WHERE id = ?`;
+
+  // Execute the query to retrieve the email associated with the student_id
+  connection.query(emailQuery, student_id, (emailErr, emailResult) => {
+    if (emailErr) {
+      console.error("Error retrieving email:", emailErr);
+      return res.status(500).json({
+        message: "An error occurred while retrieving email.",
+      });
+    }
+    const email =
+      emailResult && emailResult.length > 0 ? emailResult[0].email : null;
+
+    if (email) {
+      const queryString = `UPDATE bookrequest SET status = ?, request_date=? WHERE id IN  (?)`;
+      const params = [newStatus, now, ids];
+      connection.query(queryString, params, (err, data) => {
+        if (err) {
+          console.error("Error managing reserve requests:", err);
+          res.status(500).json({
+            message: "An error occurred while managing reservation requests.",
+          });
+        } else {
+          // Send email to user
+          ids.forEach((id) => {
+            sendRequestStatus(email, newStatus, title, id);
+          });
+          res.json({ message: "Reservation approved/rejected successfully." });
+        }
       });
     } else {
-      res.json({ message: "Reservation approved/rejected successfully." });
+      res
+        .status(404)
+        .json({ message: "Email not found for the provided student ID." });
+    }
+  });
+};
+
+const sendRequestStatus = (userEmail, status, title, request_id) => {
+  console.log("userEmail: ", userEmail);
+  console.log("status: ", status);
+  console.log("title: ", title);
+  console.log("reserve_id: ", request_id);
+  if (!request_id) {
+    request_id = "N/A";
+  }
+
+  // Send email to user
+  const transporter = nodemailer.createTransport({
+    service: "gmail",
+    auth: {
+      user: "library.soton.uk@gmail.com",
+      pass: "mfcw pqpf ljsn cyya", //App password
+    },
+  });
+  //Mail Data
+  const mailOptions = {
+    from: "library.soton.uk@gmail.com",
+    to: userEmail,
+    subject: "Library Reservation Status",
+    text: `Dear user,\n\nThis is a status update for request ${request_id}. Your request has been ${status} for the book ${title}. Please check your account for more details.\n\nRegards,\nLibrary Team`,
+  };
+
+  //Send Mail
+  transporter.sendMail(mailOptions, (err, info) => {
+    if (err) {
+      console.error("Error sending request email: ", err);
+    } else {
+      console.log("Email sent: " + info.response);
     }
   });
 };
@@ -135,5 +200,5 @@ export {
   pendingRequest,
   manageRequest,
   requestHistory,
-  getBookRequestbyId,
+  // getBookRequestbyId,
 };

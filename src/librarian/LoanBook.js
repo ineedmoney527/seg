@@ -245,6 +245,9 @@ function LoanBook() {
 
       const response = await axios.get(url);
       setData(response.data);
+      checkOverdueAndSendEmail(response.data);
+      console.log(response.data);
+      console.log(response.data[0].id);
     } catch (error) {
       console.error("Error fetching records:", error);
     }
@@ -252,6 +255,47 @@ function LoanBook() {
   useEffect(() => {
     fetchRecords();
   }, [activeButton]); // Run this effect whenever activeButton changes
+
+  // Function to check overdue status and send email
+  const checkOverdueAndSendEmail = (records) => {
+    console.log("Checking overdue status...");
+    console.log(records);
+    const overdueRows = records.filter(
+      (row) => row.id === 119 && row.reminder === "N"
+    );
+    if (overdueRows.length > 0) {
+      sendEmailsForOverdue(overdueRows);
+    }
+  };
+
+  // Function to send automated emails for each user associated with overdue rows
+  const sendEmailsForOverdue = async (overdueRows) => {
+    const emailRequests = overdueRows.map(async (row) => {
+      try {
+        console.log("Sending automated email for row:", row);
+
+        // Replace the following line with your API endpoint to send automated emails
+        const response = await axios.put(
+          "http://localhost:5000/api/history/sendEmail",
+          {
+            id: row.id,
+            user_id: row.user_id,
+            title: row.title,
+            fine: row.fine,
+            days_overdue: row.days_overdue,
+          }
+        );
+        return response.data; // Return response data for each row
+      } catch (error) {
+        console.error("Error sending automated email:", error);
+        throw error;
+      }
+    });
+
+    // Wait for all email requests to finish
+    await Promise.all(emailRequests);
+    // Show alert or perform any other action if needed
+  };
 
   const toggleDrawer = () => {
     setDrawerOpen(!drawerOpen);

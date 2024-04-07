@@ -6,10 +6,10 @@ import {
   pendingRequest,
   manageRequest,
   requestHistory,
-  getBookRequestbyId,
+  // getBookRequestbyId,
 } from "../controller/requestController.js";
 router.get("/", getBookRequest);
-router.get("/:id", getBookRequestbyId);
+// router.get("/:id", getBookRequestbyId);
 
 router.get("/pending", pendingRequest);
 router.get("/history", requestHistory);

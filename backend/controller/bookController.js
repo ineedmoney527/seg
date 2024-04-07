@@ -243,8 +243,21 @@ const readAllISBN = (req, res) => {
   connection.query(query, (err, data) => res.json(err ? err : data));
 };
 const readUniqueBook = (req, res) => {
-  const query = `SELECT DISTINCT isbn.isbn, isbn.title, isbn.image, isbn.description, isbn.pages, author.name AS author_name, isbn.edition, isbn.price, isbn.pages, publisher.name AS publisher_name, isbn.publish_year, country.name AS country_name, AVG(bookrating.rating) as rating FROM book JOIN isbn ON book.isbn = isbn.isbn JOIN author ON isbn.author_id = author.id LEFT JOIN bookrating on isbn.isbn= bookrating.isbn JOIN publisher ON isbn.publisher_id = publisher.id JOIN country ON publisher.country_id = country.id GROUP by isbn;`;
-  connection.query(query, (err, data) => res.json(err ? err : data));
+  // SELECT DISTINCT isbn.isbn, isbn.title, isbn.image, isbn.description, isbn.pages, author.name AS author_name, isbn.edition, isbn.price, isbn.pages, publisher.name AS publisher_name, isbn.publish_year, country.name AS country_name, AVG(bookrating.rating) as rating FROM book JOIN isbn ON book.isbn = isbn.isbn JOIN author ON isbn.author_id = author.id LEFT JOIN bookrating on isbn.isbn= bookrating.isbn JOIN publisher ON isbn.publisher_id = publisher.id JOIN country ON publisher.country_id = country.id GROUP by isbn;
+
+  const query = `  SELECT DISTINCT isbn.isbn, isbn.title, isbn.image, isbn.description, isbn.pages, author.name AS author_name, isbn.edition, isbn.price, isbn.pages, publisher.name AS publisher_name, isbn.publish_year, country.name AS country_name, AVG(bookrating.rating) as rating, genre.name AS genre_name FROM   book JOIN isbn ON book.isbn = isbn.isbn JOIN author ON isbn.author_id = author.id LEFT JOIN bookrating ON isbn.isbn = bookrating.isbn JOIN publisher ON isbn.publisher_id = publisher.id JOIN country ON publisher.country_id = country.id LEFT JOIN genre ON isbn.genre_id = genre.id GROUP  BY isbn.isbn;
+`;
+  // connection.query(query, (err, data) => res.json(err ? err : data));
+  // console.log(data);
+  connection.query(query, (err, data) => {
+    if (err) {
+      console.error(err);
+      res.json(err);
+    } else {
+      console.log(data);
+      res.json(data);
+    }
+  });
 };
 
 const readAvailableBooks = (req, res) => {

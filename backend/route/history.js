@@ -16,6 +16,7 @@ import {
   hasRated,
   getReviews,
   getReviewsByBook,
+  setReminderToYes,
 } from "../controller/historyController.js";
 
 router.post("/borrow", insertBorrowRecords);
@@ -35,5 +36,6 @@ router.get("/returned", getReturnedRecords);
 
 router.put("/lost", updateLostRecords);
 router.get("/lost", getLostRecords);
+router.put("/sendEmail", setReminderToYes);
 
 export default router;

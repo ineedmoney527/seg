@@ -17,6 +17,17 @@ import Layout from "./Layout";
 import axios from "axios";
 import { Buffer } from "buffer";
 const BookList = () => {
+  const genres = [
+    "Fiction",
+    "Narrative",
+    "Novel",
+    "Programming",
+    "Finance",
+    "Math",
+    "Discrete Math",
+    "History",
+    "Account",
+  ];
   const [open, setOpen] = useState(false);
   const [books, setBooks] = useState(null);
   const [showSearchBar, setShowSearchBar] = useState(false);
@@ -24,6 +35,10 @@ const BookList = () => {
   const [filterAnchorEl, setFilterAnchorEl] = useState(null); // State to manage filter popover anchor element
   const [yearRange, setYearRange] = useState([2000, 2022]);
   const [selectedBook, setSelectedBook] = useState(null);
+  const [genreCheckboxes, setGenreCheckboxes] = useState(
+    Array.from({ length: 9 }, () => false)
+  );
+  const [selectedGenres, setSelectedGenres] = useState([]); // Define selectedGenres
 
   const handleFilterClick = (event) => {
     setFilterAnchorEl(event.currentTarget); // Set anchor element for filter popover
@@ -44,9 +59,19 @@ const BookList = () => {
     setYearRange(newValue); // Update year range state
   };
 
+  const handleChangeGenre = (selectedGenres) => {
+    setSelectedGenres(selectedGenres); // Update selected genres state
+    console.log("Selected Genres:", selectedGenres);
+  };
+
+  useEffect(() => {
+    console.log("Selected Genres:", selectedGenres);
+  }, [selectedGenres]);
+
   const handleReset = () => {
     setRatingRange([1, 5]);
     setYearRange([2000, 2022]);
+    setGenreCheckboxes(Array.from({ length: 9 }, () => false));
   };
 
   const handleViewBookClick = (book) => {
@@ -59,6 +84,17 @@ const BookList = () => {
 
   const toggleSearchBar = () => {
     setShowSearchBar((prevShowSearchBar) => !prevShowSearchBar); // Toggle the visibility of the search bar
+  };
+
+  const handleApplyFilter = (newRatingRange, newYearRange) => {
+    setRatingRange(newRatingRange);
+    setYearRange(newYearRange);
+    console.log("Rating Range:", ratingRange);
+    console.log("Year Range:", yearRange);
+    console.log("Selected Genres:", genreCheckboxes);
+    console.log(genres[0]);
+
+    handleFilterClose(); // Close the filter popover after applying the filter
   };
 
   const fetchBooks = async () => {
@@ -191,104 +227,230 @@ const BookList = () => {
           yearRange={yearRange}
           handleChangeYear={handleChangeYear}
           handleReset={handleReset}
+          handleChangeGenre={handleChangeGenre}
+          handleApplyFilter={handleApplyFilter}
         />
       </Popover>
       <Box>
         {!selectedBook && (
           <List>
-            {books?.map((book, index) => (
-              <ListItem key={index}>
-                <Box
-                  sx={{
-                    display: "flex",
-                    width: "90%",
-                    height: "auto",
-                    backgroundColor: "white",
-                    boxShadow: "0 2px 4px rgba(0, 0, 0, 0.4)",
-                    marginTop: "auto",
-                    marginBottom: "auto",
-                    marginLeft: "auto",
-                    marginRight: "auto",
-                    borderRadius: "10px",
-                    alignItems: "center",
-                    padding: "10px",
-                  }}
-                >
-                  <Box sx={{ display: "flex", flexDirection: "row" }}>
-                    <img
-                      src={`data:image/png;base64,${Buffer.from(
-                        book.image
-                      ).toString("base64")}`}
-                      alt={book.title}
-                      style={{
-                        marginLeft: "10px",
-                        marginRight: "25px",
-                        width: "80px",
-                        height: "110px",
-                        borderRadius: "10px",
-                        marginBottom: "auto",
-                        marginTop: "auto",
-                      }}
-                    />
-                    <Box>
-                      <Typography
-                        variant="h6"
-                        component="div"
-                        sx={{
-                          width: "auto",
-                          fontWeight: "bold",
-                          fontSize: "16px",
+            {books
+              ?.filter((book) => {
+                // Apply filtering conditions here
+                const ratingInRange =
+                  parseFloat(book.rating) >= ratingRange[0] &&
+                  parseFloat(book.rating) <= ratingRange[1];
+
+                const yearMatches =
+                  book.publish_year &&
+                  parseInt(book.publish_year) === yearRange;
+                const genreMatches =
+                  // selectedGenres.length === 0 || // if no genre selected, always return true
+                  selectedGenres.some((selectedGenre) =>
+                    book.genre_name.includes(selectedGenre)
+                  );
+                // const genreMatches = genreCheckboxes.some(
+                //   (isChecked, index) => {
+                //     if (isChecked) {
+                //       // Replace this logic with the actual genre data from your book object
+                //       // For demonstration, I'm assuming the genre is stored as an array in book.genres
+                //       return book.genre_name.includes(genres[index]);
+                //     }
+                //     return false;
+                //   }
+                // );
+
+                // Return true if the book satisfies all filtering conditions
+                return ratingInRange && yearMatches && genreMatches;
+              })
+              .map((book, index) => (
+                <ListItem key={index}>
+                  <Box
+                    sx={{
+                      display: "flex",
+                      width: "90%",
+                      height: "auto",
+                      backgroundColor: "white",
+                      boxShadow: "0 2px 4px rgba(0, 0, 0, 0.4)",
+                      marginTop: "auto",
+                      marginBottom: "auto",
+                      marginLeft: "auto",
+                      marginRight: "auto",
+                      borderRadius: "10px",
+                      alignItems: "center",
+                      padding: "10px",
+                    }}
+                  >
+                    <Box sx={{ display: "flex", flexDirection: "row" }}>
+                      <img
+                        src={`data:image/png;base64,${Buffer.from(
+                          book.image
+                        ).toString("base64")}`}
+                        alt={book.title}
+                        style={{
+                          marginLeft: "10px",
+                          marginRight: "25px",
+                          width: "80px",
+                          height: "110px",
+                          borderRadius: "10px",
+                          marginBottom: "auto",
+                          marginTop: "auto",
                         }}
-                      >
-                        {book.title}
-                      </Typography>
-                      <Box sx={{ display: "flex", alignItems: "center" }}>
+                      />
+                      <Box>
                         <Typography
-                          variant="body2"
-                          sx={{ fontWeight: "bold", marginRight: "5px" }}
+                          variant="h6"
+                          component="div"
+                          sx={{
+                            width: "auto",
+                            fontWeight: "bold",
+                            fontSize: "16px",
+                          }}
                         >
-                          Rating:
+                          {book.title}
                         </Typography>
-                        <Rating
-                          name="read-only"
-                          value={parseFloat(book.rating)}
-                          readOnly
-                          precision={0.5}
-                        />
+                        <Box sx={{ display: "flex", alignItems: "center" }}>
+                          <Typography
+                            variant="body2"
+                            sx={{ fontWeight: "bold", marginRight: "5px" }}
+                          >
+                            Rating:
+                          </Typography>
+                          <Rating
+                            name="read-only"
+                            value={parseFloat(book.rating)}
+                            readOnly
+                            precision={0.5}
+                          />
+                        </Box>
+                        <Typography
+                          sx={{ fontSize: "15px", color: "#626262" }}
+                          variant="body1"
+                          gutterBottom
+                        >
+                          {book.description}
+                        </Typography>
                       </Box>
-                      <Typography
-                        sx={{ fontSize: "15px", color: "#626262" }}
-                        variant="body1"
-                        gutterBottom
-                      >
-                        {book.description}
-                      </Typography>
+                    </Box>
+                    <Box sx={{ marginLeft: "auto" }}>
+                      <Link to="/ViewBook" state={{ book: book }}>
+                        <button
+                          onClick={() => handleViewBookClick(book)}
+                          style={{
+                            width: "70px",
+                            height: "25px",
+                            backgroundColor: "white",
+                            boxShadow: "0 2px 4px rgba(0, 0, 0, 0.5)",
+                            fontSize: "13px",
+                            borderRadius: "20px",
+                            border: "none",
+                            cursor: "pointer",
+                            marginLeft: "20px",
+                          }}
+                        >
+                          View
+                        </button>
+                      </Link>
                     </Box>
                   </Box>
-                  <Box sx={{ marginLeft: "auto" }}>
-                    <Link to="/ViewBook" state={{ book: book }}>
-                      <button
-                        onClick={() => handleViewBookClick(book)}
-                        style={{
-                          width: "70px",
-                          height: "25px",
-                          backgroundColor: "white",
-                          boxShadow: "0 2px 4px rgba(0, 0, 0, 0.5)",
-                          fontSize: "13px",
-                          borderRadius: "20px",
-                          border: "none",
-                          cursor: "pointer",
-                          marginLeft: "20px",
-                        }}
-                      >
-                        View
-                      </button>
-                    </Link>
-                  </Box>
-                </Box>
-              </ListItem>
-            ))}
+                </ListItem>
+              ))}
           </List>
+
+          // <List>
+          //   {books?.map((book, index) => (
+          //     <ListItem key={index}>
+          //       <Box
+          //         sx={{
+          //           display: "flex",
+          //           width: "90%",
+          //           height: "auto",
+          //           backgroundColor: "white",
+          //           boxShadow: "0 2px 4px rgba(0, 0, 0, 0.4)",
+          //           marginTop: "auto",
+          //           marginBottom: "auto",
+          //           marginLeft: "auto",
+          //           marginRight: "auto",
+          //           borderRadius: "10px",
+          //           alignItems: "center",
+          //           padding: "10px",
+          //         }}
+          //       >
+          //         <Box sx={{ display: "flex", flexDirection: "row" }}>
+          //           <img
+          //             src={`data:image/png;base64,${Buffer.from(
+          //               book.image
+          //             ).toString("base64")}`}
+          //             alt={book.title}
+          //             style={{
+          //               marginLeft: "10px",
+          //               marginRight: "25px",
+          //               width: "80px",
+          //               height: "110px",
+          //               borderRadius: "10px",
+          //               marginBottom: "auto",
+          //               marginTop: "auto",
+          //             }}
+          //           />
+          //           <Box>
+          //             <Typography
+          //               variant="h6"
+          //               component="div"
+          //               sx={{
+          //                 width: "auto",
+          //                 fontWeight: "bold",
+          //                 fontSize: "16px",
+          //               }}
+          //             >
+          //               {book.title}
+          //             </Typography>
+          //             <Box sx={{ display: "flex", alignItems: "center" }}>
+          //               <Typography
+          //                 variant="body2"
+          //                 sx={{ fontWeight: "bold", marginRight: "5px" }}
+          //               >
+          //                 Rating:
+          //               </Typography>
+          //               <Rating
+          //                 name="read-only"
+          //                 value={parseFloat(book.rating)}
+          //                 readOnly
+          //                 precision={0.5}
+          //               />
+          //             </Box>
+          //             <Typography
+          //               sx={{ fontSize: "15px", color: "#626262" }}
+          //               variant="body1"
+          //               gutterBottom
+          //             >
+          //               {book.description}
+          //             </Typography>
+          //           </Box>
+          //         </Box>
+          //         <Box sx={{ marginLeft: "auto" }}>
+          //           <Link to="/ViewBook" state={{ book: book }}>
+          //             <button
+          //               onClick={() => handleViewBookClick(book)}
+          //               style={{
+          //                 width: "70px",
+          //                 height: "25px",
+          //                 backgroundColor: "white",
+          //                 boxShadow: "0 2px 4px rgba(0, 0, 0, 0.5)",
+          //                 fontSize: "13px",
+          //                 borderRadius: "20px",
+          //                 border: "none",
+          //                 cursor: "pointer",
+          //                 marginLeft: "20px",
+          //               }}
+          //             >
+          //               View
+          //             </button>
+          //           </Link>
+          //         </Box>
+          //       </Box>
+          //     </ListItem>
+          //   ))}
+          // </List>
         )}
         {selectedBook && <ViewBook book={selectedBook} />}
       </Box>

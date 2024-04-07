@@ -218,7 +218,12 @@ function Request() {
   const handleApproveClick = async () => {
     if (selectedRows.length > 0) {
       const ids = selectedRows.map((row) => row.id).join(", ");
+      const titles = selectedRows.map((row) => row.title).join(", "); // Extract titles
+      const studentIds = selectedRows.map((row) => row.user_id).join(", "); // Extract student IDs
+
       console.log(ids);
+      console.log(titles);
+      console.log(studentIds);
       try {
         const confirmed = window.confirm(
           `Are you sure you want to approve the request ${ids}?`
@@ -230,7 +235,7 @@ function Request() {
           // Approve the request and update the status
           const response = await axios.put(
             `http://localhost:5000/api/request/${ids}`,
-            { type: "Approve" }
+            { type: "Approve", title: titles, student_id: studentIds }
           );
           console.log(response.data);
           handleAlertWithTimeout(
@@ -258,6 +263,8 @@ function Request() {
   const handleRejectClick = async () => {
     if (selectedRows.length > 0) {
       const ids = selectedRows.map((row) => row.id).join(", ");
+      const titles = selectedRows.map((row) => row.title).join(", "); // Extract titles
+      const studentIds = selectedRows.map((row) => row.user_id).join(", "); // Extract student IDs
       try {
         const confirmed = window.confirm(
           `Are you sure you want to reject the request  ${ids}?`
@@ -267,7 +274,7 @@ function Request() {
           setRejectAlert({ open: true });
           const response = await axios.put(
             `http://localhost:5000/api/request/${ids}`,
-            { type: "Reject" }
+            { type: "Reject", title: titles, student_id: studentIds }
           );
           handleAlertWithTimeout(
             rejectAlert,
@@ -478,6 +485,7 @@ function Request() {
           <Stack direction="row" spacing={0.3}>
             <Button
               onClick={() => handleOptionClick("requesting")}
+              s
               sx={activeButton === "requesting" ? buttonStyle : {}}
             >
               Requesting

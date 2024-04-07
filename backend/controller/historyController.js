@@ -1,4 +1,5 @@
 import connection from "../config/dbConnection.js";
+import nodemailer from "nodemailer";
 
 const insertBorrowRecords = (req, res) => {
   const { bookCode, user_id } = req.body;
@@ -89,7 +90,8 @@ const getOverdueRecords = (req, res) => {
   DATE_FORMAT(borrowedrecord.start_date, '%Y-%m-%d') AS start_date, 
   DATE_FORMAT(borrowedrecord.end_date, '%Y-%m-%d') AS end_date,
   ABS(DATEDIFF(borrowedrecord.end_date, borrowedrecord.start_date)) AS days_overdue,
-  DATEDIFF(NOW(), borrowedrecord.end_date) * 5 AS fine
+  DATEDIFF(NOW(), borrowedrecord.end_date) * 5 AS fine,
+  borrowedrecord.reminder
 FROM 
   borrowedrecord 
 JOIN 
@@ -270,6 +272,88 @@ const hasRated = (req, res) => {
   });
 };
 
+const setReminderToYes = async (req, res) => {
+  const { id, user_id, title, fine, days_overdue } = req.body;
+  console.log("borrow_id", id);
+  console.log("userId", user_id);
+  console.log("bookTitle", title);
+  console.log("fine", fine);
+  console.log("days_overdue", days_overdue);
+
+  // Fetch the email associated with the provided user_id
+  const emailQuery = "SELECT email FROM user WHERE id = ?";
+  connection.query(emailQuery, [user_id], async (emailErr, emailResult) => {
+    if (emailErr) {
+      console.error("Error retrieving email:", emailErr);
+      return res
+        .status(500)
+        .json({ message: "An error occurred while retrieving email." });
+    }
+
+    const email =
+      emailResult && emailResult.length > 0 ? emailResult[0].email : null;
+
+    if (email) {
+      const updateQuery =
+        "UPDATE borrowedrecord SET reminder = 'Y' WHERE id = ?";
+      connection.query(updateQuery, [id], async (updateErr, updateResult) => {
+        if (updateErr) {
+          console.error("Error setting reminder to 'Y':", updateErr);
+          return res.status(500).json({
+            message: "An error occurred while setting reminder to 'Y'.",
+          });
+        }
+
+        console.log("Reminder set to 'Y' for borrow ID:", id);
+        sendOverdueReminder(id, email, title, fine, days_overdue);
+        res
+          .status(200)
+          .json({ message: "Reminder set to 'Y' successfully.", email });
+      });
+    }
+  });
+};
+
+const sendOverdueReminder = async (
+  borrow_id,
+  email,
+  bookTitle,
+  fine,
+  days_overdue
+) => {
+  console.log("borrow_id", borrow_id);
+  console.log("email", email);
+  console.log("bookTitle", bookTitle);
+  console.log("fine", fine);
+  console.log("days_overdue", days_overdue);
+
+  // Send email to user
+  const transporter = nodemailer.createTransport({
+    service: "gmail",
+    auth: {
+      user: "library.soton.uk@gmail.com",
+      pass: "mfcw pqpf ljsn cyya", // App password
+    },
+  });
+
+  const mailOptions = {
+    from: "library.soton.uk@gmail.com",
+    to: email,
+    subject: "Overdue Book Reminder",
+    text: `Dear user,\n\nThis is a reminder that you have not returned the book.\n\n Book: ${bookTitle}\n\n OverdueDays: ${days_overdue}\n\n fine: ${fine}\n\nPlease return it as soon as possible to avoid fines.\n\nRegards,\nLibrary Team`,
+  };
+
+  transporter.sendMail(mailOptions, (err, info) => {
+    if (err) {
+      console.error("Error sending overdue reminder email:", err);
+    } else {
+      console.log("Overdue reminder email sent to:", email);
+    }
+  });
+};
+
+// Call this function where needed in your application logic
+
 export {
   insertBorrowRecords,
   getBorrowRecords,
@@ -285,4 +369,5 @@ export {
   hasRated,
   getReviewsByBook,
   getReviews,
+  setReminderToYes,
 };
