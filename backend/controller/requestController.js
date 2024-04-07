@@ -18,22 +18,22 @@ const getBookRequest = (req, res) => {
   });
 };
 
-// const getBookRequestbyId = (req, res) => {
-//   const sql = "SELECT * FROM bookrequest WHERE user_id=" + req.params.id;
-//   // Execute the query
-//   connection.query(sql, (err, result) => {
-//     if (err) {
-//       console.error("Error executing MySQL query:", err);
-//       res
-//         .status(500)
-//         .json({ success: false, message: "Internal server error" });
-//       return;
-//     }
+const getBookRequestbyId = (req, res) => {
+  const sql = "SELECT * FROM bookrequest WHERE user_id=" + req.params.id;
+  // Execute the query
+  connection.query(sql, (err, result) => {
+    if (err) {
+      console.error("Error executing MySQL query:", err);
+      res
+        .status(500)
+        .json({ success: false, message: "Internal server error" });
+      return;
+    }
 
-//     // If the query is successful, return the result with correct field names
-//     res.json({ success: true, requests: result });
-//   });
-// };
+    // If the query is successful, return the result with correct field names
+    res.json({ success: true, requests: result });
+  });
+};
 
 const addBookRequest = (req, res) => {
   const { title, author, edition, publisher, reason, user_id } = req.body;
@@ -200,5 +200,5 @@ export {
   pendingRequest,
   manageRequest,
   requestHistory,
-  // getBookRequestbyId,
+  getBookRequestbyId,
 };

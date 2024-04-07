@@ -30,6 +30,7 @@
     "framer-motion": "^11.0.8",
     "mui": "^0.0.1",
     "multer": "^1.4.5-lts.1",
+    "nodemailer": "^6.9.13",
     "react": "^18.2.0",
     "react-auth-kit": "^2.12.7",
     "react-datepicker": "^6.6.0",

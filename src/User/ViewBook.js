@@ -69,6 +69,7 @@ const ViewBook = () => {
     }
   }, [countdown]);
   useEffect(() => {
+    console.log(book);
     checkAvailabilityAndReservation();
     fetchReviews();
 
@@ -260,15 +261,16 @@ const ViewBook = () => {
                 variant="body2"
                 gutterBottom
               >
-                Author: {book.author_name}
+                ISBN: {book.isbn}
               </Typography>
               <Typography
                 sx={{ fontWeight: "bold" }}
                 variant="body2"
                 gutterBottom
               >
-                Publication Year: {book.publish_year}
+                Author: {book.author_name}
               </Typography>
+
               <Typography
                 sx={{ fontWeight: "bold" }}
                 variant="body2"
@@ -284,14 +286,20 @@ const ViewBook = () => {
                 Rating: {book.rating ? book.rating : "Not yet rated"}
               </Typography>
             </Box>
-
-            {/* <Box>
+            <Box>
               <Typography
                 sx={{ fontWeight: "bold" }}
                 variant="body2"
                 gutterBottom
               >
-                Genre: {book.genre}
+                Publication Year: {book.publish_year}
+              </Typography>
+              <Typography
+                sx={{ fontWeight: "bold" }}
+                variant="body2"
+                gutterBottom
+              >
+                Country: {book.country_name}
               </Typography>
 
               <Typography
@@ -299,11 +307,10 @@ const ViewBook = () => {
                 variant="body2"
                 gutterBottom
               >
-                Location:{book.location}
+                Call Number: {book.call_number}
               </Typography>
-            </Box> */}
+            </Box>{" "}
           </Box>
-          {/*Add more details as needed */}
         </Box>
         <Box
           sx={{
