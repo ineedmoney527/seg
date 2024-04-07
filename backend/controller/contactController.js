@@ -206,10 +206,10 @@ const login = (req, res) => {
               token: token,
               user: user,
             });
-          } else {
-            // Passwords don't match
-            return res.status(401).json({ message: "Incorrect password" });
           }
+        } else {
+          // Passwords don't match
+          return res.status(401).json({ message: "Incorrect password" });
         }
       } catch (error) {
         return res
