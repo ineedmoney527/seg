@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import "./bookInventory.css"; // Import CSS styles here
 // Import other images here
-
+import TemporaryDrawer from "./librarian/TemporaryDrawer";
 import { useNavigate } from "react-router-dom";
 import AddNewBookPage from "./addBook";
 import MenuBar from "./MenuBar";
@@ -42,18 +42,24 @@ import {
   Checkbox,
   Paper,
 } from "@material-ui/core";
+import { Stack } from "@mui/material";
 import { withStyles } from "@material-ui/core/styles";
 import { DataGrid, GridToolbar } from "@mui/x-data-grid";
 import { useAuth } from "./AuthContext";
 
-function BookInventory() {
+function WithNavigate() {
   const [addBook, setAddBook] = useState(false);
   const [editBook, setEditBook] = useState(false);
   const [selectedRow, setSelectedRow] = useState(null);
   const [selectedRows, setSelectedRows] = useState([]);
+  const [drawerOpen, setDrawerOpen] = useState(false);
   const authUser = useAuthUser();
 
   const [data, setData] = useState([]);
+
+  const toggleDrawer = () => {
+    setDrawerOpen(!drawerOpen);
+  };
   const handleAddClick = () => {
     setAddBook(true);
   };
@@ -129,7 +135,7 @@ function BookInventory() {
 
   useEffect(() => {
     fetchBooks();
-  }, [addBook, editBook]);
+  }, []);
   function EnhancedTableToolbar(props) {
     const { numSelected } = props;
 
@@ -185,221 +191,227 @@ function BookInventory() {
   }
   const [rowsPerPage, setRowsPerPage] = React.useState(5);
   return (
-    <Box sx={{ width: "100%", overflowX: "auto" }}>
-      <div>{authUser().name}ss</div>
-      <MenuBar></MenuBar>
+    <Stack
+      direction="column"
+      spacing={0}
+      className={"RequestPageContainer"}
+      sx={{ height: "100vh", width: "100vw", overflow: "auto" }} // Set full height and width
+    >
+      <Stack direction="row" spacing={3} className={"haederLoan"}>
+        {/*<img src={logo} alt={"UoSM Logo"} className={"Logo"}/>*/}
+        <TemporaryDrawer open={drawerOpen} onClose={toggleDrawer} />
+        <h1 className={"headerTitle-loan"}>Book Inventory</h1>
+      </Stack>
+      <Box sx={{ width: "100%", overflowX: "auto" }}>
+        <Paper sx={{ width: "100%", mb: 2 }}>
+          <EnhancedTableToolbar numSelected={selectedRows?.length} />
+          <TableContainer>
+            <div style={{ width: "100%", overflowX: "auto" }}>
+              <DataGrid
+                rows={data}
+                getRowId={(row) => row.book_code}
+                checkboxSelection
+                disableRowSelectionOnClick
+                headerClassName="header-center"
+                disableSelectionOnClick
+                // onRowClick={(row) => {
+                //   console.log("haha");
+                // }}
 
-      <Paper sx={{ width: "100%", mb: 2 }}>
-        <EnhancedTableToolbar numSelected={selectedRows?.length} />
-        <TableContainer>
-          <div style={{ width: "100%", overflowX: "auto" }}>
-            <DataGrid
-              rows={data}
-              getRowId={(row) => row.book_code}
-              checkboxSelection
-              disableRowSelectionOnClick
-              headerClassName="header-center"
-              disableSelectionOnClick
-              // onRowClick={(row) => {
-              //   console.log("haha");
-              // }}
+                onRowSelectionModelChange={(codes) => {
+                  setSelectedRows(
+                    codes.map((code) =>
+                      data.find((row) => row.book_code === code)
+                    )
+                  );
+                }}
+                pageSize={rowsPerPage}
+                rowsPerPageOptions={[5, 10, 25]}
+                pagination
+                autoHeight
+                slots={{
+                  toolbar: GridToolbar,
+                }}
+                {...data}
+                columns={[
+                  {
+                    field: "image",
+                    headerName: "Image",
+                    width: 150,
+                    align: "center",
+                    headerAlign: "center",
+                    renderCell: (params) => {
+                      // Convert the Buffer array to a base64 string
 
-              onRowSelectionModelChange={(codes) => {
-                setSelectedRows(
-                  codes.map((code) =>
-                    data.find((row) => row.book_code === code)
-                  )
-                );
-              }}
-              pageSize={rowsPerPage}
-              rowsPerPageOptions={[5, 10, 25]}
-              pagination
-              autoHeight
-              slots={{
-                toolbar: GridToolbar,
-              }}
-              {...data}
-              columns={[
-                {
-                  field: "image",
-                  headerName: "Image",
-                  width: 150,
-                  align: "center",
-                  headerAlign: "center",
-                  renderCell: (params) => {
-                    // Convert the Buffer array to a base64 string
+                      const base64String = Buffer.from(params.value).toString(
+                        "base64"
+                      );
 
-                    const base64String = Buffer.from(params.value).toString(
-                      "base64"
-                    );
-
-                    // Use the base64 string as the src attribute for the img tag
-                    return (
-                      <img
-                        src={`data:image/png;base64,${base64String}`}
-                        alt="Image"
-                        style={{
-                          display: "block",
-                          marginLeft: "auto",
-                          marginRight: "auto",
-                          width: "80%",
-                          height: "100%",
-                        }}
-                      />
-                    );
+                      // Use the base64 string as the src attribute for the img tag
+                      return (
+                        <img
+                          src={`data:image/png;base64,${base64String}`}
+                          alt="Image"
+                          style={{
+                            display: "block",
+                            marginLeft: "auto",
+                            marginRight: "auto",
+                            width: "80%",
+                            height: "100%",
+                          }}
+                        />
+                      );
+                    },
                   },
-                },
-                {
-                  field: "book_code",
-                  headerName: "Code",
-                  width: 100,
-                  headerAlign: "center",
-                  align: "center",
-                  flex: 1,
-                },
-                {
-                  field: "isbn",
-                  headerName: "ISBN",
-                  width: 150,
-                  headerAlign: "center",
-                  align: "center",
-                  flex: 1,
-                },
-                {
-                  field: "title",
-                  headerName: "Title",
-                  width: 200,
-                  headerAlign: "center",
-                  align: "center",
-                  flex: 1,
-                },
-                {
-                  field: "location",
-                  headerName: "Location",
-                  width: 200,
-                  headerAlign: "center",
-                  align: "center",
-                  flex: 1,
-                },
-                {
-                  field: "author_name",
-                  headerName: "Author",
-                  width: 150,
-                  headerAlign: "center",
-                  align: "center",
-                  flex: 1,
-                },
-                {
-                  field: "edition",
-                  headerName: "Edition",
-                  width: 120,
-                  headerAlign: "center",
-                  align: "center",
-                  flex: 1,
-                },
-                {
-                  field: "publisher_name",
+                  {
+                    field: "book_code",
+                    headerName: "Code",
+                    width: 100,
+                    headerAlign: "center",
+                    align: "center",
+                    flex: 1,
+                  },
+                  {
+                    field: "isbn",
+                    headerName: "ISBN",
+                    width: 150,
+                    headerAlign: "center",
+                    align: "center",
+                    flex: 1,
+                  },
+                  {
+                    field: "title",
+                    headerName: "Title",
+                    width: 200,
+                    headerAlign: "center",
+                    align: "center",
+                    flex: 1,
+                  },
+                  {
+                    field: "location",
+                    headerName: "Location",
+                    width: 200,
+                    headerAlign: "center",
+                    align: "center",
+                    flex: 1,
+                  },
+                  {
+                    field: "author_name",
+                    headerName: "Author",
+                    width: 150,
+                    headerAlign: "center",
+                    align: "center",
+                    flex: 1,
+                  },
+                  {
+                    field: "edition",
+                    headerName: "Edition",
+                    width: 120,
+                    headerAlign: "center",
+                    align: "center",
+                    flex: 1,
+                  },
+                  {
+                    field: "publisher_name",
 
-                  headerName: "Publisher",
-                  width: 150,
-                  headerAlign: "center",
-                  align: "center",
-                  flex: 1,
-                },
-                {
-                  field: "country_name",
-                  headerName: "Country",
-                  width: 150,
-                  headerAlign: "center",
-                  align: "center",
-                  flex: 1,
-                },
-                {
-                  field: "publish_year",
-                  headerName: "Year",
-                  width: 120,
-                  headerAlign: "center",
-                  align: "center",
-                  flex: 1,
-                },
-                {
-                  field: "price",
-                  headerName: "Price",
-                  width: 120,
-                  headerAlign: "center",
-                  align: "center",
-                  flex: 1,
-                },
-                {
-                  field: "pages",
-                  headerName: "Pages",
-                  width: 120,
-                  headerAlign: "center",
-                  align: "center",
-                  flex: 1,
-                },
-                {
-                  field: "status",
-                  headerName: "Status",
-                  width: 120,
-                  headerAlign: "center",
-                  align: "center",
-                  flex: 1,
-                },
-                {
-                  field: "actions",
-                  headerName: "Actions",
-                  headerAlign: "center",
-                  width: 100,
-                  align: "center",
-                  renderCell: (params) => (
-                    <>
-                      <IconButton
-                        aria-label="edit"
-                        onClick={() => {
-                          handleEditClick(params.row.book_code);
-                        }}
-                      >
-                        <EditIcon />
-                      </IconButton>
-                      <IconButton
-                        aria-label="delete"
-                        onClick={() => handleDeleteClick(params.row.book_code)}
-                      >
-                        <DeleteIcon />
-                      </IconButton>
-                    </>
-                  ),
-                  disableSelectionOnClick: false,
-                },
-                // Columns definition
-              ]}
-            />
-          </div>
-        </TableContainer>
-      </Paper>
+                    headerName: "Publisher",
+                    width: 150,
+                    headerAlign: "center",
+                    align: "center",
+                    flex: 1,
+                  },
+                  {
+                    field: "country_name",
+                    headerName: "Country",
+                    width: 150,
+                    headerAlign: "center",
+                    align: "center",
+                    flex: 1,
+                  },
+                  {
+                    field: "publish_year",
+                    headerName: "Year",
+                    width: 120,
+                    headerAlign: "center",
+                    align: "center",
+                    flex: 1,
+                  },
+                  {
+                    field: "price",
+                    headerName: "Price",
+                    width: 120,
+                    headerAlign: "center",
+                    align: "center",
+                    flex: 1,
+                  },
+                  {
+                    field: "pages",
+                    headerName: "Pages",
+                    width: 120,
+                    headerAlign: "center",
+                    align: "center",
+                    flex: 1,
+                  },
+                  {
+                    field: "status",
+                    headerName: "Status",
+                    width: 120,
+                    headerAlign: "center",
+                    align: "center",
+                    flex: 1,
+                  },
+                  {
+                    field: "actions",
+                    headerName: "Actions",
+                    headerAlign: "center",
+                    width: 100,
+                    align: "center",
+                    renderCell: (params) => (
+                      <>
+                        <IconButton
+                          aria-label="edit"
+                          onClick={() => {
+                            handleEditClick(params.row.book_code);
+                          }}
+                        >
+                          <EditIcon />
+                        </IconButton>
+                        <IconButton
+                          aria-label="delete"
+                          onClick={() =>
+                            handleDeleteClick(params.row.book_code)
+                          }
+                        >
+                          <DeleteIcon />
+                        </IconButton>
+                      </>
+                    ),
+                    disableSelectionOnClick: false,
+                  },
+                  // Columns definition
+                ]}
+              />
+            </div>
+          </TableContainer>
+        </Paper>
 
-      {addBook && (
-        <AddNewBookPage
-          open={addBook}
-          onClose={() => setAddBook(false)}
-        ></AddNewBookPage>
-      )}
-      {editBook && (
-        <AddNewBookPage
-          open={editBook}
-          onClose={() => setEditBook(false)}
-          edit={true}
-          selectedRowData={selectedRow}
-        />
-      )}
-    </Box>
+        {addBook && (
+          <AddNewBookPage
+            open={addBook}
+            onClose={() => setAddBook(false)}
+          ></AddNewBookPage>
+        )}
+        {editBook && (
+          <AddNewBookPage
+            open={editBook}
+            onClose={() => setEditBook(false)}
+            edit={true}
+            selectedRowData={selectedRow}
+          />
+        )}
+      </Box>
+    </Stack>
   );
-}
-
-function WithNavigate(props) {
-  let navigate = useNavigate();
-  return <BookInventory {...props} navigate={navigate} />;
 }
 
 export default WithNavigate;

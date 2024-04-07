@@ -42,6 +42,10 @@ function TemporaryDrawer() {
   const handleDashboardClick = () => {
     navigate("/Dashboard");
   };
+  const handleInventoryClick = () => {
+    navigate("/WithNavigate");
+  };
+
   const toggleDrawer = () => {
     setOpen(!open);
   };
@@ -80,7 +84,12 @@ function TemporaryDrawer() {
             button: true,
             onClick: handleDashboardClick,
           },
-          { text: "Books Inventory", icon: <InventoryIcon /> },
+          {
+            text: "Books Inventory",
+            icon: <InventoryIcon />,
+            button: true,
+            onClick: handleInventoryClick,
+          },
           {
             text: "Issues Book",
             icon: <LibraryBooksIcon />,
@@ -150,5 +159,4 @@ function TemporaryDrawer() {
     </div>
   );
 }
-
 export default TemporaryDrawer;

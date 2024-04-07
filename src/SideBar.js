@@ -31,10 +31,6 @@ export default function TemporaryDrawer() {
     navigate("/admin");
     setOpen(false);
   };
-  const handleBookClick = () => {
-    navigate("/WithNavigate");
-    setOpen(false);
-  };
 
   const handleReserveClick = () => {
     navigate("/Reserve");
@@ -56,24 +52,6 @@ export default function TemporaryDrawer() {
             <PersonIcon />
           </ListItemIcon>
           <ListItemText primary="Profile" />
-        </ListItemButton>
-        <ListItemButton onClick={handleBookClick}>
-          <ListItemIcon>
-            <PersonIcon />
-          </ListItemIcon>
-          <ListItemText primary="Book Inventory" />
-        </ListItemButton>
-        <ListItemButton onClick={handleReserveClick}>
-          <ListItemIcon>
-            <PersonIcon />
-          </ListItemIcon>
-          <ListItemText primary="Book Inventory" />
-        </ListItemButton>
-        <ListItemButton onClick={handleSignOut}>
-          <LogoutIcon>
-            <PersonIcon />
-          </LogoutIcon>
-          <ListItemText primary="Book Inventory" />
         </ListItemButton>
 
         <Divider />

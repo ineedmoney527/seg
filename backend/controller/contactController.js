@@ -193,22 +193,23 @@ const login = (req, res) => {
       const user = results[0];
 
       try {
-        // if (await compare(password, user.password)) {
-        if (true) {
-          // Passwords match, generate JWT token
-          const token = jwt.sign({ id: user.id }, "seg-project", {
-            expiresIn: "1h",
-          });
+        if (await compare(password, user.password)) {
+          if (true) {
+            // Passwords match, generate JWT token
+            const token = jwt.sign({ id: user.id }, "seg-project", {
+              expiresIn: "1h",
+            });
 
-          return res.status(200).json({
-            message: "Token has been sent",
-            success: true,
-            token: token,
-            user: user,
-          });
-        } else {
-          // Passwords don't match
-          return res.status(401).json({ message: "Incorrect password" });
+            return res.status(200).json({
+              message: "Token has been sent",
+              success: true,
+              token: token,
+              user: user,
+            });
+          } else {
+            // Passwords don't match
+            return res.status(401).json({ message: "Incorrect password" });
+          }
         }
       } catch (error) {
         return res

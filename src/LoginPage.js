@@ -42,6 +42,8 @@ const LoginPage = () => {
         // Access the user's information from the authState
         if (user.role_id == 1) {
           navigate("/admin");
+        } else if (user.role_id == 2) {
+          navigate("/WithNavigate");
         } else {
           navigate("/UserMainPage");
         }
