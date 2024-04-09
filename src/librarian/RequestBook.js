@@ -230,7 +230,6 @@ function Request() {
         );
         if (confirmed) {
           setSelectAlert({ open: false, message: "" });
-          setRejectAlert({ open: true });
 
           // Approve the request and update the status
           const response = await axios.put(

@@ -256,12 +256,15 @@ function LoanBook() {
     fetchRecords();
   }, [activeButton]); // Run this effect whenever activeButton changes
 
+  useEffect(() => {
+    fetchRecords();
+  }, []);
   // Function to check overdue status and send email
   const checkOverdueAndSendEmail = (records) => {
     console.log("Checking overdue status...");
     console.log(records);
     const overdueRows = records.filter(
-      (row) => row.id === 119 && row.reminder === "N"
+      (row) => row.id === 123 && row.reminder === "N"
     );
     if (overdueRows.length > 0) {
       sendEmailsForOverdue(overdueRows);
@@ -352,7 +355,6 @@ function LoanBook() {
       setLostAlert({ open: false });
       const ids = selectedRows.map((row) => row.id);
       const bookCodes = selectedRows.map((row) => row.book_code);
-      alert(ids);
       try {
         await axios.put("http://localhost:5000/api/history/return", {
           id: ids,

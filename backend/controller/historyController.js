@@ -50,7 +50,7 @@ const getBorrowRecordsById = (req, res) => {
   FROM borrowedrecord 
   JOIN book ON borrowedrecord.book_code = book.book_code 
   JOIN isbn ON book.isbn = isbn.isbn 
-  JOIN author ON author.id = isbn.author_id WHERE borrowedrecord.status="B" AND user_id=${userId}`;
+  JOIN author ON author.id = isbn.author_id WHERE (borrowedrecord.status="B" OR borrowedrecord.status="R") AND user_id=${userId}`;
 
   connection.query(query, (err, data) => res.json(err ? err : data));
 };
@@ -89,7 +89,7 @@ const getOverdueRecords = (req, res) => {
   isbn.edition, 
   DATE_FORMAT(borrowedrecord.start_date, '%Y-%m-%d') AS start_date, 
   DATE_FORMAT(borrowedrecord.end_date, '%Y-%m-%d') AS end_date,
-  ABS(DATEDIFF(borrowedrecord.end_date, borrowedrecord.start_date)) AS days_overdue,
+  DATEDIFF(NOW(), borrowedrecord.end_date) AS days_overdue,
   DATEDIFF(NOW(), borrowedrecord.end_date) * 5 AS fine,
   borrowedrecord.reminder
 FROM 

@@ -283,7 +283,6 @@ function Reservation() {
         );
         if (confirmed) {
           setSelectAlert({ open: false, message: "" });
-          setRejectAlert({ open: true });
 
           // // Get the email associated with the student_id
           // const emails = await Promise.all(
@@ -371,7 +370,7 @@ function Reservation() {
         );
         if (confirmed) {
           setSelectAlert({ open: false, message: "" });
-          setRejectAlert({ open: true });
+          // setRejectAlert({ open: true });
 
           const rejectionRequests = selectedRows.map(async (row) => {
             try {
@@ -509,27 +508,27 @@ function Reservation() {
       });
 
       // Reduce user borrow limit
-      const limitRequests = userIDs.map(async (user_id) => {
-        try {
-          const limitResponse = await axios.get(
-            "http://localhost:5000/api/user/limit/" + user_id
-          );
+      // const limitRequests = userIDs.map(async (user_id) => {
+      //   try {
+      //     const limitResponse = await axios.get(
+      //       "http://localhost:5000/api/user/limit/" + user_id
+      //     );
 
-          const currentLimit = limitResponse.data.borrow_limit;
-          const selectedRowsUser = selectedRows.filter(
-            (r) => r.user_id === user_id
-          );
-          const updatedLimit = currentLimit - selectedRowsUser.length;
-          console.log("length" + selectedRowsUser.length);
-          return axios.put("http://localhost:5000/api/user/limit", {
-            id: user_id,
-            limit: updatedLimit,
-          });
-        } catch (e) {
-          console.log(e);
-          throw e;
-        }
-      });
+      //     const currentLimit = limitResponse.data.borrow_limit;
+      //     const selectedRowsUser = selectedRows.filter(
+      //       (r) => r.user_id === user_id
+      //     );
+      //     const updatedLimit = currentLimit - selectedRowsUser.length;
+      //     console.log("length" + selectedRowsUser.length);
+      //     return axios.put("http://localhost:5000/api/user/limit", {
+      //       id: user_id,
+      //       limit: updatedLimit,
+      //     });
+      //   } catch (e) {
+      //     console.log(e);
+      //     throw e;
+      //   }
+      // });
 
       // Insert borrow records for each book
       const borrowRequests = selectedRows.map(async (row, index) => {
@@ -545,7 +544,6 @@ function Reservation() {
       });
 
       // Wait for all limitRequests to finish
-      await Promise.all(limitRequests);
       await Promise.all(borrowRequests);
 
       // Update reserve record status to "Issued"

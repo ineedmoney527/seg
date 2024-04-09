@@ -221,7 +221,6 @@ function AddNewBookPage({ open, onClose, edit, selectedRowData }) {
         data.edit = true;
         data.code = selectedRowData.book_code;
         response = await axios.post("http://localhost:5000/api/book", data);
-        alert("wow");
         console.log(response);
         onClose();
         reset();
@@ -231,7 +230,6 @@ function AddNewBookPage({ open, onClose, edit, selectedRowData }) {
           data.edit = false;
           data.code = "whatever";
           response = await axios.post("http://localhost:5000/api/book", data);
-          alert("wow");
           console.log(response);
           onClose();
           reset();
