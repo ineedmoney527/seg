@@ -69,14 +69,31 @@ const getBorrowCounts = (req, res) => {
 
 const getBorrowRecords = (req, res) => {
   const query = `SELECT borrowedrecord.id, borrowedrecord.user_id, book.book_code, isbn.title, 
-    author.name AS author, isbn.edition, DATE_FORMAT(borrowedrecord.start_date, '%Y-%m-%d') AS start_date, DATE_FORMAT(borrowedrecord.end_date, '%Y-%m-%d') as end_date,
-    DATEDIFF(borrowedrecord.end_date, borrowedrecord.start_date) AS days_remaining
-  FROM borrowedrecord 
-  JOIN book ON borrowedrecord.book_code = book.book_code 
-  JOIN isbn ON book.isbn = isbn.isbn 
-  JOIN author ON author.id = isbn.author_id WHERE borrowedrecord.status="B"`;
+  author.name AS author, isbn.edition, DATE_FORMAT(borrowedrecord.start_date, '%Y-%m-%d') AS start_date, DATE_FORMAT(borrowedrecord.end_date, '%Y-%m-%d') as end_date, DATEDIFF(borrowedrecord.end_date, borrowedrecord.start_date) AS days_remaining, borrowedrecord.due_reminder,
+  user.email FROM borrowedrecord JOIN book ON borrowedrecord.book_code = book.book_code JOIN isbn ON book.isbn = isbn.isbn JOIN author ON author.id = isbn.author_id JOIN user ON borrowedrecord.user_id = user.id WHERE borrowedrecord.status="B"`;
 
-  connection.query(query, (err, data) => res.json(err ? err : data));
+  connection.query(query, (err, data) => {
+    if (err) {
+      res.json(err);
+    } else {
+      console.log(data);
+      const records = data;
+      // Check if days_remaining is 3 or less
+      records.forEach((record) => {
+        if (record.days_remaining <= 3 && record.due_reminder === "N") {
+          sendReminder(record.email, record.title, record.end_date);
+          // Update due_reminder to 'Y'
+          const updateQuery = `UPDATE borrowedrecord SET due_reminder = 'Y' WHERE id = ${record.id}`;
+          connection.query(updateQuery, (updateErr, updateResult) => {
+            if (updateErr) {
+              console.error("Error updating due_reminder:", updateErr);
+            }
+          });
+        }
+      });
+      res.json(records);
+    }
+  });
 };
 
 const getOverdueRecords = (req, res) => {
@@ -274,11 +291,12 @@ const hasRated = (req, res) => {
 
 const setReminderToYes = async (req, res) => {
   const { id, user_id, title, fine, days_overdue } = req.body;
-  console.log("borrow_id", id);
-  console.log("userId", user_id);
-  console.log("bookTitle", title);
-  console.log("fine", fine);
-  console.log("days_overdue", days_overdue);
+  // console.log("TEST1");
+  // console.log("borrow_id", id);
+  // console.log("userId", user_id);
+  // console.log("bookTitle", title);
+  // console.log("fine", fine);
+  // console.log("days_overdue", days_overdue);
 
   // Fetch the email associated with the provided user_id
   const emailQuery = "SELECT email FROM user WHERE id = ?";
@@ -295,7 +313,7 @@ const setReminderToYes = async (req, res) => {
 
     if (email) {
       const updateQuery =
-        "UPDATE borrowedrecord SET reminder = 'Y' WHERE id = ?";
+        "UPDATE borrowedrecord SET reminder = 'N' WHERE id = ?";
       connection.query(updateQuery, [id], async (updateErr, updateResult) => {
         if (updateErr) {
           console.error("Error setting reminder to 'Y':", updateErr);
@@ -321,33 +339,61 @@ const sendOverdueReminder = async (
   fine,
   days_overdue
 ) => {
-  console.log("borrow_id", borrow_id);
-  console.log("email", email);
-  console.log("bookTitle", bookTitle);
-  console.log("fine", fine);
-  console.log("days_overdue", days_overdue);
-
-  // Send email to user
+  // Create a transporter
   const transporter = nodemailer.createTransport({
-    service: "gmail",
+    host: "smtp.office365.com", // Outlook SMTP server
+    port: 587, // secure SMTP
+    secure: false, // false for TLS - as a boolean not string - if true, use port 465
     auth: {
-      user: "library.soton.uk@gmail.com",
-      pass: "mfcw pqpf ljsn cyya", // App password
+      user: "Sotonlibrary@outlook.com", // Your Outlook email address
+      pass: "rfqyidusxajksjec", // Use the app-specific password here
     },
   });
 
+  // Email content
   const mailOptions = {
-    from: "library.soton.uk@gmail.com",
-    to: email,
-    subject: "Overdue Book Reminder",
-    text: `Dear user,\n\nThis is a reminder that you have not returned the book.\n\n Book: ${bookTitle}\n\n OverdueDays: ${days_overdue}\n\n fine: ${fine}\n\nPlease return it as soon as possible to avoid fines.\n\nRegards,\nLibrary Team`,
+    from: "Sotonlibrary@outlook.com", // Your Outlook email address
+    to: email, // Recipient's email address
+    subject: "Overdue Reminder", // Email subject
+    text: `Dear user,\n\nThis is a reminder that you have not returned the book.\n\n Book: ${bookTitle}\n\n OverdueDays: ${days_overdue}\n\n fine: ${fine}\n\nPlease return it as soon as possible to avoid fines.\n\nRegards,\nLibrary Team`, // Email content
   };
 
-  transporter.sendMail(mailOptions, (err, info) => {
-    if (err) {
-      console.error("Error sending overdue reminder email:", err);
+  // Sending the email
+  transporter.sendMail(mailOptions, function (error, info) {
+    if (error) {
+      console.error(error);
     } else {
-      console.log("Overdue reminder email sent to:", email);
+      console.log("Email sent: " + info.response);
+    }
+  });
+};
+
+const sendReminder = async (email, bookTitle, returnDate) => {
+  // Create a transporter
+  const transporter = nodemailer.createTransport({
+    host: "smtp.office365.com", // Outlook SMTP server
+    port: 587, // secure SMTP
+    secure: false, // false for TLS - as a boolean not string - if true, use port 465
+    auth: {
+      user: "Sotonlibrary@outlook.com", // Your Outlook email address
+      pass: "rfqyidusxajksjec", // Use the app-specific password here
+    },
+  });
+
+  // Email content
+  const mailOptions = {
+    from: "Sotonlibrary@outlook.com", // Your Outlook email address
+    to: email, // Recipient's email address
+    subject: "Reminder", // Email subject
+    text: `Dear user,\n\nThis is a reminder that you 3 days remaining to return your book.\n\n Book: ${bookTitle}\n\n returnDate: ${returnDate}\n\nPlease return it as soon as possible to avoid fines.\n\nRegards,\nLibrary Team`, // Email content
+  };
+
+  // Sending the email
+  transporter.sendMail(mailOptions, function (error, info) {
+    if (error) {
+      console.error(error);
+    } else {
+      console.log("Email sent: " + info.response);
     }
   });
 };
@@ -370,4 +416,5 @@ export {
   getReviewsByBook,
   getReviews,
   setReminderToYes,
+  sendReminder,
 };

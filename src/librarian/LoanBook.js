@@ -264,7 +264,7 @@ function LoanBook() {
     console.log("Checking overdue status...");
     console.log(records);
     const overdueRows = records.filter(
-      (row) => row.id === 123 && row.reminder === "N"
+      (row) => row.days_overdue > 0 && row.reminder === "N"
     );
     if (overdueRows.length > 0) {
       sendEmailsForOverdue(overdueRows);

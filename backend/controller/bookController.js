@@ -233,8 +233,10 @@ const addBook = async (req, res) => {
 };
 //router.get("/", readAllBook);
 const readAllBooks = (req, res) => {
+  // SELECT book.*,isbn.isbn, isbn.title, isbn.image, AVG(bookrating.rating) as rating,isbn.description,isbn.pages,author.name AS author_name, isbn.edition,isbn.price,isbn.pages,publisher.name AS publisher_name, isbn.publish_year, country.name AS country_name  FROM book JOIN isbn ON book.isbn = isbn.isbn JOIN author ON isbn.author_id = author.id LEFT JOIN bookrating ON isbn.isbn = bookrating.isbn JOIN publisher ON isbn.publisher_id = publisher.id JOIN country ON publisher.country_id = country.id GROUP BY isbn.isbn
+
   const query =
-    "SELECT book.*,isbn.isbn, isbn.title, isbn.image, AVG(bookrating.rating) as rating,isbn.description,isbn.pages,author.name AS author_name, isbn.edition,isbn.price,isbn.pages,publisher.name AS publisher_name, isbn.publish_year, country.name AS country_name  FROM book JOIN isbn ON book.isbn = isbn.isbn JOIN author ON isbn.author_id = author.id LEFT JOIN bookrating ON isbn.isbn = bookrating.isbn JOIN publisher ON isbn.publisher_id = publisher.id JOIN country ON publisher.country_id = country.id GROUP BY isbn.isbn  ";
+    "SELECT book.*, isbn.isbn, isbn.title, isbn.image, AVG(bookrating.rating) as rating, isbn.description, isbn.pages, author.name AS author_name, isbn.edition, isbn.price, isbn.pages, publisher.name AS publisher_name, isbn.publish_year, country.name AS country_name,genre.name AS genre_name FROM book JOIN isbn ON book.isbn = isbn.isbn JOIN author ON isbn.author_id = author.id LEFT JOIN bookrating ON isbn.isbn = bookrating.isbn JOIN publisher ON isbn.publisher_id = publisher.id JOIN country ON publisher.country_id = country.id JOIN genre ON isbn.genre_id = genre.id GROUP BY isbn.isbn;";
   connection.query(query, (err, data) => res.json(err ? err : data));
 };
 

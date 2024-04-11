@@ -168,26 +168,29 @@ const sendRequestStatus = (userEmail, status, title, request_id) => {
     request_id = "N/A";
   }
 
-  // Send email to user
+  // Create a transporter
   const transporter = nodemailer.createTransport({
-    service: "gmail",
+    host: "smtp.office365.com", // Outlook SMTP server
+    port: 587, // secure SMTP
+    secure: false, // false for TLS - as a boolean not string - if true, use port 465
     auth: {
-      user: "library.soton.uk@gmail.com",
-      pass: "mfcw pqpf ljsn cyya", //App password
+      user: "Sotonlibrary@outlook.com", // Your Outlook email address
+      pass: "rfqyidusxajksjec", // Use the app-specific password here
     },
   });
-  //Mail Data
+
+  // Email content
   const mailOptions = {
-    from: "library.soton.uk@gmail.com",
-    to: userEmail,
-    subject: "Library Reservation Status",
-    text: `Dear user,\n\nThis is a status update for request ${request_id}. Your request has been ${status} for the book ${title}. Please check your account for more details.\n\nRegards,\nLibrary Team`,
+    from: "Sotonlibrary@outlook.com", // Your Outlook email address
+    to: userEmail, // Recipient's email address
+    subject: "Library Request Status", // Email subject
+    text: `Dear user,\n\nThis is a status update for request ${request_id}.\n\n Request status: ${status}\n\n Book: ${title}. \n\nPlease check your account for more details.\n\nRegards,\nLibrary Team`, // Email content
   };
 
-  //Send Mail
-  transporter.sendMail(mailOptions, (err, info) => {
-    if (err) {
-      console.error("Error sending request email: ", err);
+  // Sending the email
+  transporter.sendMail(mailOptions, function (error, info) {
+    if (error) {
+      console.error(error);
     } else {
       console.log("Email sent: " + info.response);
     }

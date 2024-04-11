@@ -11,12 +11,12 @@ const BookFilter = ({
   handleChange,
   yearRange,
   handleChangeYear,
+  genreRange,
   handleChangeGenre,
   handleReset,
 }) => {
-  const [localRatingRange, setLocalRatingRange] = useState(ratingRange); // State to manage the rating range
-  const [localYearRange, setLocalYearRange] = useState(yearRange);
-  // const [localGenres, setLocalGenres] = useState([]); // State to manage the selected genres
+  const [localRatingRange, setLocalRatingRange] = useState([1, 5]); // State to manage the rating range
+  const [localYearRange, setLocalYearRange] = useState([2000, 2024]); // State to manage the year range
   const [genreCheckboxes, setGenreCheckboxes] = useState(
     Array.from({ length: 9 }, () => false)
   );
@@ -90,14 +90,14 @@ const BookFilter = ({
   const handleApplyFilter = () => {
     // Pass filter parameters to parent component
     console.log("Rating Range:", ratingRange);
-    console.log("Year", localYearRange);
+    console.log("Year", yearRange);
     const selectedGenres = genres.filter(
       (genre, index) => genreCheckboxes[index]
     );
     console.log("Selected Genres:", selectedGenres);
 
     handleChange(null, localRatingRange);
-    handleChangeYear({ target: { value: localYearRange } });
+    handleChangeYear(null, localYearRange);
     handleChangeGenre(selectedGenres);
   };
 
@@ -278,13 +278,13 @@ const BookFilter = ({
       <label style={{ fontWeight: "bold" }}>Publisher Year</label>
       <Box
         sx={{
-          width: "200px",
+          width: "300px",
           marginTop: "10px",
           marginLeft: "auto",
           marginRight: "auto",
         }}
       >
-        <Select
+        {/* <Select
           value={localYearRange}
           onChange={handleYearChange}
           displayEmpty
@@ -296,7 +296,18 @@ const BookFilter = ({
               {2000 + index}
             </MenuItem>
           ))}
-        </Select>
+        </Select> */}
+
+        <Slider
+          getAriaLabel={() => "Publisher Year Range"}
+          value={localYearRange}
+          onChange={handleYearChange}
+          valueLabelDisplay="auto"
+          aria-labelledby="publisher-year-range-slider"
+          min={2000}
+          max={2023}
+          style={{ display: "flex", justifyContent: "center" }}
+        />
       </Box>
 
       <button
