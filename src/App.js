@@ -19,6 +19,7 @@ import IssueBook from "./librarian/IssuesBook";
 import LoanBook from "./librarian/LoanBook";
 import RequestBook from "./librarian/RequestBook";
 import Reservation from "./librarian/Reservation";
+import Dashboard from "./librarian/Dashboard";
 import AuthContext from "./AuthContext";
 import { PrivateRoute } from "react-auth-kit";
 import { AuthProvider, RequireAuth } from "react-auth-kit";
@@ -126,6 +127,8 @@ function App() {
               </RequireAuth>
             }
           />
+
+          <Route path="/Dashboard" element={<Dashboard />} />
         </Routes>
       </Router>
     </AuthProvider>

@@ -17,6 +17,10 @@ import {
   getReviews,
   getReviewsByBook,
   setReminderToYes,
+  getPieChart,
+  getBorrowedPieChart,
+  getMonthlyBookCount,
+  getCumulativeBookCount,
 } from "../controller/historyController.js";
 
 router.post("/borrow", insertBorrowRecords);
@@ -38,4 +42,8 @@ router.put("/lost", updateLostRecords);
 router.get("/lost", getLostRecords);
 router.put("/sendEmail", setReminderToYes);
 
+router.get("/pie", getPieChart);
+router.get("/borrowpie", getBorrowedPieChart);
+router.get("/cumulativeBookCount", getCumulativeBookCount);
+router.get("/monthlyBookCount", getMonthlyBookCount);
 export default router;

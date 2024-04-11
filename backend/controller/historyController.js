@@ -1,6 +1,6 @@
 import connection from "../config/dbConnection.js";
 import nodemailer from "nodemailer";
-
+import moment from "moment";
 const insertBorrowRecords = (req, res) => {
   const { bookCode, user_id } = req.body;
   const selectQuery =
@@ -353,7 +353,99 @@ const sendOverdueReminder = async (
 };
 
 // Call this function where needed in your application logic
+// Route to handle fetching genre-wise book counts based on start and end dates
+const getPieChart = async (req, res) => {
+  try {
+    const query = `
+      SELECT genre.name, COUNT(book.isbn) AS count
+      FROM book
+      JOIN isbn ON book.isbn = isbn.isbn
+      JOIN genre ON isbn.genre_id = genre.id
+      GROUP BY genre.name;
+    `;
 
+    connection.query(query, (err, data) => {
+      res.json(err ? err : data);
+      console.log(data);
+    });
+  } catch (error) {
+    console.error("Error executing SQL query:", error);
+    res.status(500).json({ error: "An error occurred while fetching data." });
+  }
+};
+
+const getBorrowedPieChart = async (req, res) => {
+  const { startDate, endDate } = req.query;
+  console.log(startDate);
+  console.log(endDate);
+  try {
+    const query = `
+    SELECT genre.name, COUNT(book.isbn) AS count FROM borrowedrecord br JOIN book ON br.book_code = book.book_code JOIN isbn ON book.isbn = isbn.isbn JOIN genre ON isbn.genre_id = genre.id WHERE br.start_date >= ? AND br.end_date <= ? GROUP BY genre.name;
+    `;
+
+    connection.query(query, [startDate, endDate], (err, data) => {
+      res.json(err ? err : data);
+      console.log(data);
+    });
+  } catch (error) {
+    console.error("Error executing SQL query:", error);
+    res.status(500).json({ error: "An error occurred while fetching data." });
+  }
+};
+
+const getMonthlyBookCount = async (req, res) => {
+  const query = `
+SELECT 
+  DATE_FORMAT(added_date, '%Y-%m') AS month,
+  COUNT(*) AS monthly_count
+FROM 
+  book
+GROUP BY 
+  YEAR(added_date), 
+  MONTH(added_date)
+ORDER BY 
+  YEAR(added_date) ASC, 
+  MONTH(added_date) ASC;
+`;
+
+  connection.query(query, (err, results) => {
+    if (err) {
+      console.error("Error fetching monthly count data:", err);
+      res.status(500).send("Error fetching data");
+      return;
+    }
+    console.log(results);
+    res.json(results);
+  });
+};
+const getCumulativeBookCount = async (req, res) => {
+  const twelveMonthsAgo = moment().subtract(12, "months").format("YYYY-MM-DD");
+
+  const query = `
+  SELECT 
+  date_format(added_date, '%Y-%m') AS month,
+  COUNT(*) AS monthly_count,
+  (SELECT COUNT(*) FROM book b2 WHERE date_format(b2.added_date, '%Y-%m') <= date_format(b1.added_date, '%Y-%m')) AS cumulative_count
+FROM 
+  book b1
+WHERE 
+  added_date >= DATE_SUB(CURRENT_DATE, INTERVAL 12 MONTH)
+GROUP BY 
+  month
+ORDER BY 
+  month;
+
+  `;
+  connection.query(query, [twelveMonthsAgo], (err, results) => {
+    if (err) {
+      console.error("Error fetching cumulative count data:", err);
+      res.status(500).send("Error fetching data");
+      return;
+    }
+    console.log(results);
+    res.json(results);
+  });
+};
 export {
   insertBorrowRecords,
   getBorrowRecords,
@@ -370,4 +462,8 @@ export {
   getReviewsByBook,
   getReviews,
   setReminderToYes,
+  getPieChart,
+  getBorrowedPieChart,
+  getMonthlyBookCount,
+  getCumulativeBookCount,
 };
