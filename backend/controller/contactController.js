@@ -3,8 +3,9 @@ import asyncHandler from "express-async-handler";
 import connection from "../config/dbConnection.js";
 import { hash, compare } from "bcrypt";
 import jwt from "jsonwebtoken";
+import crypto from "crypto";
 import cookieParser from "cookie-parser";
-
+import nodemailer from "nodemailer";
 // Create a new Date object for today's date
 // Concatenate the components to form the dd/mm/yyyy format
 function _arrayBufferToBase64(buffer) {
@@ -244,6 +245,106 @@ const getLimit = asyncHandler(async (req, res) => {
     res.json(err ? { message: "User not found" } : data[0])
   );
 });
+
+// Generate a password reset token
+function generateToken() {
+  return crypto.randomBytes(20).toString("hex");
+}
+
+// Send email with password reset link
+async function sendResetEmail(email, token) {
+  const transporter = nodemailer.createTransport({
+    host: "smtp.office365.com", // Outlook SMTP server
+    port: 587, // secure SMTP
+    secure: false, // false for TLS - as a boolean not string - if true, use port 465
+    auth: {
+      user: "Sotonlibrary@outlook.com", // Your Outlook email address
+      pass: "rfqyidusxajksjec", // Use the app-specific password here
+    },
+  });
+
+  const mailOptions = {
+    from: "Sotonlibrary@outlook.com",
+    to: email,
+    subject: "Password Reset -- UoSM Library System",
+    text: `Click the following link to reset your password: http://your-website.com/reset-password/${token}`,
+  };
+
+  await transporter.sendMail(mailOptions);
+}
+
+const forgotPassword = (req, res) => {
+  const { email } = req.body;
+  const token = generateToken();
+  const expires = new Date(Date.now() + 3600000); // Token expires in 1 hour
+  const tokenData = { email, token, expires };
+
+  connection.query(
+    "INSERT INTO password_reset_tokens SET ?",
+    tokenData,
+    async (error) => {
+      if (error) {
+        return res.status(500).json({ error: "Failed to store token" });
+      }
+
+      try {
+        await sendResetEmail(email, token);
+        res.json({ message: "Reset email sent" });
+      } catch (err) {
+        res.status(500).json({ error: "Failed to send reset email" });
+      }
+    }
+  );
+};
+
+const resetPassword = (req, res) => {
+  const { token } = req.params;
+  const { newPassword } = req.body;
+
+  connection.query(
+    "SELECT * FROM password_reset_tokens WHERE token = ?",
+    [token],
+    (error, results) => {
+      if (error || results.length === 0) {
+        return res.status(400).json({ error: "Invalid or expired token" });
+      }
+
+      const tokenData = results[0];
+      if (tokenData.expires < new Date()) {
+        return res.status(400).json({ error: "Token has expired" });
+      }
+
+      // Hash the new password before updating
+      bcrypt.hash(newPassword, 10, (err, hashedPassword) => {
+        if (err) {
+          return res.status(500).json({ error: "Failed to hash password" });
+        }
+      });
+      // Update password logic here (e.g., update in the database)
+      connection.query(
+        "UPDATE user SET password = ? WHERE email = ?",
+        [hashedPassword, tokenData.email],
+        (updateError) => {
+          if (updateError) {
+            return res.status(500).json({ error: "Failed to update password" });
+          }
+        }
+      );
+      // Delete the token from the database after use
+      connection.query(
+        "DELETE FROM password_reset_tokens WHERE token = ?",
+        [token],
+        (err) => {
+          if (err) {
+            console.error("Failed to delete token:", err);
+          }
+        }
+      );
+
+      res.json({ message: "Password reset successful" });
+    }
+  );
+};
 export {
   createUser,
   readUser,
@@ -255,4 +356,6 @@ export {
   authenticateToken,
   updateLimit,
   getLimit,
+  forgotPassword,
+  resetPassword,
 };

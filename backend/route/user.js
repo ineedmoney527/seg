@@ -12,6 +12,8 @@ import {
   authenticateToken,
   login,
   getLimit,
+  forgotPassword,
+  resetPassword,
 } from "../controller/contactController.js";
 
 //create
@@ -23,6 +25,11 @@ router.get("/profile", (req, res) => {
 });
 router.post("/login", login);
 router.post("/", createUser);
+
+//forget password
+router.post("/forgot-password", forgotPassword);
+router.post("/reset-password", resetPassword);
+
 //read
 router.post("/:role_id", readUser);
 
@@ -43,7 +50,5 @@ router.put("/:id", updateContact);
 router.delete("/rows/:ids", deleteContacts);
 //delete
 router.delete("/:id", deleteContact);
-
-//login
 
 export default router;
