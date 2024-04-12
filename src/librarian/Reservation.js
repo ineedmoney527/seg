@@ -22,6 +22,7 @@ import SearchIcon from "@mui/icons-material/Search";
 import Paper from "@mui/material/Paper";
 import Alert from "@mui/material/Alert";
 import { DataGrid, GridToolbar } from "@mui/x-data-grid";
+import Logo from "../UOSMLogo3.png"
 function Reservation() {
   function customCheckbox(theme) {
     return {
@@ -689,19 +690,30 @@ function Reservation() {
       sx={{ height: "100vh", width: "100vw", overflow: "auto" }} // Set full height and width
     >
       <Stack direction="row" spacing={3} className={"haederReserve"}>
-        <TemporaryDrawer open={drawerOpen} onClose={toggleDrawer} />
+        <TemporaryDrawer open={drawerOpen} onClose={toggleDrawer}/>
         <h1 className={"headerTitle-reservation"}>Reserve Book Page</h1>
+        <img
+            src={Logo}
+            alt={"Logo"}
+            className={"UOSM-Logo"}
+            style={{
+              width: "200px",
+              height: "55px",
+              marginLeft: "auto",
+              filter: "brightness(0) invert(1) contrast(5)",
+            }}
+        />
       </Stack>
 
       <Stack
-        direction="column"
-        className={"MainContent-Reserve"}
-        mt={3}
-        sx={{ height: "90vh", width: "97vw", overflow: "auto" }} // Set full height and width
+          direction="column"
+          className={"MainContent-Reserve"}
+          mt={3}
+          sx={{height: "90vh", width: "97vw", overflow: "auto"}} // Set full height and width
       >
-        <Box sx={{ width: "300px", marginTop: "15px" }}>
+        <Box sx={{width: "300px", marginTop: "15px"}}>
           <form
-            onSubmit={handleSubmit(onSubmit)}
+              onSubmit={handleSubmit(onSubmit)}
             className="form-containerReserve"
           ></form>
         </Box>

@@ -14,6 +14,7 @@ import "./LoanBook.css";
 import { useForm } from "react-hook-form";
 import { DataGrid, GridToolbar } from "@mui/x-data-grid";
 import axios from "axios";
+import Logo from "../UOSMLogo3.png"
 
 import {
   Button,
@@ -135,11 +136,11 @@ function LoanBook() {
 
   const [data, setData] = useState(null);
   const [drawerOpen, setDrawerOpen] = useState(false);
-  const [selectedOption, setSelectedOption] = useState("borrowing"); // Default selected option
-  const [activeButton, setActiveButton] = useState("borrowing");
+  const [selectedOption, setSelectedOption] = useState("On loan"); // Default selected option
+  const [activeButton, setActiveButton] = useState("On loan");
   const { register, handleSubmit } = useForm();
   const [showReturnedLost, setShowReturnedLost] = useState(
-    selectedOption === "borrowing"
+    selectedOption === "On loan"
   );
   const [showPaidButtons, setShowPaidButtons] = useState(
     selectedOption === "overdue"
@@ -186,7 +187,7 @@ function LoanBook() {
       flex: 1,
       headerAlign: "center",
     },
-    activeButton === "borrowing" && {
+    activeButton === "On loan" && {
       field: "days_remaining",
       headerName: "Days Remaining",
       flex: 1,
@@ -206,7 +207,7 @@ function LoanBook() {
     },
     (activeButton === "returned" || activeButton === "overdue") && {
       field: "fine",
-      headerName: "Fine",
+      headerName: "Fine (RM)",
       flex: 1,
       headerAlign: "center",
     },
@@ -218,7 +219,7 @@ function LoanBook() {
     },
     activeButton === "lost" && {
       field: "fine",
-      headerName: "Fine",
+      headerName: "Fine (RM)",
       flex: 1,
       headerAlign: "center",
     },
@@ -235,7 +236,7 @@ function LoanBook() {
       // Append query parameters based on activeButton state
       if (activeButton === "overdue") {
         url += "overdue";
-      } else if (activeButton === "borrowing") {
+      } else if (activeButton === "On loan") {
         url += "borrow";
       } else if (activeButton === "returned") {
         url += "returned";
@@ -337,7 +338,7 @@ function LoanBook() {
     setPaidLostAlert({ open: false });
 
     // Show/hide additional buttons based on the selected option
-    setShowReturnedLost(option === "borrowing");
+    setShowReturnedLost(option === "On loan");
     setShowPaidButtons(option === "overdue");
   };
 
@@ -529,19 +530,30 @@ function LoanBook() {
     >
       <Stack direction="row" spacing={3} className={"haederLoan"}>
         {/*<img src={logo} alt={"UoSM Logo"} className={"Logo"}/>*/}
-        <TemporaryDrawer open={drawerOpen} onClose={toggleDrawer} />
+        <TemporaryDrawer open={drawerOpen} onClose={toggleDrawer}/>
         <h1 className={"headerTitle-loan"}>Loan Book Page</h1>
+        <img
+            src={Logo}
+            alt={"Logo"}
+            className={"UOSM-Logo"}
+            style={{
+              width: "200px",
+              height: "55px",
+              marginLeft: "auto",
+              filter: "brightness(0) invert(1) contrast(5)",
+            }}
+        />
       </Stack>
 
       <Stack
-        direction="column"
-        className={"MainContent-loan"}
-        sx={{ height: "90vh", width: "97vw", overflow: "auto" }} // Set full height and width
+          direction="column"
+          className={"MainContent-loan"}
+          sx={{height: "90vh", width: "97vw", overflow: "auto"}} // Set full height and width
       >
-        <Box sx={{ width: "300px" }}>
+        <Box sx={{width: "300px"}}>
           <form
-            onSubmit={handleSubmit(onSubmit)}
-            className="form-containerLoan"
+              onSubmit={handleSubmit(onSubmit)}
+              className="form-containerLoan"
           >
             {/* <TextField
               {...register("searchQuery")}
@@ -569,10 +581,10 @@ function LoanBook() {
         >
           <Stack direction="row" spacing={0.3}>
             <Button
-              onClick={() => handleOptionClick("borrowing")}
-              sx={activeButton === "borrowing" ? buttonStyle : {}}
+              onClick={() => handleOptionClick("On loan")}
+              sx={activeButton === "On loan" ? buttonStyle : {}}
             >
-              Borrowing
+              On loan
             </Button>
             <Button
               onClick={() => handleOptionClick("overdue")}

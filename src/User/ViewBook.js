@@ -7,6 +7,7 @@ import Rating from "@mui/material/Rating";
 import icon from "../Image/review-icon.png";
 import { Buffer } from "buffer";
 import axios from "axios";
+import CircularProgress from "@mui/material/CircularProgress"
 import {
   useSignIn,
   useAuthUser,
@@ -24,6 +25,7 @@ const ViewBook = () => {
   const [timer, setTimer] = useState(null);
   const [pending, setPending] = useState(false);
   const [countdown, setCountdown] = useState(0);
+  const [isHovered, setIsHovered] = useState(false);
 
   const location = useLocation();
   const { book } = location.state || {};
@@ -50,7 +52,7 @@ const ViewBook = () => {
   // }, [reserved, countdown]);
   const fetchReviews = async () => {
     const response = await axios.get(
-      "http://localhost:5000/api/history/reviewByBook/" + book.isbn
+        "http://localhost:5000/api/history/reviewByBook/" + book.isbn
     );
 
     setReview(response.data.data);
@@ -78,7 +80,7 @@ const ViewBook = () => {
   const checkAvailability = async () => {
     try {
       const response = await axios.get(
-        "http://localhost:5000/api/book/checkAvailable/" + book.isbn
+          "http://localhost:5000/api/book/checkAvailable/" + book.isbn
       );
 
       setAvailability(response.data); // Set the availability response in state
@@ -100,12 +102,12 @@ const ViewBook = () => {
       console.log(book.isbn);
       console.log(user_id);
       const response = await axios.get(
-        `http://localhost:5000/api/reserve/checkReservation/${book.isbn}/${user_id}`
+          `http://localhost:5000/api/reserve/checkReservation/${book.isbn}/${user_id}`
       );
       console.log(response.data);
       if (
-        response.data?.valid_book_codes &&
-        response.data.valid_book_codes.length > 0
+          response.data?.valid_book_codes &&
+          response.data.valid_book_codes.length > 0
       ) {
         console.log(response.data?.valid_book_codes);
         setReserved(true);
@@ -128,7 +130,7 @@ const ViewBook = () => {
   const checkPending = async () => {
     try {
       const response = await axios.get(
-        `http://localhost:5000/api/reserve/checkPending/${book.isbn}/${user_id}`
+          `http://localhost:5000/api/reserve/checkPending/${book.isbn}/${user_id}`
       );
 
       if (response.data.message === "true") {
@@ -151,10 +153,10 @@ const ViewBook = () => {
     //get a book of this isbn
     try {
       const firstBook = await axios.get(
-        "http://localhost:5000/api/book/" + book.isbn
+          "http://localhost:5000/api/book/" + book.isbn
       );
       const limitResponse = await axios.get(
-        "http://localhost:5000/api/user/limit/" + user_id
+          "http://localhost:5000/api/user/limit/" + user_id
       );
 
       const currentLimit = limitResponse.data.borrow_limit;
@@ -188,11 +190,11 @@ const ViewBook = () => {
   const cancelReservation = async () => {
     try {
       const deleteResponse = await axios.delete(
-        `http://localhost:5000/api/reserve/${book.isbn}/${user_id}`
+          `http://localhost:5000/api/reserve/${book.isbn}/${user_id}`
       );
 
       const limitResponse = await axios.get(
-        "http://localhost:5000/api/user/limit/" + user_id
+          "http://localhost:5000/api/user/limit/" + user_id
       );
 
       const currentLimit = limitResponse.data.borrow_limit;
@@ -222,296 +224,338 @@ const ViewBook = () => {
     return <div>No book data available</div>;
   }
 
+
+
   return (
-    <Layout
-      showSearchBar={showSearchBar}
-      toggleDrawer={toggleDrawer}
-      open={open}
-    >
-      <Box
-        sx={{
-          display: "flex",
-          flexDirection: "row",
-          width: "80%",
-          marginLeft: "auto",
-          marginRight: "auto",
-          marginTop: "35px",
-        }}
+      <Layout
+          showSearchBar={showSearchBar}
+          toggleDrawer={toggleDrawer}
+          open={open}
       >
-        <Box>
-          <Typography
-            sx={{ fontSize: "25px", fontWeight: "Bold", fontFamily: "Alata" }}
-            gutterBottom
-          >
-            {book.title}
-          </Typography>
-          <Typography
-            sx={{ fontSize: "15px", color: "#626262" }}
-            variant="body1"
-            gutterBottom
-          >
-            Description: {book.description}
-          </Typography>
-          <Box
-            sx={{ display: "flex", flexDirection: "row", marginTop: "20px" }}
-          >
-            <Box sx={{ marginRight: "200px" }}>
-              <Typography
-                sx={{ fontWeight: "bold" }}
-                variant="body2"
-                gutterBottom
-              >
-                ISBN: {book.isbn}
-              </Typography>
-              <Typography
-                sx={{ fontWeight: "bold" }}
-                variant="body2"
-                gutterBottom
-              >
-                Author: {book.author_name}
-              </Typography>
-
-              <Typography
-                sx={{ fontWeight: "bold" }}
-                variant="body2"
-                gutterBottom
-              >
-                Total Page: {book.pages}
-              </Typography>
-              <Typography
-                sx={{ fontWeight: "bold" }}
-                variant="body2"
-                gutterBottom
-              >
-                Rating: {book.rating ? book.rating : "Not yet rated"}
-              </Typography>
-            </Box>
-            <Box>
-              <Typography
-                sx={{ fontWeight: "bold" }}
-                variant="body2"
-                gutterBottom
-              >
-                Publication Year: {book.publish_year}
-              </Typography>
-              <Typography
-                sx={{ fontWeight: "bold" }}
-                variant="body2"
-                gutterBottom
-              >
-                Country: {book.country_name}
-              </Typography>
-
-              <Typography
-                sx={{ fontWeight: "bold" }}
-                variant="body2"
-                gutterBottom
-              >
-                Call Number: {book.call_number}
-              </Typography>
-            </Box>{" "}
-          </Box>
-        </Box>
         <Box
-          sx={{
-            marginTop: "auto",
-            marginBottom: "auto",
-            display: "flex",
-            flexDirection: "column",
-            marginLeft: "auto",
-          }}
+            sx={{
+              display: "flex",
+              flexDirection: "row",
+              width: "90%",
+              marginLeft: "auto",
+              marginRight: "auto",
+              marginTop: "35px",
+            }}
         >
-          <img
-            src={`data:image/png;base64,${Buffer.from(book.image).toString(
-              "base64"
-            )}`}
-            alt={"book-cover"}
-            style={{ width: "120px", height: "200px" }}
-          />
-          {!reserved && !pending && (
-            <button
-              disabled={!availability}
-              onClick={handleClickReserved}
-              style={{
-                width: "120px",
-                height: "25px",
-                borderRadius: "5px",
-                backgroundColor: availability ? "#5DBD72" : "#CCCCCC",
-                color: "white",
-                border: "none",
-                cursor: "pointer",
-                marginTop: "10px",
-                boxShadow: "0 2px 4px rgba(0, 0, 0, 0.5)",
-              }}
+          <Box>
+            <Typography
+                sx={{ fontSize: "25px", fontWeight: "Bold", fontFamily: "Alata" }}
+                gutterBottom
             >
-              {availability ? "Available" : "Unavailable"}
-            </button>
-          )}
-          {pending && (
-            <div style={{ marginTop: "10px" }}>
-              <button
-                onClick={cancelReservation}
-                style={{
-                  width: "120px",
-                  height: "25px",
-                  borderRadius: "5px",
-
-                  backgroundColor: "grey",
-                  color: "white",
-                  border: "none",
-                  cursor: "pointer",
-                  marginTop: "10px",
-                  boxShadow: "0 2px 4px rgba(0, 0, 0, 0.5)",
-                  fontSize: "12px",
-                }}
-              >
-                Pending to be approved
-              </button>
-            </div>
-          )}
-          {reserved && (
-            <div style={{ marginTop: "10px" }}>
-              <button
-                onClick={cancelReservation}
-                style={{
-                  width: "120px",
-                  height: "25px",
-                  borderRadius: "5px",
-
-                  backgroundColor: "grey",
-                  color: "white",
-                  border: "none",
-                  cursor: "pointer",
-                  marginTop: "10px",
-                  boxShadow: "0 2px 4px rgba(0, 0, 0, 0.5)",
-                  fontSize: "12px",
-                }}
-              >
-                Reserved
-              </button>
-              <div>{`(${formatTime(countdown)})`}</div>
-            </div>
-          )}
-        </Box>
-      </Box>
-
-      <Box>
-        <label
-          style={{
-            display: "flex",
-            width: "80%",
-            fontWeight: "Bold",
-            marginLeft: "auto",
-            marginRight: "auto",
-            marginTop: "80px",
-            fontSize: "18px",
-            fontFamily: "Alata",
-          }}
-        >
-          Reviews
-        </label>
-        <Box
-          sx={{
-            display: "flex",
-            flexDirection: "column",
-            width: "80%",
-            height: "300px",
-            marginLeft: "auto",
-            marginRight: "auto",
-            marginTop: "10px",
-            backgroundColor: "transparent",
-            border: "1px solid black",
-            borderRadius: "10px",
-            overflowY: "auto",
-          }}
-        >
-          {review?.length === 0 ? (
+              {book.title}
+            </Typography>
+            <Typography
+                sx={{ fontSize: "15px", color: "#626262" }}
+                variant="body1"
+                gutterBottom
+            >
+              Description: {book.description}
+            </Typography>
             <Box
-              sx={{
-                display: "flex",
-                justifyContent: "center",
-                alignItems: "center",
-                width: "90%",
-                height: "80px",
-                marginLeft: "auto",
-                marginRight: "auto",
-                marginTop: "25px",
-                marginBottom: "8px",
-                backgroundColor: "#ECECEC",
-                borderRadius: "10px",
-                boxShadow: "0 2px 4px rgba(0, 0, 0, 0.3)",
-              }}
+                sx={{ display: "flex", flexDirection: "row", marginTop: "20px" }}
             >
-              <Typography variant="body1">No review</Typography>
+              <Box sx={{ marginRight: "200px" }}>
+                <Typography sx={{display:'flex',flexDirection:'row'}}>
+                  <Typography style={{fontWeight: "bold"}} variant = "body2" gutterBottom>
+                    ISBN:
+                  </Typography>
+                  <Typography variant = "body2" gutterBottom>
+                    {book.isbn}
+                  </Typography>
+                </Typography>
+                <Typography sx={{display:'flex',flexDirection:'row'}}>
+                  <Typography style={{fontWeight: "bold"}} variant = "body2" gutterBottom>
+                    Author:
+                  </Typography>
+                  <Typography variant = "body2" gutterBottom>
+                    {book.author_name}
+                  </Typography>
+                </Typography>
+                <Typography sx={{display:'flex',flexDirection:'row'}}>
+                  <Typography style={{fontWeight: "bold"}} variant = "body2" gutterBottom>
+                    Total Page:
+                  </Typography>
+                  <Typography variant = "body2" gutterBottom>
+                    {book.pages}
+                  </Typography>
+                </Typography>
+
+                <Typography sx={{display:'flex',flexDirection:'row'}}>
+                  <Typography style={{fontWeight: "bold"}} variant = "body2" gutterBottom>
+                    Rating:
+                  </Typography>
+                  <Typography variant = "body2" gutterBottom>
+                    {book.rating ? book.rating : "Not yet rated"}
+                  </Typography>
+                </Typography>
+              </Box>
+              <Box>
+                <Typography sx={{display:'flex',flexDirection:'row'}}>
+                  <Typography style={{fontWeight: "bold"}} variant = "body2" gutterBottom>
+                    Publication Year:
+                  </Typography>
+                  <Typography variant = "body2" gutterBottom>
+                    {book.publish_year}
+                  </Typography>
+                </Typography>
+
+                <Typography sx={{display:'flex',flexDirection:'row'}}>
+                  <Typography style={{fontWeight: "bold"}} variant = "body2" gutterBottom>
+                    Country:
+                  </Typography>
+                  <Typography variant = "body2" gutterBottom>
+                    {book.country_name}
+                  </Typography>
+                </Typography>
+
+                <Typography sx={{display:'flex',flexDirection:'row'}}>
+                  <Typography style={{fontWeight: "bold"}} variant = "body2" gutterBottom>
+                    Call Number:
+                  </Typography>
+                  <Typography variant = "body2" gutterBottom>
+                    {book.call_number}
+                  </Typography>
+                </Typography>
+
+
+                <Typography sx={{display:'flex',flexDirection:'row'}}>
+                  <Typography style={{fontWeight: "bold"}} variant = "body2" gutterBottom>
+                    Location:
+                  </Typography>
+                  <Typography variant = "body2" gutterBottom>
+                    {book.location}
+                  </Typography>
+                </Typography>
+              </Box>{" "}
             </Box>
-          ) : (
-            review?.map((review, index) => (
-              <Box
-                sx={{
-                  display: "flex",
-                  flexDirection: "column",
-                  width: "90%",
-                  height: "auto",
-                  minHeight: "80px",
-                  marginLeft: "auto",
-                  marginRight: "auto",
-                  marginTop: "25px",
-                  marginBottom: "8px",
-                  backgroundColor: "#ECECEC",
-                  borderRadius: "10px",
-                  boxShadow: "0 2px 4px rgba(0, 0, 0, 0.3)",
-                }}
-              >
-                <Box sx={{ marginLeft: "10px" }}>
-                  <Box sx={{ display: "flex", flexDirection: "row" }}>
-                    <img
-                      src={`data:image/png;base64,${Buffer.from(
-                        review.image_file
-                      ).toString("base64")}`}
-                      alt={"review-icon"}
-                      style={{ width: "25px", height: "25px" }}
-                    />
-                    <label
-                      style={{
-                        wordWrap: "break-word",
-                        overflowWrap: "break-word",
-                        overflow: "hidden",
-                        width: "100%",
-                        fontWeight: "bold",
-                        fontSize: "14px",
-                        marginLeft: "10px",
-                        marginTop: "auto",
-                        marginBottom: "auto",
-                      }}
-                    >
-                      {review.name}
+            <Box sx={{display:'flex',flexDirection:'row',marginTop:'20px'}}>
+              <label style={{color: 'grey',marginRight:'5px'}}>
+                you can search for E-books from
+              </label>
+              <label style={{color: 'blue'}}>
+                https://www.southampton.ac.uk/library/index.page
+              </label>
+            </Box>
+          </Box>
+          <Box
+              sx={{
+                marginTop: "auto",
+                marginBottom: "auto",
+                display: "flex",
+                flexDirection: "column",
+                marginLeft: "auto",
+              }}
+          >
+            <img
+                src={`data:image/png;base64,${Buffer.from(book.image).toString(
+                    "base64"
+                )}`}
+                alt={"book-cover"}
+                style={{ width: "120px", height: "200px" }}
+            />
+            {!reserved && !pending && (
+                <button
+                    disabled={!availability}
+                    onClick={handleClickReserved}
+                    onMouseEnter={() => setIsHovered(true)}
+                    onMouseLeave={() => setIsHovered(false)}
+                    style={{
+                      width: "120px",
+                      height: "25px",
+                      borderRadius: "2px",
+                      backgroundColor: isHovered ? (availability ? "#4CAF50" : "#CCCCCC") : (availability ? "#5DBD72" : "#CCCCCC"),
+                      // backgroundColor: availability ? "#5DBD72" : "#CCCCCC",
+                      color: "white",
+                      border: "none",
+                      cursor: "pointer",
+                      marginTop: "10px",
+                      boxShadow: "0 2px 4px rgba(0, 0, 0, 0.7)",
+                      // ":hover": {
+                      //   backgroundColor: isHovered ? "#4CAF50" : availability ? "#5DBD72" : "#CCCCCC",
+                      // }
+
+                    }}
+                >
+                  {availability ? "Make Reservation" : "Unavailable"}
+                </button>
+            )}
+            {pending && (
+                <div style={{marginTop: "10px"}}>
+                  <Box sx={{display:'flex',flexDirection:'row'}}>
+                    <CircularProgress color="inherit" size={30} />
+                    <label style={{ marginLeft:'7px',fontSize:'12px',fontWeight:'bold'}}>
+                      Reservation Pending
                     </label>
                   </Box>
-                  <Box sx={{ display: "flex", alignItems: "center" }}>
-                    <Typography variant="body2" sx={{ marginRight: "5px" }}>
-                      Rating:
-                    </Typography>
-                    <Rating
-                      name="read-only"
-                      value={parseFloat(review.rating)}
-                      readOnly
-                      precision={0.5}
-                    />
-                  </Box>
-                  <Typography
-                    sx={{ fontSize: "14px" }}
-                    variant="body1"
-                    gutterBottom
+
+
+                  <button
+                      onClick={cancelReservation}
+                      style={{
+                        width: "120px",
+                        height: "25px",
+                        borderRadius: "5px",
+                        backgroundColor: "red",
+                        color: "white",
+                        border: "none",
+                        cursor: "pointer",
+                        marginTop: "10px",
+                        boxShadow: "0 2px 4px rgba(0, 0, 0, 0.7)",
+                        fontSize: "12px",
+                      }}
                   >
-                    {review.comments}
-                  </Typography>
-                </Box>
-              </Box>
-            ))
-          )}
+                    Cancel Reservation
+                  </button>
+                </div>
+            )}
+            {reserved && (
+                <div style={{marginTop: "10px"}}>
+                  <button
+                      onClick={cancelReservation}
+                      style={{
+                        width: "120px",
+                        height: "25px",
+                        borderRadius: "5px",
+
+                        backgroundColor: "grey",
+                        color: "white",
+                        border: "none",
+                        cursor: "pointer",
+                        marginTop: "10px",
+                        boxShadow: "0 2px 4px rgba(0, 0, 0, 0.5)",
+                        fontSize: "12px",
+                      }}
+                  >
+                    Reserved
+                  </button>
+                  <div>{`(${formatTime(countdown)})`}</div>
+                </div>
+            )}
+          </Box>
         </Box>
-      </Box>
-    </Layout>
+
+        <Box>
+          <label
+              style={{
+                display: "flex",
+                width: "80%",
+                fontWeight: "Bold",
+                marginLeft: "auto",
+                marginRight: "auto",
+                marginTop: "80px",
+                fontSize: "18px",
+                fontFamily: "Alata",
+              }}
+          >
+            Reviews
+          </label>
+          <Box
+              sx={{
+                display: "flex",
+                flexDirection: "column",
+                width: "90%",
+                height: "300px",
+                marginLeft: "auto",
+                marginRight: "auto",
+                marginTop: "10px",
+                backgroundColor: "transparent",
+                border: "1px solid black",
+                borderRadius: "10px",
+                overflowY: "auto",
+              }}
+          >
+            {review?.length === 0 ? (
+                <Box
+                    sx={{
+                      display: "flex",
+                      justifyContent: "center",
+                      alignItems: "center",
+                      width: "90%",
+                      height: "80px",
+                      marginLeft: "auto",
+                      marginRight: "auto",
+                      marginTop: "25px",
+                      marginBottom: "8px",
+                      backgroundColor: "#ECECEC",
+                      borderRadius: "10px",
+                      boxShadow: "0 2px 4px rgba(0, 0, 0, 0.3)",
+                    }}
+                >
+                  <Typography variant="body1">No review</Typography>
+                </Box>
+            ) : (
+                review?.map((review, index) => (
+                    <Box
+                        sx={{
+                          display: "flex",
+                          flexDirection: "column",
+                          width: "90%",
+                          height: "auto",
+                          minHeight: "80px",
+                          marginLeft: "auto",
+                          marginRight: "auto",
+                          marginTop: "25px",
+                          marginBottom: "8px",
+                          backgroundColor: "#ECECEC",
+                          borderRadius: "10px",
+                          boxShadow: "0 2px 4px rgba(0, 0, 0, 0.3)",
+                        }}
+                    >
+                      <Box sx={{ marginLeft: "10px" }}>
+                        <Box sx={{ display: "flex", flexDirection: "row" }}>
+                          <img
+                              src={`data:image/png;base64,${Buffer.from(
+                                  review.image_file
+                              ).toString("base64")}`}
+                              alt={"review-icon"}
+                              style={{ width: "25px", height: "25px" }}
+                          />
+                          <label
+                              style={{
+                                wordWrap: "break-word",
+                                overflowWrap: "break-word",
+                                overflow: "hidden",
+                                width: "100%",
+                                fontWeight: "bold",
+                                fontSize: "14px",
+                                marginLeft: "10px",
+                                marginTop: "auto",
+                                marginBottom: "auto",
+                              }}
+                          >
+                            {review.name}
+                          </label>
+                        </Box>
+                        <Box sx={{ display: "flex", alignItems: "center" }}>
+                          <Typography variant="body2" sx={{ marginRight: "5px" }}>
+                            Rating:
+                          </Typography>
+                          <Rating
+                              name="read-only"
+                              value={parseFloat(review.rating)}
+                              readOnly
+                              precision={0.5}
+                          />
+                        </Box>
+                        <Typography
+                            sx={{ fontSize: "14px" }}
+                            variant="body1"
+                            gutterBottom
+                        >
+                          {review.comments}
+                        </Typography>
+                      </Box>
+                    </Box>
+                ))
+            )}
+          </Box>
+        </Box>
+      </Layout>
   );
 };
 

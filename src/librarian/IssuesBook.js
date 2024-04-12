@@ -20,6 +20,7 @@ import {
 } from "@mui/material";
 import Alert from "@mui/material/Alert";
 import TemporaryDrawer from "./TemporaryDrawer";
+import Logo from "../UOSMLogo3.png";
 
 import { MdCleaningServices } from "react-icons/md";
 import { GiConfirmed } from "react-icons/gi";
@@ -377,17 +378,28 @@ function IssuesBook() {
       {" "}
       <div>{selectedStudentId}</div>
       <Stack direction="row" spacing={3} className={"haederIssues"}>
-        <TemporaryDrawer open={drawerOpen} onClose={toggleDrawer} />
-        <h1 className={"headerTitle-Issues"}>Issues Book Page</h1>
+        <TemporaryDrawer open={drawerOpen} onClose={toggleDrawer}/>
+        <h1 className={"headerTitle-Issues"}>Issue Books Page</h1>
+        <img
+            src={Logo}
+            alt={"Logo"}
+            className={"UOSM-Logo"}
+            style={{
+              width: "200px",
+              height: "55px",
+              marginLeft: "auto",
+              filter: "brightness(0) invert(1) contrast(5)",
+            }}
+        />
       </Stack>
       <Stack
-        direction="column"
-        className={"MainContent-Issues"}
-        sx={{ height: "110vh", width: "97vw", overflow: "hidden" }} // Set full height and width
+          direction="column"
+          className={"MainContent-Issues"}
+          sx={{height: "110vh", width: "97vw", overflow: "hidden"}} // Set full height and width
       >
         <Stack direction="row" spacing={3} justifyContent={"space-between"}>
           <StudentTable
-            studentsData={studentData}
+              studentsData={studentData}
             onSelectStudent={handleSelectStudent}
           />
           <BookTable

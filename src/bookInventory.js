@@ -46,6 +46,7 @@ import { Stack } from "@mui/material";
 import { withStyles } from "@material-ui/core/styles";
 import { DataGrid, GridToolbar } from "@mui/x-data-grid";
 import { useAuth } from "./AuthContext";
+import Logo from './UOSMLogo3.png'
 
 function WithNavigate() {
   const [addBook, setAddBook] = useState(false);
@@ -199,16 +200,28 @@ function WithNavigate() {
     >
       <Stack direction="row" spacing={3} className={"haederLoan"}>
         {/*<img src={logo} alt={"UoSM Logo"} className={"Logo"}/>*/}
-        <TemporaryDrawer open={drawerOpen} onClose={toggleDrawer} />
+        <TemporaryDrawer open={drawerOpen} onClose={toggleDrawer}/>
         <h1 className={"headerTitle-loan"}>Book Inventory</h1>
+        <img
+            src={Logo}
+            alt={"Logo"}
+            className={"UOSM-Logo"}
+            style={{
+              width: "200px",
+              height: "55px",
+              marginLeft: "auto",
+              filter: "brightness(0) invert(1) contrast(5)",
+            }}
+        />
+
       </Stack>
-      <Box sx={{ width: "100%", overflowX: "auto" }}>
-        <Paper sx={{ width: "100%", mb: 2 }}>
-          <EnhancedTableToolbar numSelected={selectedRows?.length} />
+      <Box sx={{width: "100%", overflowX: "auto"}}>
+        <Paper sx={{width: "100%", mb: 2}}>
+          <EnhancedTableToolbar numSelected={selectedRows?.length}/>
           <TableContainer>
-            <div style={{ width: "100%", overflowX: "auto" }}>
+            <div style={{width: "100%", overflowX: "auto"}}>
               <DataGrid
-                rows={data}
+                  rows={data}
                 getRowId={(row) => row.book_code}
                 checkboxSelection
                 disableRowSelectionOnClick

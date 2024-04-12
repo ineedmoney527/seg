@@ -23,6 +23,7 @@ import Paper from "@mui/material/Paper";
 import Alert from "@mui/material/Alert";
 // import { DataGrid } from '@mui/x-data-grid';
 import { DataGrid, GridToolbar } from "@mui/x-data-grid";
+import Logo from "../UOSMLogo3.png"
 
 function Request() {
   function customCheckbox(theme) {
@@ -448,38 +449,49 @@ function Request() {
       sx={{ height: "100vh", width: "100vw", overflow: "auto" }} // Set full height and width
     >
       <Stack direction="row" spacing={3} className={"haederRequest"}>
-        <TemporaryDrawer open={drawerOpen} onClose={toggleDrawer} />
+        <TemporaryDrawer open={drawerOpen} onClose={toggleDrawer}/>
         <h1 className={"headerTitle-Request"}>Request / Acquisition Book</h1>
+        <img
+            src={Logo}
+            alt={"Logo"}
+            className={"UOSM-Logo"}
+            style={{
+              width: "200px",
+              height: "55px",
+              marginLeft: "auto",
+              filter: "brightness(0) invert(1) contrast(5)",
+            }}
+        />
       </Stack>
 
       <Stack
-        direction="column"
-        className={"MainContent-Request"}
-        sx={{ height: "90vh", width: "97vw", overflow: "auto" }} // Set full height and width
+          direction="column"
+          className={"MainContent-Request"}
+          sx={{height: "90vh", width: "97vw", overflow: "auto"}} // Set full height and width
       >
-        <Box sx={{ width: "300px" }}>
-          <form
-            onSubmit={handleSubmit(onSubmit)}
-            className="form-containerRequest"
-          >
-            <TextField
-              {...register("searchQuery")}
-              label="Search keywords"
-              variant="outlined"
-              size="small"
-              fullWidth
-              margin="normal"
-              InputProps={{
-                endAdornment: (
-                  <IconButton type="submit" size="small">
-                    <SearchIcon />
-                  </IconButton>
-                ),
-              }}
-              className="form-inputRequest"
-            />
-          </form>
-        </Box>
+        {/*<Box sx={{width: "300px"}}>*/}
+        {/*  <form*/}
+        {/*      onSubmit={handleSubmit(onSubmit)}*/}
+        {/*      className="form-containerRequest"*/}
+        {/*  >*/}
+        {/*    <TextField*/}
+        {/*      {...register("searchQuery")}*/}
+        {/*      label="Search keywords"*/}
+        {/*      variant="outlined"*/}
+        {/*      size="small"*/}
+        {/*      fullWidth*/}
+        {/*      margin="normal"*/}
+        {/*      InputProps={{*/}
+        {/*        endAdornment: (*/}
+        {/*          <IconButton type="submit" size="small">*/}
+        {/*            <SearchIcon />*/}
+        {/*          </IconButton>*/}
+        {/*        ),*/}
+        {/*      }}*/}
+        {/*      className="form-inputRequest"*/}
+        {/*    />*/}
+        {/*  </form>*/}
+        {/*</Box>*/}
         <Stack direction="row" spacing={3} justifyContent="space-between">
           <Stack direction="row" spacing={0.3}>
             <Button
