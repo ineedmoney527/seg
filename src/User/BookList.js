@@ -35,6 +35,7 @@ const BookList = () => {
   const [filterAnchorEl, setFilterAnchorEl] = useState(null); // State to manage filter popover anchor element
   const [yearRange, setYearRange] = useState([]);
   const [selectedBook, setSelectedBook] = useState(null);
+  const [searchQuery, setSearchQuery] = useState(null);
   const [genreCheckboxes, setGenreCheckboxes] = useState(
     Array.from({ length: 9 }, () => false)
   );
@@ -70,7 +71,8 @@ const BookList = () => {
   const handleReset = () => {
     setRatingRange([]);
     setYearRange([]);
-    setGenreCheckboxes([]);
+    setGenreCheckboxes(Array.from({ length: 9 }, () => false));
+    setSelectedGenres([]); // Reset selected genres
     const selectedGenres = genres.filter(
       (genre, index) => genreCheckboxes[index]
     );
@@ -100,19 +102,51 @@ const BookList = () => {
   //   handleFilterClose(); // Close the filter popover after applying the filter
   // };
 
-  const fetchBooks = async () => {
+  // const fetchBooks = async () => {
+  //   try {
+  //     const response = await axios.get(
+  //       `http://localhost:5000/api/book/searching/mo`
+  //     );
+  //     console.log(response);
+  //     setBooks(response.data.data);
+  //   } catch (error) {
+  //     console.error("Error fetching books:", error);
+  //   }
+  // };
+  const fetchBooks = async (searchQuery = null) => {
     try {
-      const response = await axios.get("http://localhost:5000/api/book");
+      let url = "http://localhost:5000/api/book";
+      if (searchQuery !== null) {
+        url = `http://localhost:5000/api/book/searching/${searchQuery}`;
+      }
+      const response = await axios.get(url);
       console.log(response);
-      setBooks(response.data);
+      if (searchQuery !== null) {
+        setBooks(response.data.data); // Update books state with the response data's 'data' property
+      } else {
+        setBooks(response.data); // Update books state with the entire response data
+      }
+      console.log("Response Data", response.data);
+      console.log("NEW BOOKS", books);
     } catch (error) {
       console.error("Error fetching books:", error);
     }
   };
 
   useEffect(() => {
-    fetchBooks();
-  }, []);
+    if (searchQuery === "") {
+      console.log("Fetching all books");
+      fetchBooks();
+    } else {
+      console.log("Search Query:", searchQuery);
+      console.log("Fetching books based on search query");
+      fetchBooks(searchQuery);
+    }
+  }, [searchQuery]);
+
+  // useEffect(() => {
+  //   fetchBooks();
+  // }, []);
   // const books = [
   //   {
   //     title: "Madness: Race and Insanity in a Jim Crow Asylum",
@@ -129,6 +163,17 @@ const BookList = () => {
   //     imgPath: BookCover1,
   //   },
   // ];
+
+  const handleSearchChange = (event) => {
+    const { value } = event.target;
+    setSearchQuery(value);
+    console.log("Search Query:", value);
+    // if (value === "") {
+    //   fetchBooks(); // Fetch all books if search query is empty
+    // } else {
+    //   fetchBooks(value); // Fetch books based on search query
+    // }
+  };
 
   return (
     <Box sx={{ backgroundColor: "#EFEEEE" }}>
@@ -169,6 +214,8 @@ const BookList = () => {
                   color: "dark grey",
                   fontSize: "14px",
                 }}
+                value={searchQuery}
+                onChange={handleSearchChange}
               />
             </Box>
 
@@ -237,7 +284,8 @@ const BookList = () => {
       <Box>
         {
           !selectedBook &&
-            (console.log("Test"),
+            (console.log("Test 2.0"),
+            console.log("Books", selectedBook),
             console.log(books),
             console.log("Genre", books.genre_name),
             console.log(ratingRange),

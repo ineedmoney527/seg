@@ -17,6 +17,7 @@ import {
   updateStatus,
   rateBook,
   calculateAverageRating,
+  advancedSearchBooks,
 } from "../controller/bookController.js";
 
 router.get("/isbn", readAllISBN);
@@ -27,6 +28,7 @@ router.get("/rating/:isbn", calculateAverageRating);
 router.get("/list", readUniqueBook);
 
 router.get("/", readAllBooks);
+router.get("/searching/:search", advancedSearchBooks);
 router.get("/available", readAvailableBooks);
 router.post("/", addBook);
 router.post("/rating", rateBook);
@@ -42,4 +44,5 @@ router.delete("/:id", deleteBook);
 router.put("/status", updateStatus);
 router.get("/:isbn", selectBook);
 router.get("/:id", readSpecificBook);
+
 export default router;
