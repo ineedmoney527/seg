@@ -14,6 +14,7 @@ import {
   getLimit,
   forgotPassword,
   resetPassword,
+  verifyOTP,
 } from "../controller/contactController.js";
 
 //create
@@ -28,6 +29,7 @@ router.post("/", createUser);
 
 //forget password
 router.post("/forgot-password", forgotPassword);
+router.post("/verify-otp", verifyOTP);
 router.post("/reset-password", resetPassword);
 
 //read

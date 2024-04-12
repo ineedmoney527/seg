@@ -1,0 +1,8 @@
+.error {
+  position: relative;
+  color: red; /* White text color */
+  font-size: 15px;
+  border-radius: 5px;
+
+  animation: shake 0.5s ease-in-out; /* Shake animation */
+}

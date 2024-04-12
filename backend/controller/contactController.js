@@ -5,7 +5,9 @@ import { hash, compare } from "bcrypt";
 import jwt from "jsonwebtoken";
 import crypto from "crypto";
 import cookieParser from "cookie-parser";
+import otpGenerator from "otp-generator";
 import nodemailer from "nodemailer";
+
 // Create a new Date object for today's date
 // Concatenate the components to form the dd/mm/yyyy format
 function _arrayBufferToBase64(buffer) {
@@ -37,7 +39,7 @@ function handleQueryError(res, err) {
 //@access public
 
 const createUser = async (req, res) => {
-  const { name, email, password, birthdate, fileName } = req.body;
+  const { id, name, email, password, birthdate, fileName } = req.body;
   const hashedPassword = await hash(password, 10);
   const today = new Date();
 
@@ -47,14 +49,15 @@ const createUser = async (req, res) => {
   );
 
   connection.query(
-    "INSERT INTO user (name, email, password, join_date, birth_date, role_id, image_file) VALUES (?, ?, ?, ?, ?, ?, ?)",
+    "INSERT INTO user (id,name, email, password, join_date, birth_date, role_id, image_file) VALUES (?,?, ?, ?, ?, ?, ?, ?)",
     [
+      id,
       name,
       email,
       hashedPassword,
       new Date().toISOString().split("T")[0],
       new Date(birthdate).toISOString().split("T")[0],
-      1,
+      2,
       imageData,
     ],
     (err, data) => {
@@ -93,6 +96,8 @@ const readContactById = asyncHandler(async (req, res) => {
     res.json(err ? { message: "User not found" } : data)
   );
 });
+
+//
 
 //@desc Update contact by id
 //@route PUT /api/contacts/:id
@@ -252,7 +257,7 @@ function generateToken() {
 }
 
 // Send email with password reset link
-async function sendResetEmail(email, token) {
+async function sendResetEmail(email, otp) {
   const transporter = nodemailer.createTransport({
     host: "smtp.office365.com", // Outlook SMTP server
     port: 587, // secure SMTP
@@ -267,7 +272,7 @@ async function sendResetEmail(email, token) {
     from: "Sotonlibrary@outlook.com",
     to: email,
     subject: "Password Reset -- UoSM Library System",
-    text: `Click the following link to reset your password: http://your-website.com/reset-password/${token}`,
+    text: ` Here is the OTP to reset the password: ${otp}`,
   };
 
   await transporter.sendMail(mailOptions);
@@ -275,76 +280,115 @@ async function sendResetEmail(email, token) {
 
 const forgotPassword = (req, res) => {
   const { email } = req.body;
-  const token = generateToken();
-  const expires = new Date(Date.now() + 3600000); // Token expires in 1 hour
-  const tokenData = { email, token, expires };
 
+  // Check if the email exists in the user table
   connection.query(
-    "INSERT INTO password_reset_tokens SET ?",
-    tokenData,
-    async (error) => {
-      if (error) {
-        return res.status(500).json({ error: "Failed to store token" });
+    "SELECT * FROM user WHERE email = ?",
+    [email],
+    (error, results) => {
+      if (error || results.length === 0) {
+        return res.json({ success: false, error: "Email not found" });
+      }
+      connection.query(
+        "DELETE FROM password_reset_tokens WHERE email = ?",
+        [email],
+        (deleteError) => {
+          if (deleteError) {
+            console.error("Failed to delete OTP:", deleteError);
+          }
+        }
+      );
+      const otp = otpGenerator.generate(5, {
+        upperCase: false,
+        specialChars: false,
+      }); // Generate OTP
+      console.log(otp);
+      const expires = new Date(Date.now() + 600000); // OTP expires in 10 minutes
+      const otpData = { email, otp, expires };
+
+      // Store OTP in the password_reset_tokens table
+      connection.query(
+        "INSERT INTO password_reset_tokens SET ?",
+        otpData,
+        async (insertError) => {
+          if (insertError) {
+            return res
+              .status(500)
+              .json({ success: false, error: "Failed to store OTP" });
+          }
+
+          // Send OTP to the user via email or SMS (not implemented here)
+          try {
+            await sendResetEmail(email, otp);
+            res.json({ success: true, message: "Reset email sent" });
+          } catch (err) {
+            res.status(500).json({ success: false, error: err.message });
+          }
+        }
+      );
+    }
+  );
+};
+const verifyOTP = (req, res) => {
+  const { email, otp } = req.body;
+  console.log(email);
+  console.log(otp);
+  // Check if the OTP is valid and not expired
+  connection.query(
+    "SELECT * FROM password_reset_tokens WHERE email = ? AND otp = ? AND expires > NOW()",
+    [email, otp],
+    (error, results) => {
+      if (error || results.length === 0) {
+        return res.json({
+          success: false,
+          error: "Invalid OTP or OTP expired",
+        });
       }
 
-      try {
-        await sendResetEmail(email, token);
-        res.json({ message: "Reset email sent" });
-      } catch (err) {
-        res.status(500).json({ error: "Failed to send reset email" });
-      }
+      res.json({ success: true, message: "OTP verified successfully" });
     }
   );
 };
 
 const resetPassword = (req, res) => {
-  const { token } = req.params;
-  const { newPassword } = req.body;
+  const { email, newPassword } = req.body;
 
-  connection.query(
-    "SELECT * FROM password_reset_tokens WHERE token = ?",
-    [token],
-    (error, results) => {
-      if (error || results.length === 0) {
-        return res.status(400).json({ error: "Invalid or expired token" });
-      }
-
-      const tokenData = results[0];
-      if (tokenData.expires < new Date()) {
-        return res.status(400).json({ error: "Token has expired" });
-      }
-
-      // Hash the new password before updating
-      bcrypt.hash(newPassword, 10, (err, hashedPassword) => {
-        if (err) {
-          return res.status(500).json({ error: "Failed to hash password" });
-        }
-      });
-      // Update password logic here (e.g., update in the database)
-      connection.query(
-        "UPDATE user SET password = ? WHERE email = ?",
-        [hashedPassword, tokenData.email],
-        (updateError) => {
-          if (updateError) {
-            return res.status(500).json({ error: "Failed to update password" });
-          }
-        }
-      );
-      // Delete the token from the database after use
-      connection.query(
-        "DELETE FROM password_reset_tokens WHERE token = ?",
-        [token],
-        (err) => {
-          if (err) {
-            console.error("Failed to delete token:", err);
-          }
-        }
-      );
-
-      res.json({ message: "Password reset successful" });
+  // Hash the new password before updating
+  hash(newPassword, 10, (hashError, hashedPassword) => {
+    if (hashError) {
+      return res
+        .status(500)
+        .json({ success: false, error: "Failed to hash password" });
     }
-  );
+
+    // Update the password in the user table
+    connection.query(
+      "UPDATE user SET password = ? WHERE email = ?",
+      [hashedPassword, email],
+      (updateError) => {
+        if (updateError) {
+          return res
+            .status(500)
+            .json({ success: false, error: "Failed to update password" });
+        }
+
+        // Delete the OTP from the password_reset_tokens table
+        connection.query(
+          "DELETE FROM password_reset_tokens WHERE email = ?",
+          [email],
+          (deleteError) => {
+            if (deleteError) {
+              console.error("Failed to delete OTP:", deleteError);
+            }
+
+            res.json({ success: true, message: "Password reset successful" });
+          }
+        );
+      }
+    );
+  });
 };
+
 export {
   createUser,
   readUser,
@@ -357,5 +401,6 @@ export {
   updateLimit,
   getLimit,
   forgotPassword,
+  verifyOTP,
   resetPassword,
 };

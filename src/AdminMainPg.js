@@ -54,7 +54,7 @@ import axios from "axios"; // Import Axios for API requests
 import { Alert } from "@mui/material";
 
 function AdminMainPg() {
-  const [currentTab, setCurrentTab] = useState(1);
+  const [currentTab, setCurrentTab] = useState(2);
 
   const [data, setData] = useState([]);
   const [selectedRow, setSelectedRow] = useState(null);
@@ -149,10 +149,6 @@ function AdminMainPg() {
     setCurrentTab(newValue);
   };
 
-  // Since 2020 all major browsers ensure sort stability with Array.prototype.sort().
-  // stableSort() brings sort stability to non-modern browsers (notably IE11). If you
-  // only support modern browsers you can replace stableSort(exampleArray, exampleComparator)
-
   function EnhancedTableToolbar(props) {
     const { numSelected } = props;
 
@@ -192,7 +188,7 @@ function AdminMainPg() {
               ? "Lecturer"
               : currentTab === 2
               ? "Librarian"
-              : "Librarians"}
+              : "Librarian"}
           </Typography>
         )}
 
@@ -238,13 +234,13 @@ function AdminMainPg() {
           <Tab
             label="Librarian"
             onClick={() => setCurrentTab(2)}
-            value={1}
-            selected={currentTab === 1}
+            value={2}
+            selected={currentTab === 2}
           />
           <Tab
             label="Student"
             onClick={() => setCurrentTab(4)}
-            value={2}
+            value={4}
             selected={currentTab === 4}
           />
           <Tab
@@ -346,31 +342,37 @@ function AdminMainPg() {
                 align: "center",
                 flex: 1,
               },
-              {
-                field: "actions",
-                headerName: "Actions",
-                headerAlign: "center",
-                width: 100,
-                align: "center",
-                renderCell: (params) => (
-                  <>
-                    <IconButton
-                      aria-label="edit"
-                      onClick={() => handleEditClick(params.id)}
-                    >
-                      <EditIcon />
-                    </IconButton>
-                    <IconButton
-                      aria-label="delete"
-                      onClick={() => handleDeleteClick(params.id)}
-                    >
-                      <DeleteIcon />
-                    </IconButton>
-                  </>
-                ),
-                disableSelectionOnClick: false, // Enable selection for this column
-              },
-              // Columns definition
+              currentTab === 3 || currentTab === 4
+                ? {} // Hide the column for tab 3 and 4
+                : {
+                    field: "actions",
+                    headerName: "Actions",
+                    headerAlign: "center",
+                    width: 100,
+                    align: "center",
+                    renderCell: (params) => {
+                      if (currentTab === 3 || currentTab === 4) {
+                        return null; // Render nothing for tab 3 and 4
+                      }
+                      return (
+                        <>
+                          <IconButton
+                            aria-label="edit"
+                            onClick={() => handleEditClick(params.id)}
+                          >
+                            <EditIcon />
+                          </IconButton>
+                          <IconButton
+                            aria-label="delete"
+                            onClick={() => handleDeleteClick(params.id)}
+                          >
+                            <DeleteIcon />
+                          </IconButton>
+                        </>
+                      );
+                    },
+                    disableSelectionOnClick: false, // Enable selection for this column
+                  },
             ]}
           />
         </TableContainer>

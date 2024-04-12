@@ -23,7 +23,8 @@ import Dashboard from "./librarian/Dashboard";
 import AuthContext from "./AuthContext";
 import { PrivateRoute } from "react-auth-kit";
 import { AuthProvider, RequireAuth } from "react-auth-kit";
-
+import ForgotPassword from "./User/ForgotPassword";
+import OTPPage from "./User/OTPPage";
 function App() {
   return (
     <AuthProvider
@@ -46,7 +47,9 @@ function App() {
               </RequireAuth>
             }
           />
-
+          <Route path="/ForgotPassword" element={<ForgotPassword />} />
+          <Route path="/OTPPage" element={<OTPPage />} />
+          <Route path="/RequestBook" element={<RequestBook />} />
           <Route
             path="/AddLibrarian"
             element={

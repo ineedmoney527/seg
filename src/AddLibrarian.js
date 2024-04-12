@@ -21,6 +21,7 @@ import { createTheme } from "@mui/material/styles";
 import { Buffer } from "buffer";
 //icons
 import AccountCircle from "@mui/icons-material/AccountCircle";
+import FingerprintIcon from "@mui/icons-material/Fingerprint";
 import EmailIcon from "@mui/icons-material/Email";
 import VpnKeyIcon from "@mui/icons-material/VpnKey";
 import CakeIcon from "@mui/icons-material/Cake";
@@ -32,6 +33,12 @@ function AddLibrarian({ open, onClose, edit, selectedRowData }) {
   const defaultValues = selectedRowData || {}; // Set default values to selectedRowData if available
 
   const baseSchema = z.object({
+    id: z
+      .string()
+      .length(8, { message: "8 digits are required for the ID" })
+      .regex(/^\d+$/, {
+        message: "ID must contain only digits",
+      }),
     name: z.string().min(2).max(50),
     email: z.string().email(),
     password: z
@@ -227,6 +234,29 @@ function AddLibrarian({ open, onClose, edit, selectedRowData }) {
               {errors.image && (
                 <div className="error">{errors.image.message}</div>
               )}
+              <Box
+                sx={{ display: "flex", alignItems: "flex-end", gap: "10px" }}
+              >
+                <FingerprintIcon
+                  sx={{ color: "action.active", mr: 1, my: 0.5 }}
+                />
+                <TextField
+                  inputProps={{ style: { fontSize: 20 } }}
+                  InputLabelProps={{ style: { fontSize: 25 } }}
+                  className="textField"
+                  {...register("id")}
+                  autoComplete="off"
+                  id="my-input"
+                  outline="none"
+                  label="ID"
+                  variant="standard"
+                  error={!!errors.id}
+
+                  // defaultValue={defaultValues.name || ""}
+                />
+              </Box>
+              {errors.id && <div className="error">{errors.id.message}</div>}
+
               <Box
                 sx={{ display: "flex", alignItems: "flex-end", gap: "10px" }}
               >

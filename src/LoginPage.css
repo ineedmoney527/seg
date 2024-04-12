@@ -25,77 +25,74 @@
 /*    z-index: -1;*/
 /*}*/
 
-
 .Login_container {
-    /*margin: 0 auto;*/
-    /*padding: 20px;*/
+  /*margin: 0 auto;*/
+  /*padding: 20px;*/
 
-    /*margin: 0 auto;*/
-    /*padding: 20px;*/
-    /*width: 200px;*/
-    position: relative;
-    /*overflow: hidden; !* Ensure that content doesn't overflow the viewport *!*/
-    height: 100vh;
-    display: flex; /* Use flexbox */
-    justify-content: center; /* Center horizontally */
-    align-items: center; /* Center vertically */
+  /*margin: 0 auto;*/
+  /*padding: 20px;*/
+  /*width: 200px;*/
+  position: relative;
+  /*overflow: hidden; !* Ensure that content doesn't overflow the viewport *!*/
+  height: 100vh;
+  display: flex; /* Use flexbox */
+  justify-content: center; /* Center horizontally */
+  align-items: center; /* Center vertically */
 }
 
-.Login_container::before{
-    content: "";
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background-image: url("UoSM Background.jpg"); /* Replace "your-image.jpg" with the path to your image */
-    background-size: cover; /* Cover the entire background with the image */
-    background-position: center; /* Center the background image */
-    opacity: 0.75; /* Set the opacity of the pseudo-element to 75% */
-    z-index: -1;
-
+.Login_container::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-image: url("Image/library.jpg"); /* Replace "your-image.jpg" with the path to your image */
+  background-size: cover; /* Cover the entire background with the image */
+  background-position: center; /* Center the background image */
+  opacity: 0.75; /* Set the opacity of the pseudo-element to 75% */
+  z-index: -1;
 }
 
 .Login_form-container {
-    background-color:rgba(0, 0, 0, 0.03);
-    backdrop-filter: blur(30px);
-    border: 2px solid white; /* Add an outline */
-    border-radius: 10px;
-    padding: 50px;
-    width: 80%;
-    max-width: 300px; /* Add a maximum width */
+  /* background-color: black; */
+  justify-content: center;
+  align-items: center;
+  /* height: 70vh; */
+  /*display: flex; */
 }
 
-.Login_form-group {
-    margin-bottom: 20px;
+.Logo-loginPage {
+  align-items: center;
+  justify-content: center;
 }
 
 .Login_label {
-    display: block;
-    font-weight: bold;
+  display: block;
+  font-weight: bold;
+  margin-bottom: 5px;
+  color: white;
+  margin-top: 10px;
+}
+
+.loginheader {
+  font-size: 45px;
+  color: white;
 }
 
 .Login_input {
-    width: 100%;
-    padding: 10px;
-    border: 1px solid #ccc;
-    border-radius:20px;
-}
-
-.Login_button {
-    width: 100%;
-    padding: 10px;
-    background-color: #007bff;
-    color: #fff;
-    border: none;
-    /*border-radius: 5px;*/
-    cursor: pointer;
-}
-
-.Login_button:hover {
-    background-color: #0056b3;
+  width: 250px;
+  padding: 10px;
+  margin-bottom: 10px;
+  border: 1px solid #ccc;
+  border-radius: 20px;
 }
 
 .Login_error {
-    color: red;
+  color: red;
+}
+
+.formSubmit {
+  justify-content: center;
+  align-items: center;
 }

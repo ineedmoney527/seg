@@ -1,0 +1,25 @@
+.datepicker-start {
+  border-radius: 6px;
+  border-color: transparent;
+  background-color: #242732;
+  color: white;
+  font-size: 20px;
+  margin: 0px 10px 10px 0;
+  padding: 10px;
+}
+
+.datepicker-end {
+  border-radius: 6px;
+  border-color: transparent;
+  background-color: #242732;
+  color: white;
+  font-size: 20px;
+  margin: 10px 10px 10px 0;
+  padding: 10px;
+}
+
+.datelabel {
+  font-weight: bold;
+  font-size: 20px;
+  margin: 20px 10px 10px 10px;
+}
