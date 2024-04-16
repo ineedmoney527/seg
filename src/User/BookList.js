@@ -38,7 +38,9 @@ const BookList = () => {
   const [yearRange, setYearRange] = useState([]); // Define selectedBook
   const [selectedBook, setSelectedBook] = useState(null);
   const [searchQuery, setSearchQuery] = useState(null);
-
+  const [genreCheckboxes, setGenreCheckboxes] = useState(
+    Array.from({ length: 9 }, () => false)
+  );
   const [selectedGenres, setSelectedGenres] = useState([]); // Define selectedGenres
 
   useEffect(() => {
