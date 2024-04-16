@@ -17,28 +17,51 @@ import Layout from "./Layout";
 import axios from "axios";
 import { Buffer } from "buffer";
 const BookList = () => {
-  const genres = [
-    "Fiction",
-    "Narrative",
-    "Novel",
-    "Programming",
-    "Finance",
-    "Math",
-    "Discrete Math",
-    "History",
-    "Account",
-  ];
+  // const genres = [
+  //   "Fiction",
+  //   "Narrative",
+  //   "Novel",
+  //   "Programming",
+  //   "Finance",
+  //   "Math",
+  //   "Discrete Math",
+  //   "History",
+  //   "Account",
+  // ];
+  const [genreLength, setGenreLength] = useState(0); // Define genreLength state
+  const [genres, setGenres] = useState([]);
   const [open, setOpen] = useState(false);
   const [books, setBooks] = useState([]);
   const [showSearchBar, setShowSearchBar] = useState(false);
   const [ratingRange, setRatingRange] = useState([]);
   const [filterAnchorEl, setFilterAnchorEl] = useState(null); // State to manage filter popover anchor element
-  const [yearRange, setYearRange] = useState([]);
+  const [yearRange, setYearRange] = useState([]); // Define selectedBook
   const [selectedBook, setSelectedBook] = useState(null);
-  const [genreCheckboxes, setGenreCheckboxes] = useState(
-    Array.from({ length: 9 }, () => false)
-  );
+  const [searchQuery, setSearchQuery] = useState(null);
+
   const [selectedGenres, setSelectedGenres] = useState([]); // Define selectedGenres
+
+  useEffect(() => {
+    const fetchGenres = async () => {
+      try {
+        const response = await axios.get(
+          "http://localhost:5000/api/bookinfo/genre/book"
+        );
+        console.log("Response:", response.data);
+        setGenres(response.data); // Assuming the response contains a 'genres' array
+        console.log("Genres:", genres);
+        setGenreLength(response.data.name.length); // Set genreLength with the length of genres
+      } catch (error) {
+        console.error("Error fetching genres:", error);
+      }
+    };
+
+    fetchGenres();
+  }, []);
+
+  const [genreCheckboxes, setGenreCheckboxes] = useState(
+    Array.from({ length: genreLength }, () => false)
+  );
 
   const handleFilterClick = (event) => {
     setFilterAnchorEl(event.currentTarget); // Set anchor element for filter popover
@@ -70,7 +93,8 @@ const BookList = () => {
   const handleReset = () => {
     setRatingRange([]);
     setYearRange([]);
-    setGenreCheckboxes([]);
+    setGenreCheckboxes(Array.from({ length: genreLength }, () => false));
+    setSelectedGenres([]); // Reset selected genres
     const selectedGenres = genres.filter(
       (genre, index) => genreCheckboxes[index]
     );
@@ -100,19 +124,51 @@ const BookList = () => {
   //   handleFilterClose(); // Close the filter popover after applying the filter
   // };
 
-  const fetchBooks = async () => {
+  // const fetchBooks = async () => {
+  //   try {
+  //     const response = await axios.get(
+  //       `http://localhost:5000/api/book/searching/mo`
+  //     );
+  //     console.log(response);
+  //     setBooks(response.data.data);
+  //   } catch (error) {
+  //     console.error("Error fetching books:", error);
+  //   }
+  // };
+  const fetchBooks = async (searchQuery = null) => {
     try {
-      const response = await axios.get("http://localhost:5000/api/book");
+      let url = "http://localhost:5000/api/book";
+      if (searchQuery !== null) {
+        url = `http://localhost:5000/api/book/searching/${searchQuery}`;
+      }
+      const response = await axios.get(url);
       console.log(response);
-      setBooks(response.data);
+      if (searchQuery !== null) {
+        setBooks(response.data.data); // Update books state with the response data's 'data' property
+      } else {
+        setBooks(response.data); // Update books state with the entire response data
+      }
+      console.log("Response Data", response.data);
+      console.log("NEW BOOKS", books);
     } catch (error) {
       console.error("Error fetching books:", error);
     }
   };
 
   useEffect(() => {
-    fetchBooks();
-  }, []);
+    if (searchQuery === "") {
+      console.log("Fetching all books");
+      fetchBooks();
+    } else {
+      console.log("Search Query:", searchQuery);
+      console.log("Fetching books based on search query");
+      fetchBooks(searchQuery);
+    }
+  }, [searchQuery]);
+
+  // useEffect(() => {
+  //   fetchBooks();
+  // }, []);
   // const books = [
   //   {
   //     title: "Madness: Race and Insanity in a Jim Crow Asylum",
@@ -129,6 +185,17 @@ const BookList = () => {
   //     imgPath: BookCover1,
   //   },
   // ];
+
+  const handleSearchChange = (event) => {
+    const { value } = event.target;
+    setSearchQuery(value);
+    console.log("Search Query:", value);
+    // if (value === "") {
+    //   fetchBooks(); // Fetch all books if search query is empty
+    // } else {
+    //   fetchBooks(value); // Fetch books based on search query
+    // }
+  };
 
   return (
     <Box sx={{ backgroundColor: "#EFEEEE" }}>
@@ -169,6 +236,8 @@ const BookList = () => {
                   color: "dark grey",
                   fontSize: "14px",
                 }}
+                value={searchQuery}
+                onChange={handleSearchChange}
               />
             </Box>
 
@@ -237,7 +306,8 @@ const BookList = () => {
       <Box>
         {
           !selectedBook &&
-            (console.log("Test"),
+            (console.log("Test 2.0"),
+            console.log("Books", selectedBook),
             console.log(books),
             console.log("Genre", books.genre_name),
             console.log(ratingRange),
