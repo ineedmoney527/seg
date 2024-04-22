@@ -107,7 +107,10 @@ const getOverdueRecords = (req, res) => {
   DATE_FORMAT(borrowedrecord.start_date, '%Y-%m-%d') AS start_date, 
   DATE_FORMAT(borrowedrecord.end_date, '%Y-%m-%d') AS end_date,
   DATEDIFF(NOW(), borrowedrecord.end_date) AS days_overdue,
-  DATEDIFF(NOW(), borrowedrecord.end_date) * 5 AS fine,
+   ROUND(
+        DATEDIFF(NOW(), borrowedrecord.end_date) * 5,
+        2
+    ) AS fine,
   borrowedrecord.reminder
 FROM 
   borrowedrecord 
@@ -121,7 +124,6 @@ WHERE
   borrowedrecord.status = 'B' 
   AND borrowedrecord.end_date < NOW();
 `;
-
   connection.query(query, (err, data) => res.json(err ? err : data));
 };
 
@@ -145,20 +147,32 @@ const updateLostRecords = (req, res) => {
   );
 };
 const getReturnedRecords = (req, res) => {
-  const query = `SELECT borrowedrecord.id, borrowedrecord.user_id, book.book_code, isbn.title, 
-    author.name AS author, isbn.edition, DATE_FORMAT(borrowedrecord.start_date, '%Y-%m-%d') AS start_date, DATE_FORMAT(borrowedrecord.end_date, '%Y-%m-%d') as end_date,
+  const query = `SELECT 
+    borrowedrecord.id, 
+    borrowedrecord.user_id, 
+    book.book_code, 
+    isbn.title, 
+    author.name AS author, 
+    isbn.edition, 
+    DATE_FORMAT(borrowedrecord.start_date, '%Y-%m-%d') AS start_date, 
+    DATE_FORMAT(borrowedrecord.end_date, '%Y-%m-%d') as end_date,
     ABS(DATEDIFF(borrowedrecord.end_date, borrowedrecord.start_date)) AS days_borrowed,
     DATE_FORMAT(borrowedrecord.return_date, '%Y-%m-%d') AS return_date,
-    CASE
-        WHEN DATEDIFF(borrowedrecord.return_date, borrowedrecord.end_date) > 0 THEN DATEDIFF(borrowedrecord.return_date, borrowedrecord.end_date) * 5
-        ELSE 0
-    END AS fine
-  FROM borrowedrecord 
-  JOIN book ON borrowedrecord.book_code = book.book_code 
-  JOIN isbn ON book.isbn = isbn.isbn 
-  JOIN author ON author.id = isbn.author_id 
-  WHERE borrowedrecord.status = "R"`;
+    ROUND(
+        CASE
+            WHEN DATEDIFF(borrowedrecord.return_date, borrowedrecord.end_date) > 0 THEN DATEDIFF(borrowedrecord.return_date, borrowedrecord.end_date) * 5
+            ELSE 0
+        END,
+        2
+    ) AS fine
+FROM borrowedrecord 
+JOIN book ON borrowedrecord.book_code = book.book_code 
+JOIN isbn ON book.isbn = isbn.isbn 
+JOIN author ON author.id = isbn.author_id 
+WHERE borrowedrecord.status = "R";
 
+
+`;
   connection.query(query, (err, data) => res.json(err ? err : data));
 };
 
@@ -175,10 +189,10 @@ const getLostRecords = (req, res) => {
     DATE_FORMAT(borrowedrecord.end_date, '%Y-%m-%d') AS end_date,
     ABS(DATEDIFF(borrowedrecord.end_date, borrowedrecord.start_date)) AS days_borrowed,
     DATE_FORMAT(borrowedrecord.return_date, '%Y-%m-%d') AS return_date, 
-    CASE 
+    ROUND(CASE 
       WHEN NOW() > borrowedrecord.end_date THEN (isbn.price + (DATEDIFF(NOW(), borrowedrecord.end_date) * 5))
       ELSE isbn.price
-    END AS fine
+    END,2 )AS fine
   FROM borrowedrecord 
   JOIN book ON borrowedrecord.book_code = book.book_code 
   JOIN isbn ON book.isbn = isbn.isbn 

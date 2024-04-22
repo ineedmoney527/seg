@@ -23,7 +23,7 @@ import Paper from "@mui/material/Paper";
 import Alert from "@mui/material/Alert";
 // import { DataGrid } from '@mui/x-data-grid';
 import { DataGrid, GridToolbar } from "@mui/x-data-grid";
-import Logo from "../UOSMLogo3.png"
+import Logo from "../UOSMLogo3.png";
 
 function Request() {
   function customCheckbox(theme) {
@@ -150,19 +150,10 @@ function Request() {
       const response = await axios.get(
         "http://localhost:5000/api/request/pending"
       );
+      console.log(response);
       const formattedData = response?.data?.map((item) => ({
         ...item,
-        request_date: new Date(item.request_date).toLocaleString("en-US", {
-          weekday: "long",
-          year: "numeric",
-          month: "long",
-          day: "numeric",
-          hour: "numeric",
-          minute: "numeric",
-          second: "numeric",
-          hour12: true,
-          timeZone: "UTC",
-        }),
+        request_date: item.request_date.toString().split("T")[0],
       }));
       setData(formattedData);
     } catch (error) {
@@ -320,44 +311,10 @@ function Request() {
       const response = await axios.get(
         "http://localhost:5000/api/request/history"
       );
+      console.log(response);
       const formattedData = response?.data?.map((item) => ({
         ...item,
-        requested_date: new Date(item.requested_date).toLocaleString({
-          ...options,
-          weekday: "long",
-          year: "numeric",
-          month: "long",
-          day: "numeric",
-          hour: "numeric",
-          minute: "numeric",
-          second: "numeric",
-          hour12: true,
-          timeZone: "UTC",
-        }),
-        start_datetime: new Date(item.start_datetime).toLocaleString({
-          ...options,
-          weekday: "long",
-          year: "numeric",
-          month: "long",
-          day: "numeric",
-          hour: "numeric",
-          minute: "numeric",
-          second: "numeric",
-          hour12: true,
-          timeZone: "UTC",
-        }),
-        end_datetime: new Date(item.end_datetime).toLocaleString({
-          ...options,
-          weekday: "long",
-          year: "numeric",
-          month: "long",
-          day: "numeric",
-          hour: "numeric",
-          minute: "numeric",
-          second: "numeric",
-          hour12: true,
-          timeZone: "UTC",
-        }),
+        request_date: item.request_date.toString().split("T")[0],
       }));
       setData(formattedData);
     } catch (error) {
@@ -449,25 +406,25 @@ function Request() {
       sx={{ height: "100vh", width: "100vw", overflow: "auto" }} // Set full height and width
     >
       <Stack direction="row" spacing={3} className={"haederRequest"}>
-        <TemporaryDrawer open={drawerOpen} onClose={toggleDrawer}/>
+        <TemporaryDrawer open={drawerOpen} onClose={toggleDrawer} />
         <h1 className={"headerTitle-Request"}>Request / Acquisition Book</h1>
         <img
-            src={Logo}
-            alt={"Logo"}
-            className={"UOSM-Logo"}
-            style={{
-              width: "200px",
-              height: "55px",
-              marginLeft: "auto",
-              filter: "brightness(0) invert(1) contrast(5)",
-            }}
+          src={Logo}
+          alt={"Logo"}
+          className={"UOSM-Logo"}
+          style={{
+            width: "200px",
+            height: "55px",
+            marginLeft: "auto",
+            filter: "brightness(0) invert(1) contrast(5)",
+          }}
         />
       </Stack>
 
       <Stack
-          direction="column"
-          className={"MainContent-Request"}
-          sx={{height: "90vh", width: "97vw", overflow: "auto"}} // Set full height and width
+        direction="column"
+        className={"MainContent-Request"}
+        sx={{ height: "90vh", width: "97vw", overflow: "auto" }} // Set full height and width
       >
         {/*<Box sx={{width: "300px"}}>*/}
         {/*  <form*/}

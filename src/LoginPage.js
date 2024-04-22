@@ -81,7 +81,7 @@ const LoginPage = () => {
         if (user.role_id === 1) {
           navigate("/admin");
         } else if (user.role_id === 2) {
-          navigate("/WithNavigate");
+          navigate("/Dashboard");
         } else {
           navigate("/UserMainPage");
         }
