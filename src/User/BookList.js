@@ -61,10 +61,6 @@ const BookList = () => {
     fetchGenres();
   }, []);
 
-  const [genreCheckboxes, setGenreCheckboxes] = useState(
-    Array.from({ length: genreLength }, () => false)
-  );
-
   const handleFilterClick = (event) => {
     setFilterAnchorEl(event.currentTarget); // Set anchor element for filter popover
   };
