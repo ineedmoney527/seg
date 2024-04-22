@@ -144,12 +144,15 @@ function Reservation() {
   const [selectedRows, setSelectedRows] = useState([]);
   const fetchRequests = async () => {
     try {
+      const options = { timeZone: "Asia/Shanghai" }; // UTC+8 timezone
+
       const response = await axios.get(
         "http://localhost:5000/api/reserve/pending"
       );
       const formattedData = response?.data?.map((item) => ({
         ...item,
-        requested_at: new Date(item.requested_at).toLocaleString("en-US", {
+        requested_at: new Date(item.requested_at).toLocaleString({
+          ...options,
           weekday: "long",
           year: "numeric",
           month: "long",
@@ -327,19 +330,6 @@ function Reservation() {
             status: "Reserved",
           });
 
-          // // Approve the request and update the status
-          // const response = await axios.put(
-          //   `http://localhost:5000/api/reserve/${ids}`,
-          //   { type: "Approve", student_id: selectedRows[0].user_id }
-          // );
-
-          // // Update the status of the selected books to "Reserved"
-          // const bookCodes = selectedRows.map((row) => row.book_code).join(", ");
-          // const updateResponse = await axios.put(
-          //   "http://localhost:5000/api/book/status",
-          //   { bookCodes, status: "Reserved" }
-          // );
-
           handleAlertWithTimeout(
             approveAlert,
             setApproveAlert,
@@ -423,39 +413,11 @@ function Reservation() {
           // Wait for all limitRequests to finish
           await Promise.all(limitRequests);
 
-          // const response = await axios.put(
-          //   `http://localhost:5000/api/reserve/${ids}`,
-          //   { type: "Reject" }
-          // );
           handleAlertWithTimeout(
             rejectAlert,
             setRejectAlert,
             "The request is rejected."
           );
-
-          // const userIDs = selectedRows.map((row) => row.user_id);
-          // //increase borrow limit
-          // const limitRequests = userIDs.map(async (user_id) => {
-          //   try {
-          //     const limitResponse = await axios.get(
-          //       "http://localhost:5000/api/user/limit/" + user_id
-          //     );
-
-          //     const currentLimit = limitResponse.data.borrow_limit;
-          //     const selectedRowsUser = selectedRows.filter(
-          //       (r) => r.user_id === user_id
-          //     );
-          //     const updatedLimit = currentLimit + selectedRowsUser.length;
-          //     console.log("length" + selectedRowsUser.length);
-          //     return axios.put("http://localhost:5000/api/user/limit", {
-          //       id: user_id,
-          //       limit: updatedLimit,
-          //     });
-          //   } catch (e) {
-          //     console.log(e);
-          //     throw e;
-          //   }
-          // });
 
           fetchRequests();
         }
@@ -489,7 +451,7 @@ function Reservation() {
 
     try {
       const containsRejected = selectedRows.some(
-        (row) => row.status === "Rejected"
+        (row) => row.status === "Rejected" || row.status === "Issued"
       );
 
       if (selectedRows.length < 1) {
@@ -508,29 +470,6 @@ function Reservation() {
         status: "Borrowed",
       });
 
-      // Reduce user borrow limit
-      // const limitRequests = userIDs.map(async (user_id) => {
-      //   try {
-      //     const limitResponse = await axios.get(
-      //       "http://localhost:5000/api/user/limit/" + user_id
-      //     );
-
-      //     const currentLimit = limitResponse.data.borrow_limit;
-      //     const selectedRowsUser = selectedRows.filter(
-      //       (r) => r.user_id === user_id
-      //     );
-      //     const updatedLimit = currentLimit - selectedRowsUser.length;
-      //     console.log("length" + selectedRowsUser.length);
-      //     return axios.put("http://localhost:5000/api/user/limit", {
-      //       id: user_id,
-      //       limit: updatedLimit,
-      //     });
-      //   } catch (e) {
-      //     console.log(e);
-      //     throw e;
-      //   }
-      // });
-
       // Insert borrow records for each book
       const borrowRequests = selectedRows.map(async (row, index) => {
         try {
@@ -538,24 +477,32 @@ function Reservation() {
             "http://localhost:5000/api/history/borrow",
             { bookCode: row.book_code, user_id: row.user_id } // Use user_id from selectedRows
           );
+
+          const res = await axios.put(
+            "http://localhost:5000/api/reserve/status",
+            {
+              ids: rowIDs,
+              status: "Issued",
+            }
+          );
         } catch (error) {
           console.error("Error sending POST request:", error);
           throw error;
         }
       });
+      handleAlertWithTimeout(
+        approveAlert,
+        setApproveAlert,
+        "The request is approved."
+      );
+      fetchHistory();
+      setRowSelectionModel([]);
+      setSelectedRows([]); // Clear the cart
 
       // Wait for all limitRequests to finish
       await Promise.all(borrowRequests);
 
       // Update reserve record status to "Issued"
-      const res = await axios.put("http://localhost:5000/api/reserve/status", {
-        ids: rowIDs,
-        status: "Issued",
-      });
-      setRowSelectionModel([]);
-      setSelectedRows([]); // Clear the cart
-      fetchHistory();
-      alert("Issue Successfully");
     } catch (error) {
       console.log("Error: " + error.message);
       alert("Error occurred while processing the request.");

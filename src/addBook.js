@@ -235,6 +235,7 @@ function AddNewBookPage({ open, onClose, edit, selectedRowData }) {
           reset();
           alert("Book Added successfully!");
         } catch (e) {
+          console.log(e);
           console.log("something wrong");
         }
       }

@@ -14,7 +14,7 @@ import "./LoanBook.css";
 import { useForm } from "react-hook-form";
 import { DataGrid, GridToolbar } from "@mui/x-data-grid";
 import axios from "axios";
-import Logo from "../UOSMLogo3.png"
+import Logo from "../UOSMLogo3.png";
 
 import {
   Button,
@@ -248,7 +248,6 @@ function LoanBook() {
       setData(response.data);
       checkOverdueAndSendEmail(response.data);
       console.log(response.data);
-      console.log(response.data[0].id);
     } catch (error) {
       console.error("Error fetching records:", error);
     }
@@ -530,30 +529,30 @@ function LoanBook() {
     >
       <Stack direction="row" spacing={3} className={"haederLoan"}>
         {/*<img src={logo} alt={"UoSM Logo"} className={"Logo"}/>*/}
-        <TemporaryDrawer open={drawerOpen} onClose={toggleDrawer}/>
+        <TemporaryDrawer open={drawerOpen} onClose={toggleDrawer} />
         <h1 className={"headerTitle-loan"}>Loan Book Page</h1>
         <img
-            src={Logo}
-            alt={"Logo"}
-            className={"UOSM-Logo"}
-            style={{
-              width: "200px",
-              height: "55px",
-              marginLeft: "auto",
-              filter: "brightness(0) invert(1) contrast(5)",
-            }}
+          src={Logo}
+          alt={"Logo"}
+          className={"UOSM-Logo"}
+          style={{
+            width: "200px",
+            height: "55px",
+            marginLeft: "auto",
+            filter: "brightness(0) invert(1) contrast(5)",
+          }}
         />
       </Stack>
 
       <Stack
-          direction="column"
-          className={"MainContent-loan"}
-          sx={{height: "90vh", width: "97vw", overflow: "auto"}} // Set full height and width
+        direction="column"
+        className={"MainContent-loan"}
+        sx={{ height: "90vh", width: "97vw", overflow: "auto" }} // Set full height and width
       >
-        <Box sx={{width: "300px"}}>
+        <Box sx={{ width: "300px" }}>
           <form
-              onSubmit={handleSubmit(onSubmit)}
-              className="form-containerLoan"
+            onSubmit={handleSubmit(onSubmit)}
+            className="form-containerLoan"
           >
             {/* <TextField
               {...register("searchQuery")}

@@ -69,7 +69,7 @@ const getBorrowCounts = (req, res) => {
 
 const getBorrowRecords = (req, res) => {
   const query = `SELECT borrowedrecord.id, borrowedrecord.user_id, book.book_code, isbn.title, 
-  author.name AS author, isbn.edition, DATE_FORMAT(borrowedrecord.start_date, '%Y-%m-%d') AS start_date, DATE_FORMAT(borrowedrecord.end_date, '%Y-%m-%d') as end_date, DATEDIFF(borrowedrecord.end_date, borrowedrecord.start_date) AS days_remaining, borrowedrecord.due_reminder,
+  author.name AS author, isbn.edition, DATE_FORMAT(borrowedrecord.start_date, '%Y-%m-%d') AS start_date, DATE_FORMAT(borrowedrecord.end_date, '%Y-%m-%d') as end_date, DATEDIFF(borrowedrecord.end_date,NOW()) AS days_remaining, borrowedrecord.due_reminder,
   user.email FROM borrowedrecord JOIN book ON borrowedrecord.book_code = book.book_code JOIN isbn ON book.isbn = isbn.isbn JOIN author ON author.id = isbn.author_id JOIN user ON borrowedrecord.user_id = user.id WHERE borrowedrecord.status="B"`;
 
   connection.query(query, (err, data) => {
@@ -327,7 +327,7 @@ const setReminderToYes = async (req, res) => {
 
     if (email) {
       const updateQuery =
-        "UPDATE borrowedrecord SET reminder = 'N' WHERE id = ?";
+        "UPDATE borrowedrecord SET reminder = 'Y' WHERE id = ?";
       connection.query(updateQuery, [id], async (updateErr, updateResult) => {
         if (updateErr) {
           console.error("Error setting reminder to 'Y':", updateErr);
@@ -386,8 +386,8 @@ const sendReminder = async (email, bookTitle, returnDate) => {
   // Create a transporter
   const transporter = nodemailer.createTransport({
     host: "smtp.office365.com", // Outlook SMTP server
-    port: 587, // secure SMTP
-    secure: false, // false for TLS - as a boolean not string - if true, use port 465
+    port: 465, // secure SMTP
+    secure: true, // false for TLS - as a boolean not string - if true, use port 465
     auth: {
       user: "Sotonlibrary@outlook.com", // Your Outlook email address
       pass: "rfqyidusxajksjec", // Use the app-specific password here

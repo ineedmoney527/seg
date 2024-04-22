@@ -312,6 +312,7 @@ const forgotPassword = (req, res) => {
         otpData,
         async (insertError) => {
           if (insertError) {
+            console.log("insert error");
             return res
               .status(500)
               .json({ success: false, error: "Failed to store OTP" });
@@ -321,7 +322,9 @@ const forgotPassword = (req, res) => {
           try {
             await sendResetEmail(email, otp);
             res.json({ success: true, message: "Reset email sent" });
+            console.log("haha");
           } catch (err) {
+            console.log(err);
             res.status(500).json({ success: false, error: err.message });
           }
         }

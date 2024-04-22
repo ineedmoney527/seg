@@ -66,7 +66,7 @@ const addBookRequest = (req, res) => {
 
     // If data doesn't exist, proceed with INSERT query
     const insertQuery =
-      "INSERT INTO bookrequest (title, author, edition, publisher,reason,status,user_id) VALUES (?, ?, ?, ?,?,?,?)";
+      "INSERT INTO bookrequest (title, author, edition, publisher,reason,status,request_date,user_id) VALUES (?, ?, ?, ?,?,?,?,?)";
     const insertValues = [
       title,
       author,
@@ -74,6 +74,7 @@ const addBookRequest = (req, res) => {
       publisher,
       reason,
       "Pending",
+      new Date(),
       user_id,
     ];
 
