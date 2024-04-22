@@ -1,10 +1,11 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import Typography from "@mui/material/Typography";
 import Box from "@mui/material/Box";
 import Slider from "@mui/material/Slider";
 import Select from "@mui/material/Select";
 import MenuItem from "@mui/material/MenuItem";
 import { set } from "date-fns";
+import axios from "axios";
 
 const BookFilter = ({
   ratingRange,
@@ -15,23 +16,24 @@ const BookFilter = ({
   handleChangeGenre,
   handleReset,
 }) => {
+  const [genres, setGenres] = useState([]);
+  const [genreNames, setGenreNames] = useState([]);
+
   const [localRatingRange, setLocalRatingRange] = useState([1, 5]); // State to manage the rating range
   const [localYearRange, setLocalYearRange] = useState([2000, 2024]); // State to manage the year range
-  const [genreCheckboxes, setGenreCheckboxes] = useState(
-    Array.from({ length: 9 }, () => false)
-  );
+  const [genreCheckboxes, setGenreCheckboxes] = useState([]); // State to manage genre checkboxes
 
-  const genres = [
-    "Fiction",
-    "Narrative",
-    "Novel",
-    "Programming",
-    "Finance",
-    "Math",
-    "Discrete Math",
-    "History",
-    "Account",
-  ];
+  // const genres = [
+  //   "Fiction",
+  //   "Narrative",
+  //   "Novel",
+  //   "Programming",
+  //   "Finance",
+  //   "Math",
+  //   "Discrete Math",
+  //   "History",
+  //   "Account",
+  // ];
 
   // const [checkboxes, setCheckboxes] = useState([
   //   { label: "Engineering", checked: false },
@@ -42,6 +44,58 @@ const BookFilter = ({
   // const [genreCheckboxes, setGenreCheckboxes] = useState(
   //   Array.from({ length: 9 }, () => false)
   // );
+
+  // useEffect(() => {
+  //   const fetchGenres = async () => {
+  //     try {
+  //       const response = await axios.get(
+  //         "http://localhost:5000/api/bookinfo/genre/book"
+  //       );
+
+  //       setGenres(response.data);
+  //       console.log("FIlter");
+  //       console.log("Genres:", response.data);
+  //       console.log("EHAT ");
+  //       console.log(genres[0]);
+  //       const genreNames = genres.map((genre) => genre.name);
+  //       setGenreNames(genreNames);
+  //       console.log("Genre Names:", genreNames);
+  //       setGenreCheckboxes(
+  //         Array.from({ length: response.data.length }, () => false)
+  //       );
+  //     } catch (error) {
+  //       console.error("Error fetching genres:", error);
+  //     }
+  //   };
+
+  //   fetchGenres();
+  // }, []);
+
+  useEffect(() => {
+    const fetchGenres = async () => {
+      try {
+        const response = await axios.get(
+          "http://localhost:5000/api/bookinfo/genre/book"
+        );
+
+        setGenres(response.data);
+        console.log("FIlter");
+        console.log("Genres:", response.data);
+
+        const genreNames = response.data.map((genre) => genre.name);
+        setGenreNames(genreNames);
+        console.log("Genre Names:", genreNames);
+
+        setGenreCheckboxes(
+          Array.from({ length: response.data.length }, () => false)
+        );
+      } catch (error) {
+        console.error("Error fetching genres:", error);
+      }
+    };
+
+    fetchGenres();
+  }, []);
 
   const resetCheckboxes = () => {
     // setCheckboxes(
@@ -174,7 +228,7 @@ const BookFilter = ({
           fontSize: "15px",
         }}
       >
-        {genres.map((genre, index) => (
+        {genreNames.map((genre, index) => (
           <Box
             key={index}
             sx={{

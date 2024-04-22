@@ -240,6 +240,69 @@ const readAllBooks = (req, res) => {
   connection.query(query, (err, data) => res.json(err ? err : data));
 };
 
+const advancedSearchBooks = async (req, res) => {
+  const search = req.params.search;
+  console.log("search");
+  console.log(search);
+
+  let sql =
+    "SELECT book.*, isbn.isbn, isbn.title, isbn.image, AVG(bookrating.rating) as rating, isbn.description, isbn.pages, author.name AS author_name, isbn.edition, isbn.price, isbn.pages, publisher.name AS publisher_name, isbn.publish_year, country.name AS country_name,genre.name AS genre_name FROM book JOIN isbn ON book.isbn = isbn.isbn JOIN author ON isbn.author_id = author.id LEFT JOIN bookrating ON isbn.isbn = bookrating.isbn JOIN publisher ON isbn.publisher_id = publisher.id JOIN country ON publisher.country_id = country.id JOIN genre ON isbn.genre_id = genre.id WHERE ";
+
+  const values = [];
+  const conditions = [];
+
+  // Create an array of keys to search
+  const searchKeys = [
+    "book_code",
+    "location",
+    "call_number",
+    "status",
+    "added_date",
+    "isbn.isbn",
+    "isbn.title",
+    "isbn.image",
+    "rating",
+    "isbn.description",
+    "isbn.pages",
+    "author.name",
+    "isbn.edition",
+    "isbn.price",
+    "isbn.pages",
+    "publisher.name",
+    "isbn.publish_year",
+    "country.name",
+    "genre.name",
+  ];
+
+  // Iterate through each search key and check if it has a value
+  searchKeys.forEach((key) => {
+    conditions.push(`${key} LIKE ?`);
+    values.push(`%${search}%`);
+  });
+
+  // If there are conditions, join them with "OR" operator
+  if (conditions.length > 0) {
+    sql += conditions.join(" OR ");
+  }
+
+  sql += " GROUP BY isbn.isbn ";
+
+  console.log(sql);
+  console.log(values);
+
+  // Execute the query with dynamic SQL conditions
+  connection.query(sql, values, (err, result) => {
+    if (err) {
+      console.error("Error executing SQL query:", err);
+      res.status(500).json({ error: "Internal server error" });
+      return;
+    }
+    console.log("result", result);
+    // Send the search results back to the client
+    res.status(200).json({ message: "Search results", data: result });
+  });
+};
+
 const readAllISBN = (req, res) => {
   const query = "SELECT isbn from isbn";
   connection.query(query, (err, data) => res.json(err ? err : data));
@@ -467,4 +530,5 @@ export {
   updateStatus,
   rateBook,
   calculateAverageRating,
+  advancedSearchBooks,
 };

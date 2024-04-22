@@ -161,4 +161,32 @@ const deleteIsbn = (req, res) => {
     res.json(err ? { message: err.message } : "ISBN deleted successfully")
   );
 };
-export { createIsbn, readAllIsbn, readIsbn, deleteIsbn, updateIsbn };
+
+const readAllGenre = (req, res) => {
+  console.log("test");
+  const query = "SELECT name FROM genre";
+  // Execute the query
+  db.query(query, (err, results) => {
+    if (err) {
+      console.error("Error executing query:", err);
+      res.status(500).json({ error: "Error executing query" });
+      connection.end();
+      return;
+    } else {
+      res.json(results);
+      // Map the results to an array of genre names
+      const genre = results.map((result) => result.name);
+
+      console.log("Genre:", genre);
+    }
+  });
+};
+
+export {
+  createIsbn,
+  readAllIsbn,
+  readIsbn,
+  deleteIsbn,
+  updateIsbn,
+  readAllGenre,
+};
