@@ -24,6 +24,7 @@ import Autocomplete from "@mui/material/Autocomplete";
 
 function AddNewBookPage({ open, onClose, edit, selectedRowData }) {
   const [isbns, setIsbns] = useState([]);
+  const [genres, setGenres] = useState([]);
   const [num, setNum] = useState(0);
   const [isbnDetails, setIsbnDetails] = useState(null);
   const [isHovered, setIsHovered] = useState(false);
@@ -31,6 +32,10 @@ function AddNewBookPage({ open, onClose, edit, selectedRowData }) {
   const [debouncing, setDebouncing] = useState(false);
   const isbnList = async () => {
     return await axios.get(`http://localhost:5000/api/book/isbn`);
+  };
+
+  const genreList = async () => {
+    return await axios.get(`http://localhost:5000/api/book/genre`);
   };
   const defaultValues = selectedRowData || {};
   const mappedDefaultValues = {
@@ -45,6 +50,7 @@ function AddNewBookPage({ open, onClose, edit, selectedRowData }) {
     price: defaultValues.price || "",
     publishedYear: defaultValues.publish_year || "",
     location: defaultValues.location || "",
+    genre: defaultValues.genre || "",
     descriptions: defaultValues.description || "",
     status: defaultValues.status || "",
     fileName: defaultValues.image || "",
@@ -59,6 +65,20 @@ function AddNewBookPage({ open, onClose, edit, selectedRowData }) {
 
     fetchIsbns();
   }, []);
+
+  useEffect(() => {
+    const fetchGenres = async () => {
+      try {
+        const response = await genreList();
+        setGenres(response.data);
+      } catch (error) {
+        console.error("Error fetching genres:", error);
+      }
+    };
+
+    fetchGenres();
+  }, []);
+
   const schema = z.object({
     isbn: z
       .string()
@@ -80,19 +100,7 @@ function AddNewBookPage({ open, onClose, edit, selectedRowData }) {
       .number()
       .min(1, { message: "Invalid year" })
       .max(2024, { message: "Year cannot exceed 2024" }),
-    // price: z
-    //   .number({ message: "Price must be a number" })
-    //   .min(0, { message: "Price cannot be negative" })
-    //   .refine(
-    //     (value) => {
-    //       const regex = /^\d+(\.\d{1,2})?$/;
-    //       return regex.test(value.toString());
-    //     },
-    //     {
-    //       message:
-    //         "Price must be a valid numeric value with up to 2 decimal places",
-    //     }
-    //   ),
+
     location: z.string().nonempty({ message: "Location is required" }),
     descriptions: z.string().nonempty({ message: "Description is required" }),
     status: z
@@ -106,6 +114,7 @@ function AddNewBookPage({ open, onClose, edit, selectedRowData }) {
           message: "Invalid status value",
         }
       ),
+    genre: z.string().nonempty({ message: "Genre is required" }),
     fileName: z
       .string()
       .refine((value) => value.trim() !== "", { message: "File is required" }),
@@ -637,6 +646,46 @@ function AddNewBookPage({ open, onClose, edit, selectedRowData }) {
                             />
                           )}
                         />
+                        <div className="genre-select">
+                          <Controller
+                            name="genre"
+                            control={control}
+                            defaultValue=""
+                            rules={{
+                              validate: (value) =>
+                                errors.genre ? errors.genre.message : true,
+                            }}
+                            render={({ field }) => (
+                              <Select
+                                size="small"
+                                {...field}
+                                id="genre"
+                                label="Genre"
+                                fullWidth={true}
+                                className="thin-select" // Add a class name
+                                error={!!errors.genre}
+                                helperText={
+                                  errors.genre && errors.genre.message
+                                }
+                              >
+                                {genres.map((genre) => (
+                                  <MenuItem key={genre.name} value={genre.name}>
+                                    {genre.name}
+                                  </MenuItem>
+                                ))}
+                              </Select>
+                            )}
+                          />
+                        </div>
+                        <FormHelperText
+                          style={{
+                            color: "red",
+                            display: "flex",
+                            marginLeft: "14px",
+                          }}
+                        >
+                          {errors.genre && errors.genre.message}
+                        </FormHelperText>
                       </div>
                     </div>{" "}
                   </div>

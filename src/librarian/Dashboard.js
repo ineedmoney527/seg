@@ -10,6 +10,7 @@ import { styled } from "@mui/material/styles";
 import Tabs from "@mui/material/Tabs";
 import Tab from "@mui/material/Tab";
 import "./Dashboard.css";
+import Logo from "../UOSMLogo3.png";
 
 import {
   Box,
@@ -49,7 +50,7 @@ const Piechart = () => {
     plugins: {
       title: {
         display: true,
-        text: `Genres of Books in the Library`,
+        text: "Genres of Books in the Library",
 
         font: {
           size: 20,
@@ -399,6 +400,17 @@ function Dashboard() {
         <Stack direction="row" spacing={3} className={"haederLoan"}>
           <TemporaryDrawer open={drawerOpen} onClose={toggleDrawer} />
           <h1 className={"headerTitle-loan"}>Dashboard</h1>
+          <img
+            src={Logo}
+            alt={"Logo"}
+            className={"UOSM-Logo"}
+            style={{
+              width: "200px",
+              height: "55px",
+              marginLeft: "auto",
+              filter: "brightness(0) invert(1) contrast(5)",
+            }}
+          />
         </Stack>
         <Box
           sx={{

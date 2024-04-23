@@ -21,6 +21,7 @@ import TableSortLabel from "@mui/material/TableSortLabel";
 import EditIcon from "@mui/icons-material/Edit";
 import AddCircleIcon from "@mui/icons-material/AddCircle";
 import { Buffer } from "buffer";
+import bookImg from "./Vector.png";
 import axios from "axios";
 import {
   useSignIn,
@@ -54,6 +55,7 @@ function WithNavigate() {
   const [selectedRow, setSelectedRow] = useState(null);
   const [selectedRows, setSelectedRows] = useState([]);
   const [drawerOpen, setDrawerOpen] = useState(false);
+  const [file, setFile] = useState(null);
   const authUser = useAuthUser();
 
   const [data, setData] = useState([]);
@@ -72,6 +74,32 @@ function WithNavigate() {
 
     setSelectedRow(ross);
     setEditBook(true);
+  };
+
+  const handleFileChange = (e) => {
+    setFile(e.target.files[0]);
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+
+    const formData = new FormData();
+    formData.append("excelFile", file);
+    formData.edit = false;
+    formData.code = "whatever";
+
+    try {
+      await axios.post("http://localhost:5000/api/book/upload", formData, {
+        headers: {
+          "Content-Type": "multipart/form-data",
+        },
+      });
+      alert("File uploaded successfully!");
+      fetchBooks();
+    } catch (error) {
+      console.error("Error uploading file:", error);
+      alert("Error uploading file");
+    }
   };
 
   const handleDeleteClick = async (code) => {
@@ -126,7 +154,9 @@ function WithNavigate() {
 
   const fetchBooks = async () => {
     try {
-      const response = await axios.get("http://localhost:5000/api/book");
+      const response = await axios.get(
+        "http://localhost:5000/api/book/bookInventory"
+      );
       console.log(response);
       setData(response.data);
     } catch (error) {
@@ -181,10 +211,14 @@ function WithNavigate() {
             </IconButton>
           </Tooltip>
         ) : (
-          <Tooltip title="Filter list">
+          <Tooltip title="Filter list" sx={{ display: "flex" }}>
             <IconButton onClick={handleAddClick}>
               <AddCircleIcon />
             </IconButton>
+            <form onSubmit={handleSubmit}>
+              <input type="file" onChange={handleFileChange} />
+              <button type="submit">Upload</button>
+            </form>
           </Tooltip>
         )}
       </Toolbar>
@@ -253,11 +287,15 @@ function WithNavigate() {
                     align: "center",
                     headerAlign: "center",
                     renderCell: (params) => {
-                      // Convert the Buffer array to a base64 string
+                      let base64String = bookImg;
 
-                      const base64String = Buffer.from(params.value).toString(
-                        "base64"
-                      );
+                      // Check if params.value is not null
+                      if (params.value !== null) {
+                        // Convert the Buffer array to a base64 string
+                        base64String = Buffer.from(params.value).toString(
+                          "base64"
+                        );
+                      }
 
                       // Use the base64 string as the src attribute for the img tag
                       return (
@@ -319,6 +357,14 @@ function WithNavigate() {
                     field: "edition",
                     headerName: "Edition",
                     width: 120,
+                    headerAlign: "center",
+                    align: "center",
+                    flex: 1,
+                  },
+                  {
+                    field: "genre_name",
+                    headerName: "Genre",
+                    width: 100,
                     headerAlign: "center",
                     align: "center",
                     flex: 1,

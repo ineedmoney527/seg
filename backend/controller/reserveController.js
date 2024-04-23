@@ -161,14 +161,14 @@ const sendReservationStatus = (userEmail, status, title, reserve_id) => {
     port: 587, // secure SMTP
     secure: false, // false for TLS - as a boolean not string - if true, use port 465
     auth: {
-      user: "Sotonlibrary@outlook.com", // Your Outlook email address
-      pass: "rfqyidusxajksjec", // Use the app-specific password here
+      user: "librarydummy@outlook.com", // Your Outlook email address
+      pass: "mpnggzkxoqjsxjxd", // Use the app-specific password here
     },
   });
 
   // Email content
   const mailOptions = {
-    from: "Sotonlibrary@outlook.com", // Your Outlook email address
+    from: "librarydummy@outlook.com", // Your Outlook email address
     to: userEmail, // Recipient's email address
     subject: "Library Reservation Status", // Email subject
     text: `Dear user,\n\nThis is a status update for reservation ${reserve_id}. \n\nReservation status: ${status} \n\nBook: ${title}. \n\nPlease check your account for more details.\n\nRegards,\nLibrary Team`, // Email content

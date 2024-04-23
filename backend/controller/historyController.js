@@ -107,7 +107,7 @@ const getOverdueRecords = (req, res) => {
   DATE_FORMAT(borrowedrecord.start_date, '%Y-%m-%d') AS start_date, 
   DATE_FORMAT(borrowedrecord.end_date, '%Y-%m-%d') AS end_date,
   DATEDIFF(NOW(), borrowedrecord.end_date) AS days_overdue,
-   ROUND(
+   FORMAT(
         DATEDIFF(NOW(), borrowedrecord.end_date) * 5,
         2
     ) AS fine,
@@ -158,7 +158,7 @@ const getReturnedRecords = (req, res) => {
     DATE_FORMAT(borrowedrecord.end_date, '%Y-%m-%d') as end_date,
     ABS(DATEDIFF(borrowedrecord.end_date, borrowedrecord.start_date)) AS days_borrowed,
     DATE_FORMAT(borrowedrecord.return_date, '%Y-%m-%d') AS return_date,
-    ROUND(
+   FORMAT(
         CASE
             WHEN DATEDIFF(borrowedrecord.return_date, borrowedrecord.end_date) > 0 THEN DATEDIFF(borrowedrecord.return_date, borrowedrecord.end_date) * 5
             ELSE 0
@@ -189,7 +189,7 @@ const getLostRecords = (req, res) => {
     DATE_FORMAT(borrowedrecord.end_date, '%Y-%m-%d') AS end_date,
     ABS(DATEDIFF(borrowedrecord.end_date, borrowedrecord.start_date)) AS days_borrowed,
     DATE_FORMAT(borrowedrecord.return_date, '%Y-%m-%d') AS return_date, 
-    ROUND(CASE 
+    FORMAT(CASE 
       WHEN NOW() > borrowedrecord.end_date THEN (isbn.price + (DATEDIFF(NOW(), borrowedrecord.end_date) * 5))
       ELSE isbn.price
     END,2 )AS fine
@@ -359,14 +359,14 @@ const sendOverdueReminder = async (
     port: 587, // secure SMTP
     secure: false, // false for TLS - as a boolean not string - if true, use port 465
     auth: {
-      user: "Sotonlibrary@outlook.com", // Your Outlook email address
-      pass: "rfqyidusxajksjec", // Use the app-specific password here
+      user: "librarydummy@outlook.com", // Your Outlook email address
+      pass: "mpnggzkxoqjsxjxd", // Use the app-specific password here
     },
   });
 
   // Email content
   const mailOptions = {
-    from: "Sotonlibrary@outlook.com", // Your Outlook email address
+    from: "librarydummy@outlook.com", // Your Outlook email address
     to: email, // Recipient's email address
     subject: "Overdue Reminder", // Email subject
     text: `Dear user,\n\nThis is a reminder that you have not returned the book.\n\n Book: ${bookTitle}\n\n OverdueDays: ${days_overdue}\n\n fine: ${fine}\n\nPlease return it as soon as possible to avoid fines.\n\nRegards,\nLibrary Team`, // Email content
@@ -389,14 +389,14 @@ const sendReminder = async (email, bookTitle, returnDate) => {
     port: 465, // secure SMTP
     secure: true, // false for TLS - as a boolean not string - if true, use port 465
     auth: {
-      user: "Sotonlibrary@outlook.com", // Your Outlook email address
-      pass: "rfqyidusxajksjec", // Use the app-specific password here
+      user: "librarydummy@outlook.com", // Your Outlook email address
+      pass: "mpnggzkxoqjsxjxd", // Use the app-specific password here
     },
   });
 
   // Email content
   const mailOptions = {
-    from: "Sotonlibrary@outlook.com", // Your Outlook email address
+    from: "librarydummy@outlook.com", // Your Outlook email address
     to: email, // Recipient's email address
     subject: "Reminder", // Email subject
     text: `Dear user,\n\nThis is a reminder that you 3 days remaining to return your book.\n\n Book: ${bookTitle}\n\n returnDate: ${returnDate}\n\nPlease return it as soon as possible to avoid fines.\n\nRegards,\nLibrary Team`, // Email content

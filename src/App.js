@@ -60,11 +60,12 @@ function App() {
           />
           <Route
             path="/WithNavigate"
-            element={
-              <RequireAuth loginPath="/">
-                <WithNavigate />
-              </RequireAuth>
-            }
+            element={<WithNavigate />}
+            // element={
+            //   <RequireAuth loginPath="/">
+            //     <WithNavigate />
+            //   </RequireAuth>
+            // }
           />
           <Route
             path="/AddNewBookPage"

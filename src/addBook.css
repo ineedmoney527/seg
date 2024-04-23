@@ -10,6 +10,11 @@
   background-color: rgba(0, 0, 0, 0.5); /* Semi-transparent background */
   z-index: 999;
 }
+.genre-select {
+  margin-top: 20px; /* Adjust this value as needed to move the Select component down */
+  width: 100%;
+}
+
 .modal-content {
   background-color: #fff;
   position: fixed;
