@@ -54,8 +54,8 @@ router.post("/upload", upload.single("excelFile"), async (req, res) => {
     // Convert Excel data to JSON format
     const jsonData = xlsx.utils.sheet_to_json(sheet);
     console.log("JSON data:", jsonData);
-    // Insert each row into the SQL database
 
+    // Insert each row into the SQL database
     connection.beginTransaction();
 
     for (const row of jsonData) {
@@ -74,21 +74,26 @@ router.post("/upload", upload.single("excelFile"), async (req, res) => {
         status,
         fileName,
         callNumber,
+        quantity,
       } = row;
       row.edit = false;
       row.code = "whatever";
-      // Send a POST request with the data to another server or API
-      try {
-        console.log("row" + row);
-        const response = await axios.post(
-          "http://localhost:5000/api/book",
-          row
-        );
-        console.log("Response from API:", response.data.data);
-      } catch (error) {
-        console.error("Error sending POST request:", error.message);
+
+      // Insert the row multiple times based on the quantity
+      for (let i = 0; i < quantity; i++) {
+        try {
+          console.log("row" + row);
+          const response = await axios.post(
+            "http://localhost:5000/api/book",
+            row
+          );
+          console.log("Response from API:", response.data.data);
+        } catch (error) {
+          console.error("Error sending POST request:", error.message);
+        }
       }
     }
+
     await connection.commit();
     res.status(200).send("File uploaded and data inserted into database");
   } catch (error) {

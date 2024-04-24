@@ -50,7 +50,7 @@ function AddNewBookPage({ open, onClose, edit, selectedRowData }) {
     price: defaultValues.price || "",
     publishedYear: defaultValues.publish_year || "",
     location: defaultValues.location || "",
-    genre: defaultValues.genre || "",
+    genre: defaultValues.genre_name || "",
     descriptions: defaultValues.description || "",
     status: defaultValues.status || "",
     fileName: defaultValues.image || "",
@@ -391,7 +391,6 @@ function AddNewBookPage({ open, onClose, edit, selectedRowData }) {
                         }} // Access error message directly
                         render={({ field }) => (
                           <Select
-                            s
                             {...field}
                             labelId="status-label"
                             id="status"
@@ -657,6 +656,7 @@ function AddNewBookPage({ open, onClose, edit, selectedRowData }) {
                             }}
                             render={({ field }) => (
                               <Select
+                                {...field}
                                 size="small"
                                 {...field}
                                 id="genre"
