@@ -4,9 +4,11 @@ import Box from "@mui/material/Box";
 import { useLocation } from "react-router-dom";
 import Layout from "./Layout";
 import Rating from "@mui/material/Rating";
+// import AlertIcon from '@mui/icons-material/Alert';
 import icon from "../Image/review-icon.png";
 import { Buffer } from "buffer";
 import axios from "axios";
+
 import CircularProgress from "@mui/material/CircularProgress";
 import {
   useSignIn,
@@ -365,22 +367,12 @@ const ViewBook = () => {
           <Box
             sx={{ display: "flex", flexDirection: "row", marginTop: "20px" }}
           >
-            {/* <label style={{ color: "grey", marginRight: "5px" }}>
+            <label style={{ color: "grey", marginRight: "5px" }}>
               you can search for E-books from
             </label>
             <label style={{ color: "blue" }}>
               https://www.southampton.ac.uk/library/index.page
-            </label> */}
-            <Typography
-              variant="body1"
-              sx={{ textAlign: "center", marginRight: "5px" }}
-            >
-              you can search for E-books from{" "}
-              <a href="https://library.soton.ac.uk/homepage">
-                https://www.southampton.ac.uk/library/index.page
-              </a>
-              .
-            </Typography>
+            </label>
           </Box>
         </Box>
         <Box
@@ -390,6 +382,8 @@ const ViewBook = () => {
             display: "flex",
             flexDirection: "column",
             marginLeft: "auto",
+            justifyContent: "center",
+            alignItems: "center",
           }}
         >
           <img
@@ -431,19 +425,54 @@ const ViewBook = () => {
             </button>
           )}
           {pending && (
-            <div style={{ marginTop: "10px" }}>
-              <Box sx={{ display: "flex", flexDirection: "row" }}>
-                <CircularProgress color="inherit" size={30} />
-                <label
-                  style={{
-                    marginLeft: "7px",
-                    fontSize: "12px",
-                    fontWeight: "bold",
-                  }}
-                >
+            <div
+              style={{
+                marginTop: "10px",
+                alignItems: "center",
+                justifyContent: "center",
+                display: "flex",
+                flexDirection: "column",
+              }}
+            >
+              <div
+                style={{
+                  display: "flex",
+                  flexDirection: "row",
+                  alignItems: "center",
+                }}
+              >
+                <div>
+                  <div
+                    style={{
+                      display: "inline-block",
+                      marginRight: "7px",
+                      animation: "blink 1s infinite", // Apply the blink animation
+                      fontSize: "24px",
+                    }}
+                  >
+                    ⚠️ {/* Render an alert emoji */}
+                  </div>
+                </div>
+                <label style={{ fontSize: "14px", fontWeight: "bold" }}>
                   Reservation Pending
                 </label>
-              </Box>
+                {/* Define the blink animation */}
+                <style>
+                  {`
+        @keyframes blink {
+          0% {
+            opacity: 0;
+          }
+          50% {
+            opacity: 1;
+          }
+          100% {
+            opacity: 0;
+          }
+        }
+      `}
+                </style>
+              </div>
 
               <button
                 onClick={cancelReservation}

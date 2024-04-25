@@ -1,5 +1,6 @@
 import connection from "../config/dbConnection.js";
-
+import path from "path";
+import fs from "fs";
 const addBook = async (req, res) => {
   try {
     const {
@@ -8,6 +9,7 @@ const addBook = async (req, res) => {
       author,
       edition,
       country,
+      genre,
       publisher,
       publishedYear,
       pages,
@@ -18,14 +20,25 @@ const addBook = async (req, res) => {
       fileName,
       callNumber,
     } = req.body;
-    console.log(author);
+    console.log("body" + JSON.stringify(req.body));
     const { edit, code } = req.body;
-    const imageData = Buffer.from(
-      fileName.replace(/^data:image\/\w+;base64,/, ""),
-      "base64"
-    );
+    let imageData;
+
+    if (fileName && typeof fileName === "string") {
+      imageData = Buffer.from(
+        fileName.replace(/^data:image\/\w+;base64,/, ""),
+        "base64"
+      );
+    } else {
+      // Load default image data here
+      // For example, you could read the default image file and convert it to a Buffer
+      const defaultImagePath =
+        "C:\\Users\\USER\\Desktop\\haskell\\seg\\src\\Vector.png";
+      imageData = fs.readFileSync(defaultImagePath);
+    }
     let countryId;
     let publisherId;
+    let genreId;
     // Check if author record already exists
     // Check if author record already exists
     let authorId;
@@ -34,6 +47,7 @@ const addBook = async (req, res) => {
         "SELECT * FROM author WHERE name = ?",
         [author],
         (err, results) => {
+          console.log("author" + JSON.stringify(results));
           if (err) {
             return reject(err);
           }
@@ -65,6 +79,7 @@ const addBook = async (req, res) => {
         "SELECT * FROM country WHERE name = ?",
         [country],
         async (err, results) => {
+          console.log("country results:" + JSON.stringify(results));
           if (err) {
             return reject(err);
           }
@@ -73,7 +88,8 @@ const addBook = async (req, res) => {
             countryId = results[0].id;
             resolve({ id: countryId, name: country });
           } else {
-            const insertCountryResult = await connection.query(
+            console.log("invalid country");
+            const insertCountryResult = connection.query(
               "INSERT INTO country (name) VALUES (?)",
               [country],
               (err, results) => {
@@ -92,6 +108,7 @@ const addBook = async (req, res) => {
         "SELECT * FROM publisher WHERE name = ?",
         [publisher],
         async (err, results) => {
+          console.log("publsiher reuslt" + results);
           if (err) {
             return reject(err);
           }
@@ -113,9 +130,32 @@ const addBook = async (req, res) => {
       );
     });
 
+    const existingGenre = await new Promise((resolve, reject) => {
+      connection.query(
+        "SELECT * FROM genre WHERE name = ?",
+        [genre],
+        async (err, results) => {
+          console.log("genre results:" + JSON.stringify(results));
+          if (err) {
+            return reject(err);
+          }
+
+          if (results.length > 0) {
+            genreId = results[0].id;
+            resolve({ id: genreId, name: genre });
+          } else {
+            console.log("invalid genre");
+            return res.status(200).json("no such genre");
+          }
+        }
+      );
+    });
+
+    console.log("safe");
     console.log(authorId);
     console.log(countryId);
     console.log(publisherId);
+    console.log(genreId);
     connection.query(
       "SELECT * FROM isbn WHERE isbn = ?",
       [isbn],
@@ -130,7 +170,7 @@ const addBook = async (req, res) => {
         if (isbnResults.length > 0) {
           // ISBN exists, update the record
           connection.query(
-            "UPDATE isbn SET image=?, title=?, description=?, pages=?, publish_year=?, edition=?, country_id=?, price=?, author_id=?, publisher_id=?, average_rating=? WHERE isbn = ?",
+            "UPDATE isbn SET image=?, title=?, description=?, pages=?, publish_year=?, edition=?, country_id=?, price=?, author_id=?, publisher_id=?,genre_id=? WHERE isbn = ?",
             [
               imageData,
               title,
@@ -142,7 +182,7 @@ const addBook = async (req, res) => {
               price,
               authorId,
               publisherId,
-              2,
+              genreId,
               isbn,
             ],
             (error, updateResult) => {
@@ -163,7 +203,7 @@ const addBook = async (req, res) => {
           console.log(isbn);
           // ISBN doesn't exist, insert a new record
           connection.query(
-            "INSERT INTO isbn (isbn, image, title, description, pages, publish_year, edition, price, author_id, publisher_id, average_rating) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
+            "INSERT INTO isbn (isbn, image, title, description, pages, publish_year, edition, price, author_id, publisher_id, genre_id) VALUES (?, ?, ?,?, ?, ?, ?, ?, ?, ?, ?)",
             [
               isbn,
               imageData,
@@ -175,7 +215,7 @@ const addBook = async (req, res) => {
               price,
               authorId,
               publisherId,
-              2,
+              genreId,
             ],
             (error, insertResult) => {
               if (error) {
@@ -196,9 +236,10 @@ const addBook = async (req, res) => {
 
     // Function to insert into book table
     const insertIntoBookTable = (location, callNumber, status, isbn) => {
+      console.log("im in! add");
       connection.query(
-        "INSERT INTO book ( location, call_number, status, isbn) VALUES ( ?, ?, ?, ?)",
-        [location, callNumber, status, isbn],
+        "INSERT INTO book ( location, call_number, status,added_date ,isbn) VALUES ( ?, ?, ?,?, ?)",
+        [location, callNumber, status, new Date(), isbn],
         (error, bookResult) => {
           if (error) {
             console.error("Error inserting into book table:", error);
@@ -206,12 +247,15 @@ const addBook = async (req, res) => {
               error: "An error occurred while inserting into book table",
             });
           }
+
+          console.log("success" + JSON.stringify(bookResult));
           res.json({ message: "New book added successfully", success: true });
         }
       );
     };
 
     const updateBookTable = (location, callNumber, status, isbn, code) => {
+      console.log("im in! update");
       connection.query(
         "UPDATE book SET location = ?, call_number = ?, status = ?, isbn = ? WHERE book_code = ?",
         [location, callNumber, status, isbn, code],
@@ -240,13 +284,20 @@ const readAllBooks = (req, res) => {
   connection.query(query, (err, data) => res.json(err ? err : data));
 };
 
+const readInventory = (req, res) => {
+  // SELECT book.*,isbn.isbn, isbn.title, isbn.image, AVG(bookrating.rating) as rating,isbn.description,isbn.pages,author.name AS author_name, isbn.edition,isbn.price,isbn.pages,publisher.name AS publisher_name, isbn.publish_year, country.name AS country_name  FROM book JOIN isbn ON book.isbn = isbn.isbn JOIN author ON isbn.author_id = author.id LEFT JOIN bookrating ON isbn.isbn = bookrating.isbn JOIN publisher ON isbn.publisher_id = publisher.id JOIN country ON publisher.country_id = country.id GROUP BY isbn.isbn
+
+  const query = `SELECT book.*, isbn.isbn, isbn.title, isbn.image, isbn.description, isbn.pages, author.name AS author_name, isbn.edition, FORMAT(isbn.price,2) as price, isbn.pages, publisher.name AS publisher_name, isbn.publish_year, country.name AS country_name,genre.name AS genre_name FROM book JOIN isbn ON book.isbn = isbn.isbn JOIN author ON isbn.author_id = author.id LEFT JOIN bookrating ON isbn.isbn = bookrating.isbn JOIN publisher ON isbn.publisher_id = publisher.id JOIN country ON publisher.country_id = country.id JOIN genre ON isbn.genre_id = genre.id`;
+  connection.query(query, (err, data) => res.json(err ? err : data));
+};
+
 const advancedSearchBooks = async (req, res) => {
   const search = req.params.search;
   console.log("search");
   console.log(search);
 
   let sql =
-    "SELECT book.*, isbn.isbn, isbn.title, isbn.image, AVG(bookrating.rating) as rating, isbn.description, isbn.pages, author.name AS author_name, isbn.edition, isbn.price, isbn.pages, publisher.name AS publisher_name, isbn.publish_year, country.name AS country_name,genre.name AS genre_name FROM book JOIN isbn ON book.isbn = isbn.isbn JOIN author ON isbn.author_id = author.id LEFT JOIN bookrating ON isbn.isbn = bookrating.isbn JOIN publisher ON isbn.publisher_id = publisher.id JOIN country ON publisher.country_id = country.id JOIN genre ON isbn.genre_id = genre.id WHERE ";
+    "SELECT book.*, isbn.isbn, isbn.title, isbn.image, AVG(bookrating.rating) as rating, isbn.description, isbn.pages, author.name AS author_name, isbn.edition, FORMAT(isbn.price,2)as price, isbn.pages, publisher.name AS publisher_name, isbn.publish_year, country.name AS country_name,genre.name AS genre_name FROM book JOIN isbn ON book.isbn = isbn.isbn JOIN author ON isbn.author_id = author.id LEFT JOIN bookrating ON isbn.isbn = bookrating.isbn JOIN publisher ON isbn.publisher_id = publisher.id JOIN country ON publisher.country_id = country.id JOIN genre ON isbn.genre_id = genre.id WHERE ";
 
   const values = [];
   const conditions = [];
@@ -307,6 +358,12 @@ const readAllISBN = (req, res) => {
   const query = "SELECT isbn from isbn";
   connection.query(query, (err, data) => res.json(err ? err : data));
 };
+
+const readAllGenre = (req, res) => {
+  const query = "SELECT name from genre";
+  connection.query(query, (err, data) => res.json(err ? err : data));
+};
+
 const readUniqueBook = (req, res) => {
   // SELECT DISTINCT isbn.isbn, isbn.title, isbn.image, isbn.description, isbn.pages, author.name AS author_name, isbn.edition, isbn.price, isbn.pages, publisher.name AS publisher_name, isbn.publish_year, country.name AS country_name, AVG(bookrating.rating) as rating FROM book JOIN isbn ON book.isbn = isbn.isbn JOIN author ON isbn.author_id = author.id LEFT JOIN bookrating on isbn.isbn= bookrating.isbn JOIN publisher ON isbn.publisher_id = publisher.id JOIN country ON publisher.country_id = country.id GROUP by isbn;
 
@@ -519,6 +576,8 @@ export {
   getISBN,
   readUniqueBook,
   readAllBooks,
+  readInventory,
+  readAllGenre,
   readAvailableBooks,
   deleteBook,
   deleteBooks,

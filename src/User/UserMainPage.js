@@ -94,7 +94,7 @@ function SwipeableTextMobileStepper({ books, handleViewBookClick }) {
                     // justifyContent:'center',
                   }}
                   src={`data:image/png;base64,${Buffer.from(
-                    step.image
+                    step.image ?? ""
                   ).toString("base64")}`}
                   // src={`data:image/jpeg;base64,${step.image}`}
                   // alt={step.label}
@@ -518,9 +518,13 @@ export default function UserMainPage() {
                       >
                         <Link to="/ViewBook" state={{ book: bookInRow }}>
                           <img
-                            src={`data:image/png;base64,${Buffer.from(
+                            src={
                               bookInRow.image
-                            ).toString("base64")}`}
+                                ? `data:image/png;base64,${Buffer.from(
+                                    bookInRow.image
+                                  ).toString("base64")}`
+                                : ""
+                            }
                             alt={bookInRow.label}
                             style={{
                               width: "130px",

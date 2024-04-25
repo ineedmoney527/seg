@@ -21,12 +21,29 @@ import BookIcon from "@mui/icons-material/Book";
 import HomeIcon from "@mui/icons-material/Home";
 import HistoryIcon from "@mui/icons-material/History";
 import ExitToAppIcon from "@mui/icons-material/ExitToApp";
+import { useNavigate } from "react-router-dom";
+import {
+  useSignIn,
+  useAuthUser,
+  useAuthHeader,
+  useIsAuthenticated,
+  useSignOut,
+} from "react-auth-kit";
 
 const Layout = ({ children, showSearchBar, toggleDrawer, open }) => {
+  const navigate = useNavigate();
+  const signOut = useSignOut();
+
   const handleLogout = () => {
-    // Add your logout logic here
+    //
+    if (window.confirm("Are you sure you want to sign out?")) {
+      signOut();
+      alert("signed out successfully");
+      navigate("/");
+    }
     console.log("Logged out");
   };
+
   const DrawerList = (
     <Box sx={{ width: 250 }} role="presentation" onClick={toggleDrawer(false)}>
       <List>
@@ -62,7 +79,11 @@ const Layout = ({ children, showSearchBar, toggleDrawer, open }) => {
                   display: "block",
                 }}
               >
-                <ListItemButton component="div" sx={{ width: 250 }}>
+                <ListItemButton
+                  component="div"
+                  sx={{ width: 250 }}
+                  onClick={text === "Logout" ? handleLogout : undefined}
+                >
                   <ListItemIcon sx={{ color: "white" }}>
                     {index % 5 === 0 ? (
                       <HomeIcon />
@@ -76,7 +97,6 @@ const Layout = ({ children, showSearchBar, toggleDrawer, open }) => {
                       <ExitToAppIcon onClick={handleLogout} />
                     )}
                   </ListItemIcon>
-
                   <ListItemText primary={text} sx={{ color: "white" }} />
                 </ListItemButton>
               </Link>

@@ -263,13 +263,13 @@ async function sendResetEmail(email, otp) {
     port: 587, // secure SMTP
     secure: false, // false for TLS - as a boolean not string - if true, use port 465
     auth: {
-      user: "Sotonlibrary@outlook.com", // Your Outlook email address
-      pass: "rfqyidusxajksjec", // Use the app-specific password here
+      user: "librarydummy@outlook.com", // Your Outlook email address
+      pass: "mpnggzkxoqjsxjxd", // Use the app-specific password here
     },
   });
 
   const mailOptions = {
-    from: "Sotonlibrary@outlook.com",
+    from: "librarydummy@outlook.com",
     to: email,
     subject: "Password Reset -- UoSM Library System",
     text: ` Here is the OTP to reset the password: ${otp}`,
