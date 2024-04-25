@@ -148,6 +148,7 @@ const BookFilter = ({
     const selectedGenres = genres.filter(
       (genre, index) => genreCheckboxes[index]
     );
+    console.log("BOOK FILTER");
     console.log("Selected Genres:", selectedGenres);
 
     handleChange(null, localRatingRange);

@@ -157,7 +157,7 @@ const Layout = ({ children, showSearchBar, toggleDrawer, open }) => {
               UOSM Libraries
             </Typography>
 
-            {showSearchBar && (
+            {/* {showSearchBar && (
               <Box
                 sx={{
                   display: "flex",
@@ -182,18 +182,18 @@ const Layout = ({ children, showSearchBar, toggleDrawer, open }) => {
                 >
                   <SearchIcon />
                   <InputBase
-                    placeholder="Find Your Books…"
-                    inputProps={{ "aria-label": "search" }}
-                    sx={{
-                      ml: 1,
-                      borderRadius: "20px",
-                      color: "dark grey",
-                      fontSize: "14px",
-                    }}
-                  />
+                                        placeholder="Find Your Books…"
+                                        inputProps={{"aria-label": "search"}}
+                                        sx={{
+                                            ml: 1,
+                                            borderRadius: "20px",
+                                            color: "dark grey",
+                                            fontSize: "14px",
+                                        }}
+                                    />
                 </Box>
               </Box>
-            )}
+            )} */}
             <img
               src={Logo}
               alt={"Logo"}
