@@ -8,7 +8,6 @@ import {
   readAllGenre,
   deleteIsbn,
   updateIsbn,
-  readAllGenre,
 } from "../controller/bookInfoController.js";
 
 //create
@@ -26,6 +25,5 @@ router.put("/:id", updateIsbn);
 router.delete("/:id", deleteIsbn);
 
 //readAllGenre
-router.get("/genre/book", readAllGenre);
 
 export default router;

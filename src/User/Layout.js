@@ -33,6 +33,8 @@ import {
 const Layout = ({ children, showSearchBar, toggleDrawer, open }) => {
   const navigate = useNavigate();
   const signOut = useSignOut();
+  const user = useAuthUser();
+  const username = user().name; // Example username
 
   const handleLogout = () => {
     //
@@ -124,7 +126,9 @@ const Layout = ({ children, showSearchBar, toggleDrawer, open }) => {
           sx={{ alignItems: "center", textAlign: "center", display: "flex" }}
         >
           <AccountCircleIcon sx={{ color: "white" }} fontSize="large" />
-          <label style={{ marginLeft: "10px", fontSize: "16px" }}>Ke Xin</label>
+          <label style={{ marginLeft: "10px", fontSize: "16px" }}>
+            {username}
+          </label>
         </Box>
       </Box>
     </Box>
