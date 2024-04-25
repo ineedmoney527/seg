@@ -38,9 +38,8 @@ const BookList = () => {
   const [yearRange, setYearRange] = useState([]); // Define selectedBook
   const [selectedBook, setSelectedBook] = useState(null);
   const [searchQuery, setSearchQuery] = useState(null);
-  const [genreCheckboxes, setGenreCheckboxes] = useState(
-    Array.from({ length: 9 }, () => false)
-  );
+  const [testGenre] = useState(["Fiction"]);
+
   const [selectedGenres, setSelectedGenres] = useState([]); // Define selectedGenres
 
   useEffect(() => {
@@ -61,6 +60,10 @@ const BookList = () => {
     fetchGenres();
   }, []);
 
+  const [genreCheckboxes, setGenreCheckboxes] = useState(
+    Array.from({ length: genreLength }, () => false)
+  );
+
   const handleFilterClick = (event) => {
     setFilterAnchorEl(event.currentTarget); // Set anchor element for filter popover
   };
@@ -80,6 +83,8 @@ const BookList = () => {
   };
 
   const handleChangeGenre = (selectedGenres) => {
+    console.log("HANDLE");
+    console.log(selectedGenres);
     setSelectedGenres(selectedGenres); // Update selected genres state
     // console.log("Selected Genres:", selectedGenres);
   };
@@ -303,137 +308,29 @@ const BookList = () => {
       </Popover>
       <Box>
         {
-          !selectedBook &&
-            (console.log("Test 2.0"),
-            console.log("Books", selectedBook),
-            console.log(books),
-            console.log("Genre", books.genre_name),
-            console.log(ratingRange),
-            console.log(yearRange),
-            console.log(selectedGenres),
-            (
-              <List>
-                {books
-                  ?.filter((book) => {
-                    // Apply filtering conditions here
-                    const ratingInRange =
-                      !ratingRange.length ||
-                      (parseFloat(book.rating) >= ratingRange[0] &&
-                        parseFloat(book.rating) <= ratingRange[1]);
-
-                    const yearMatches =
-                      !yearRange.length ||
-                      (book.publish_year &&
-                        parseInt(book.publish_year) >= yearRange[0] &&
-                        parseInt(book.publish_year) <= yearRange[1]);
-
-                    const genreMatches =
-                      !selectedGenres.length ||
-                      selectedGenres.includes(book.genre_name);
-
-                    // Return true if the book satisfies all filtering conditions
-                    // console.log("Selected Genres:", book.genre_name);
-                    return ratingInRange && yearMatches && genreMatches;
-                  })
-                  .map((book, index) => (
-                    <ListItem key={index}>
-                      <Box
-                        sx={{
-                          display: "flex",
-                          width: "90%",
-                          height: "auto",
-                          backgroundColor: "white",
-                          boxShadow: "0 2px 4px rgba(0, 0, 0, 0.4)",
-                          marginTop: "auto",
-                          marginBottom: "auto",
-                          marginLeft: "auto",
-                          marginRight: "auto",
-                          borderRadius: "10px",
-                          alignItems: "center",
-                          padding: "10px",
-                        }}
-                      >
-                        <Box sx={{ display: "flex", flexDirection: "row" }}>
-                          <img
-                            src={`data:image/png;base64,${Buffer.from(
-                              book.image
-                            ).toString("base64")}`}
-                            alt={book.title}
-                            style={{
-                              marginLeft: "10px",
-                              marginRight: "25px",
-                              width: "80px",
-                              height: "110px",
-                              borderRadius: "10px",
-                              marginBottom: "auto",
-                              marginTop: "auto",
-                            }}
-                          />
-                          <Box>
-                            <Typography
-                              variant="h6"
-                              component="div"
-                              sx={{
-                                width: "auto",
-                                fontWeight: "bold",
-                                fontSize: "16px",
-                              }}
-                            >
-                              {book.title}
-                            </Typography>
-                            <Box sx={{ display: "flex", alignItems: "center" }}>
-                              <Typography
-                                variant="body2"
-                                sx={{ fontWeight: "bold", marginRight: "5px" }}
-                              >
-                                Rating:
-                              </Typography>
-                              <Rating
-                                name="read-only"
-                                value={parseFloat(book.rating)}
-                                readOnly
-                                precision={0.5}
-                              />
-                            </Box>
-                            <Typography
-                              sx={{ fontSize: "15px", color: "#626262" }}
-                              variant="body1"
-                              gutterBottom
-                            >
-                              {book.description}
-                            </Typography>
-                          </Box>
-                        </Box>
-                        <Box sx={{ marginLeft: "auto" }}>
-                          <Link to="/ViewBook" state={{ book: book }}>
-                            <button
-                              onClick={() => handleViewBookClick(book)}
-                              style={{
-                                width: "70px",
-                                height: "25px",
-                                backgroundColor: "white",
-                                boxShadow: "0 2px 4px rgba(0, 0, 0, 0.5)",
-                                fontSize: "13px",
-                                borderRadius: "20px",
-                                border: "none",
-                                cursor: "pointer",
-                                marginLeft: "20px",
-                              }}
-                            >
-                              View
-                            </button>
-                          </Link>
-                        </Box>
-                      </Box>
-                    </ListItem>
-                  ))}
-                {/* Display link if no books found after filtering */}
-                {books?.filter((book) => {
+          !selectedBook && (
+            // (console.log("Test 2.0"),
+            // console.log("Books", selectedBook),
+            // console.log(books),
+            // console.log("Rating", books.rating),
+            // console.log("Genre", books),
+            // console.log(ratingRange),
+            // console.log(yearRange),
+            // console.log(selectedGenres),
+            <List>
+              {books
+                ?.filter((book) => {
                   // Apply filtering conditions here
                   const ratingInRange =
                     !ratingRange.length ||
-                    (parseFloat(book.rating) >= ratingRange[0] &&
-                      parseFloat(book.rating) <= ratingRange[1]);
+                    (ratingRange[0] === 0
+                      ? parseFloat(book.rating) === 0 ||
+                        book.rating === null ||
+                        book.rating === "null" ||
+                        book.rating === "NULL" ||
+                        parseFloat(book.rating) <= ratingRange[1]
+                      : parseFloat(book.rating) >= ratingRange[0] &&
+                        parseFloat(book.rating) <= ratingRange[1]);
 
                   const yearMatches =
                     !yearRange.length ||
@@ -441,24 +338,149 @@ const BookList = () => {
                       parseInt(book.publish_year) >= yearRange[0] &&
                       parseInt(book.publish_year) <= yearRange[1]);
 
+                  const cleanedSelectedGenres = selectedGenres.map(
+                    (genre) => genre.name
+                  ); // Extract genre names
+
                   const genreMatches =
                     !selectedGenres.length ||
-                    selectedGenres.includes(book.genre_name);
+                    cleanedSelectedGenres.includes(book.genre_name); // Check if book's genre is in selected genres
 
                   // Return true if the book satisfies all filtering conditions
                   return ratingInRange && yearMatches && genreMatches;
-                }).length === 0 && (
-                  <Typography
-                    variant="body1"
-                    sx={{ textAlign: "center", margin: "20px auto" }}
-                  >
-                    No books match the selected filters. You can explore more
-                    books{" "}
-                    <a href="https://library.soton.ac.uk/homepage">here</a>.
-                  </Typography>
-                )}
-              </List>
-            ))
+                })
+                .map((book, index) => (
+                  <ListItem key={index}>
+                    <Box
+                      sx={{
+                        display: "flex",
+                        width: "90%",
+                        height: "auto",
+                        backgroundColor: "white",
+                        boxShadow: "0 2px 4px rgba(0, 0, 0, 0.4)",
+                        marginTop: "auto",
+                        marginBottom: "auto",
+                        marginLeft: "auto",
+                        marginRight: "auto",
+                        borderRadius: "10px",
+                        alignItems: "center",
+                        padding: "10px",
+                      }}
+                    >
+                      <Box sx={{ display: "flex", flexDirection: "row" }}>
+                        <img
+                          src={`data:image/png;base64,${Buffer.from(
+                            book.image
+                          ).toString("base64")}`}
+                          alt={book.title}
+                          style={{
+                            marginLeft: "10px",
+                            marginRight: "25px",
+                            width: "80px",
+                            height: "110px",
+                            borderRadius: "10px",
+                            marginBottom: "auto",
+                            marginTop: "auto",
+                          }}
+                        />
+                        <Box>
+                          <Typography
+                            variant="h6"
+                            component="div"
+                            sx={{
+                              width: "auto",
+                              fontWeight: "bold",
+                              fontSize: "16px",
+                            }}
+                          >
+                            {book.title}
+                          </Typography>
+                          <Box sx={{ display: "flex", alignItems: "center" }}>
+                            <Typography
+                              variant="body2"
+                              sx={{ fontWeight: "bold", marginRight: "5px" }}
+                            >
+                              Rating:
+                            </Typography>
+                            <Rating
+                              name="read-only"
+                              value={parseFloat(book.rating)}
+                              readOnly
+                              precision={0.5}
+                            />
+                          </Box>
+                          <Typography
+                            sx={{ fontSize: "15px", color: "#626262" }}
+                            variant="body1"
+                            gutterBottom
+                          >
+                            {book.description}
+                          </Typography>
+                        </Box>
+                      </Box>
+                      <Box sx={{ marginLeft: "auto" }}>
+                        <Link to="/ViewBook" state={{ book: book }}>
+                          <button
+                            onClick={() => handleViewBookClick(book)}
+                            style={{
+                              width: "70px",
+                              height: "25px",
+                              backgroundColor: "white",
+                              boxShadow: "0 2px 4px rgba(0, 0, 0, 0.5)",
+                              fontSize: "13px",
+                              borderRadius: "20px",
+                              border: "none",
+                              cursor: "pointer",
+                              marginLeft: "20px",
+                            }}
+                          >
+                            View
+                          </button>
+                        </Link>
+                      </Box>
+                    </Box>
+                  </ListItem>
+                ))}
+              {/* Display link if no books found after filtering */}
+              {books?.filter((book) => {
+                // Apply filtering conditions here
+                const ratingInRange =
+                  !ratingRange.length ||
+                  (ratingRange[0] === 0
+                    ? parseFloat(book.rating) === 0 ||
+                      book.rating === null ||
+                      book.rating === "null" ||
+                      book.rating === "NULL"
+                    : parseFloat(book.rating) >= ratingRange[0] &&
+                      parseFloat(book.rating) <= ratingRange[1]);
+
+                const yearMatches =
+                  !yearRange.length ||
+                  (book.publish_year &&
+                    parseInt(book.publish_year) >= yearRange[0] &&
+                    parseInt(book.publish_year) <= yearRange[1]);
+
+                const cleanedSelectedGenres = selectedGenres.map(
+                  (genre) => genre.name
+                ); // Extract genre names
+
+                const genreMatches =
+                  !selectedGenres.length ||
+                  cleanedSelectedGenres.includes(book.genre_name); // Check if book's genre is in selected genres
+
+                // Return true if the book satisfies all filtering conditions
+                return ratingInRange && yearMatches && genreMatches;
+              }).length === 0 && (
+                <Typography
+                  variant="body1"
+                  sx={{ textAlign: "center", margin: "20px auto" }}
+                >
+                  No books match the selected filters. You can explore more
+                  books <a href="https://library.soton.ac.uk/homepage">here</a>.
+                </Typography>
+              )}
+            </List>
+          )
 
           // <List>
           //   {books?.map((book, index) => (

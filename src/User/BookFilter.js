@@ -19,7 +19,7 @@ const BookFilter = ({
   const [genres, setGenres] = useState([]);
   const [genreNames, setGenreNames] = useState([]);
 
-  const [localRatingRange, setLocalRatingRange] = useState([1, 5]); // State to manage the rating range
+  const [localRatingRange, setLocalRatingRange] = useState([0, 5]); // State to manage the rating range
   const [localYearRange, setLocalYearRange] = useState([2000, 2024]); // State to manage the year range
   const [genreCheckboxes, setGenreCheckboxes] = useState([]); // State to manage genre checkboxes
 
@@ -148,6 +148,7 @@ const BookFilter = ({
     const selectedGenres = genres.filter(
       (genre, index) => genreCheckboxes[index]
     );
+    console.log("BOOK FILTER");
     console.log("Selected Genres:", selectedGenres);
 
     handleChange(null, localRatingRange);
@@ -323,7 +324,7 @@ const BookFilter = ({
           onChange={handleRatingChange}
           valueLabelDisplay="auto"
           aria-labelledby="rating-range-slider"
-          min={1}
+          min={0}
           max={5}
           style={{ display: "flex", justifyContent: "center" }}
         />
