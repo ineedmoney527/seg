@@ -5,9 +5,10 @@ import { useNavigate } from "react-router-dom";
 import { useState, useEffect } from "react";
 import { motion } from "framer-motion"; //remember to 'npm install framer-motion'
 import "./AdminMainPg.css";
+import Logo from "./UOSMLogo3.png";
 import AddLibrarian from "./AddLibrarian";
 import MenuBar from "./MenuBar";
-
+import AdminDrawer from "./AdminDrawer";
 import Tooltip from "@mui/material/Tooltip";
 import FormControlLabel from "@mui/material/FormControlLabel";
 import TablePagination from "@mui/material/TablePagination";
@@ -33,7 +34,7 @@ import {
   useIsAuthenticated,
   useSignOut,
 } from "react-auth-kit";
-
+import { Stack } from "@mui/material";
 import {
   Tab,
   Tabs,
@@ -200,9 +201,11 @@ function AdminMainPg() {
           </Tooltip>
         ) : (
           <Tooltip title="Filter list">
-            <IconButton onClick={handleAddClick}>
-              <AddCircleIcon />
-            </IconButton>
+            {currentTab === 2 && (
+              <IconButton onClick={handleAddClick}>
+                <AddCircleIcon />
+              </IconButton>
+            )}
           </Tooltip>
         )}
       </Toolbar>
@@ -214,10 +217,34 @@ function AdminMainPg() {
   };
 
   const [rowsPerPage, setRowsPerPage] = React.useState(5);
-
+  const [drawerOpen, setDrawerOpen] = useState(false); // Define drawerOpen state
+  const toggleDrawer = () => {
+    setDrawerOpen(!drawerOpen);
+  };
   return (
-    <Box sx={{ width: "100%", overflowX: "auto" }}>
-      <MenuBar></MenuBar>
+    <Stack
+      direction="column"
+      spacing={0}
+      className={"LoanPageContainer"}
+      sx={{ height: "100%", width: "100vw", overflow: "auto" }} // Set full height and width
+    >
+      <Stack direction="row" spacing={3} className={"haederLoan"}>
+        {/*<img src={logo} alt={"UoSM Logo"} className={"Logo"}/>*/}
+        <AdminDrawer open={drawerOpen} onClose={toggleDrawer} />
+        <h1 className={"headerTitle-loan"}>Admin page</h1>
+        <img
+          src={Logo}
+          alt={"Logo"}
+          className={"UOSM-Logo"}
+          style={{
+            width: "200px",
+            height: "55px",
+            marginLeft: "auto",
+            filter: "brightness(0) invert(1) contrast(5)",
+          }}
+        />
+      </Stack>
+
       <div
         style={{
           display: "flex",
@@ -393,7 +420,7 @@ function AdminMainPg() {
           selectedRowData={selectedRow}
         />
       )}
-    </Box>
+    </Stack>
   );
 }
 

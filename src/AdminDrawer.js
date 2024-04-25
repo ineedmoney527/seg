@@ -2,8 +2,9 @@ import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 // import { RiMailAddFill } from 'react-icons/ri';
 // import { FiLogOut } from "react-icons/fi";
-import "./LoanBook.css";
 import Box from "@mui/material/Box";
+
+import "./librarian/LoanBook.css";
 import Drawer from "@mui/material/Drawer";
 import List from "@mui/material/List";
 import Divider from "@mui/material/Divider";
@@ -19,7 +20,7 @@ import EventAvailableIcon from "@mui/icons-material/EventAvailable";
 import MenuIcon from "@mui/icons-material/Menu";
 import IconButton from "@mui/material/IconButton";
 import ExitToAppIcon from "@mui/icons-material/ExitToApp";
-import Logo from "../UOSMLogo3.png";
+import Logo from "./UOSMLogo3.png";
 import {
   useSignIn,
   useAuthUser,
@@ -29,10 +30,9 @@ import {
 } from "react-auth-kit";
 
 function TemporaryDrawer() {
-  const [open, setOpen] = useState(false);
   const user = useAuthUser();
+  const [open, setOpen] = useState(false);
   const userName = user().name; // Example username
-
   const navigate = useNavigate();
   const signOut = useSignOut(); //
   const handleReservationClick = () => {
@@ -96,40 +96,8 @@ function TemporaryDrawer() {
         </ListItem>
         {[
           {
-            text: "Dashboard",
-            icon: <DashboardIcon />,
-            button: true,
-            onClick: handleDashboardClick,
-          },
-          {
-            text: "Books Inventory",
-            icon: <InventoryIcon />,
-            button: true,
-            onClick: handleInventoryClick,
-          },
-          {
-            text: "Issue Books",
-            icon: <LibraryBooksIcon />,
-            button: true,
-            onClick: handleIssuesClick,
-          },
-          {
-            text: "Loan",
-            icon: <MonetizationOnIcon />,
-            button: true,
-            onClick: handleLoanClick,
-          },
-          {
-            text: "Reservation",
-            icon: <EventAvailableIcon />,
-            button: true,
-            onClick: handleReservationClick,
-          },
-          {
-            text: "Request",
-            icon: <LibraryBooksIcon size={23} />,
-            button: true,
-            onClick: handleRequestClick,
+            text: "Profile",
+            icon: <AccountCircleIcon size={23} />,
           },
           {
             text: "Logout",
@@ -137,13 +105,19 @@ function TemporaryDrawer() {
             onClick: handleSignOut,
           },
         ].map((item, index) => (
-          <ListItem button key={item.text} onClick={item.onClick}>
+          <ListItem
+            button
+            key={item.text}
+            onClick={item.onClick}
+            style={{ marginLeft: "25px", marginBottom: "16px" }}
+          >
+            {" "}
             <ListItemIcon sx={{ color: "white" }}>{item.icon}</ListItemIcon>
             <ListItemText primary={item.text} />
           </ListItem>
         ))}
       </List>
-      <Divider sx={{ marginTop: "auto" }} />
+
       <List sx={{ flexGrow: 1 }} />
       <Divider />
       <ListItem

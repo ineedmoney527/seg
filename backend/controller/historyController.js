@@ -438,6 +438,9 @@ const getBorrowedPieChart = async (req, res) => {
   const { startDate, endDate } = req.query;
   console.log(startDate);
   console.log(endDate);
+  if (endDate < startDate) {
+    res.status(500).json({ error: "Start date cannot exceed end date ." });
+  }
   try {
     const query = `
     SELECT genre.name, COUNT(book.isbn) AS count FROM borrowedrecord br JOIN book ON br.book_code = book.book_code JOIN isbn ON book.isbn = isbn.isbn JOIN genre ON isbn.genre_id = genre.id WHERE br.start_date >= ? AND br.end_date <= ? GROUP BY genre.name;

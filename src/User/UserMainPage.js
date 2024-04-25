@@ -253,16 +253,16 @@ export default function UserMainPage() {
     setHoveredIndex(null);
   };
 
-  // useEffect(() => {
-  //   axios
-  //     .get("http://localhost:5000/api/UserMainPage")
-  //     .then((response) => {
-  //       setBooks(response.data.books);
-  //     })
-  //     .catch((error) => {
-  //       console.error("Error fetching book data:", error);
-  //     });
-  // }, []);
+  // const boxRefs = useRef(Array.from({ length: books.length }, () => createRef()));
+  //
+  // const isEllipsisActive = (index) => {
+  //     // Check if the Box component at the specified index is displaying an ellipsis
+  //     return (
+  //         boxRefs.current[index] &&
+  //         boxRefs.current[index].current &&
+  //         boxRefs.current[index].current.scrollWidth > boxRefs.current[index].current.clientWidth
+  //     );
+  // };
 
   if (error) {
     return <div>Error: {error}</div>;
@@ -405,12 +405,6 @@ export default function UserMainPage() {
             UOS Library
           </label>
           <Box sx={{ display: "flex", flexDirection: "row" }}>
-            {/* <label style={{ color: "grey", marginRight: "5px" }}>
-              you can search for E-books from
-            </label>
-            <label style={{ color: "blue" }}>
-              https://www.southampton.ac.uk/library/index.page
-            </label> */}
             <Typography
               variant="body1"
               sx={{ textAlign: "center", margin: "20px auto" }}
@@ -484,6 +478,7 @@ export default function UserMainPage() {
                   display: "flex",
                   flexDirection: "row",
                   paddingTop: "20px",
+                  alignItems: "flex-start",
                 }}
               >
                 {books.slice(index, index + 5).map((bookInRow, idx) => (
@@ -491,8 +486,10 @@ export default function UserMainPage() {
                     <Box
                       sx={{
                         paddingTop: "10px",
-                        width: "180px",
-                        height: "250px",
+                        minWidth: "180px",
+                        minHeight: "250px",
+                        width: "auto",
+                        height: "auto",
                         display: "flex",
                         flexDirection: "column",
 
@@ -509,11 +506,14 @@ export default function UserMainPage() {
                     >
                       <Box
                         sx={{
+                          // width:'auto',
+                          // height:'auto',
                           width: "180px",
                           height: "180px",
                           display: "flex",
                           justifyContent: "center",
                           alignItems: "center",
+                          // backgroundColor:'blue'
                         }}
                       >
                         <Link to="/ViewBook" state={{ book: bookInRow }}>
@@ -538,23 +538,44 @@ export default function UserMainPage() {
                       </Box>
                       <Box
                         sx={{
-                          width: "180px",
-                          height: "70px",
                           display: "flex",
                           justifyContent: "center",
                           alignItems: "center",
                           flexDirection: "column",
+                          width: "170px",
+                          height: "auto",
+                          textOverflow: "ellipsis",
+                          overflow: "hidden",
                         }}
                       >
                         <Typography
                           style={{
+                            width: "150px",
                             fontSize: "14px",
                             textAlign: "center",
+                            justifyContent: "center",
+                            alignItems: "center",
                             color: "#0B1D35",
+                            textOverflow: "ellipsis", // Display an ellipsis (...) when the text overflows
+                            whiteSpace: "nowrap", // Prevent the text from wrapping
+                            overflow: "hidden",
                           }}
                         >
                           {bookInRow.title}
                         </Typography>
+                        {hoveredIndex === index + idx &&
+                          bookInRow.title.length > 20 && (
+                            <Typography
+                              sx={{
+                                fontSize: "14px",
+                                color: "#595959",
+                                textAlign: "center",
+                                alignItems: "center",
+                              }}
+                            >
+                              {bookInRow.title}
+                            </Typography>
+                          )}
                         <Typography
                           style={{
                             fontSize: "12px",

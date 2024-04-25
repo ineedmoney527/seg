@@ -95,7 +95,7 @@ const Piechart = () => {
 };
 
 const BorrowedPieChart = () => {
-  const [startDate, setStartDate] = useState("2024-04-05");
+  const [startDate, setStartDate] = useState("2024-04-01");
   const [endDate, setEndDate] = useState(new Date());
   const [genreData, setGenreData] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -195,6 +195,7 @@ const BorrowedPieChart = () => {
             <DatePicker
               id="startDate"
               selected={startDate}
+              maxDate={endDate}
               onChange={(date) => setStartDate(date)}
               dateFormat="yyyy-MM-dd"
               className="datepicker-start"
@@ -204,6 +205,7 @@ const BorrowedPieChart = () => {
             </label>
             <DatePicker
               id="endDate"
+              minDate={startDate}
               selected={endDate}
               onChange={(date) => setEndDate(date)}
               dateFormat="yyyy-MM-dd"

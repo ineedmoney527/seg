@@ -5,6 +5,7 @@ import {
   createIsbn,
   readAllIsbn,
   readIsbn,
+  readAllGenre,
   deleteIsbn,
   updateIsbn,
 } from "../controller/bookInfoController.js";
@@ -13,7 +14,7 @@ import {
 router.post("/", createIsbn);
 //read
 router.get("/", readAllIsbn);
-
+router.get("/genre/book", readAllGenre);
 //readbyId
 router.get("/:id", readIsbn);
 

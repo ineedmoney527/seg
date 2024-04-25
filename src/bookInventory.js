@@ -98,7 +98,10 @@ function WithNavigate() {
       fetchBooks();
     } catch (error) {
       console.error("Error uploading file:", error);
-      alert("Error uploading file");
+      alert(`Please ensure that the Excel file you upload follows the required format with the following columns:
+      ISBN, Title, Author, Edition, Publisher, Published Year, Country, Pages, Price, Location, Call Number, Genre, Status, Descriptions, Edition, Quantity.
+      
+      Make sure all columns are spelled correctly and in the right order to avoid data processing errors`);
     }
   };
 
@@ -211,15 +214,55 @@ function WithNavigate() {
             </IconButton>
           </Tooltip>
         ) : (
-          <Tooltip title="Filter list" sx={{ display: "flex" }}>
-            <IconButton onClick={handleAddClick}>
-              <AddCircleIcon />
-            </IconButton>
+          <Stack direction={"row"} spacing={2} justifyContent={"space-between"}>
+            <Tooltip title="Filter list" sx={{ display: "flex" }}>
+              <IconButton onClick={handleAddClick}>
+                <AddCircleIcon />
+              </IconButton>
+            </Tooltip>
             <form onSubmit={handleSubmit}>
-              <input type="file" onChange={handleFileChange} />
-              <button type="submit">Upload</button>
+              <label
+                htmlFor="fileInput"
+                style={{
+                  cursor: "pointer",
+                  padding: "5px 10px",
+                  border: "1px solid #ccc",
+                  borderRadius: "4px",
+                  background: "#f9f9f9",
+                  color: "#333",
+                }}
+              >
+                Choose a file
+              </label>
+              <input
+                type="file"
+                id="fileInput"
+                onChange={handleFileChange}
+                style={{ position: "absolute", left: "-9999px" }}
+              />
+
+              <button
+                type="submit"
+                style={{
+                  backgroundColor: "#294266",
+                  color: "#fff",
+                  padding: "5px 10px",
+                  borderRadius: "10px",
+                  cursor: "pointer",
+                  transition: "background-color 0.3s, color 0.3s", // Add transition for smoother hover effect
+                }}
+                onMouseEnter={(e) => {
+                  e.target.style.backgroundColor = "#283446"; // Change background color on hover
+                }}
+                onMouseLeave={(e) => {
+                  e.target.style.backgroundColor = "#294266"; // Restore original background color on hover out
+                }}
+              >
+                Upload
+              </button>
             </form>
-          </Tooltip>
+                    
+          </Stack>
         )}
       </Toolbar>
     );

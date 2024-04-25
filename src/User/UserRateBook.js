@@ -39,6 +39,9 @@ const UserRateBook = () => {
     resolver: zodResolver(ratingSchema),
   });
 
+  useEffect(() => {
+    console.log(JSON.stringify(book));
+  }, []);
   const onSubmit = async (data) => {
     try {
       const response = await axios.post(
@@ -128,7 +131,7 @@ const UserRateBook = () => {
                 variant="body2"
                 gutterBottom
               >
-                Genre: {book.genre}
+                Genre: {book.genre_name}
               </Typography>
               <Typography
                 sx={{ fontWeight: "bold" }}
